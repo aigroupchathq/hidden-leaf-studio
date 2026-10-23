@@ -1,0 +1,3282 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hidden Leaf Studio // Sound & Soul Atelier</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        onyx: '#09090B',
+                        card: '#121113',
+                        borderSubtle: 'rgba(255, 255, 255, 0.08)',
+                        gold: '#D4AF37',
+                        goldLight: '#FFE885',
+                        parchment: '#C5BEB3',
+                        ivory: '#F4F0EA'
+                    },
+                    fontFamily: {
+                        serif: ['Source Serif 4', 'Georgia', 'serif'],
+                        mono: ['IBM Plex Mono', 'monospace'],
+                        sans: ['Inter', 'Arial', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            color-scheme: light;
+            --leaf-ink: #27232d;
+            --leaf-panel: #faf8f5;
+            --leaf-line: rgba(48, 39, 56, 0.16);
+            --leaf-paper: #302a36;
+            --leaf-moss: #65547c;
+            --leaf-copper: #9587a5;
+            --leaf-canvas: #f2efeb;
+            --leaf-violet: #65547c;
+            --leaf-violet-light: #e8e1ee;
+        }
+        body.bg-onyx {
+            background: var(--leaf-canvas);
+            color: var(--leaf-ink);
+        }
+        .atlas-panel {
+            background: transparent;
+            border-color: transparent;
+            box-shadow: none;
+        }
+        .field-control {
+            background: #faf8f5;
+            border: 1px solid var(--leaf-line);
+            color: var(--leaf-ink);
+        }
+        .field-control:focus {
+            outline: 2px solid rgba(101, 84, 124, 0.45);
+            outline-offset: 1px;
+        }
+        .atlas-result[aria-pressed="true"] {
+            border-color: rgba(101, 84, 124, 0.55);
+            background: var(--leaf-violet-light);
+        }
+        .constellation-stage {
+            background:
+                radial-gradient(ellipse at 50% 45%, rgba(101, 84, 124, 0.12), transparent 54%),
+                linear-gradient(rgba(48, 39, 56, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(48, 39, 56, 0.04) 1px, transparent 1px),
+                #eeeaef;
+            background-size: auto, 28px 28px, 28px 28px, auto;
+        }
+        .constellation-line {
+            stroke: rgba(101, 84, 124, 0.4);
+            stroke-width: 0.35;
+            stroke-dasharray: 1.4 1.2;
+            animation: trace-line 9s linear infinite;
+        }
+        .float-node {
+            position: absolute;
+            left: var(--node-x);
+            top: var(--node-y);
+            transform: translate(-50%, -50%);
+            animation: float-drift 4.8s ease-in-out infinite;
+            animation-delay: var(--node-delay, 0s);
+        }
+        .float-rhyme {
+            animation: float-drift 5.6s ease-in-out infinite;
+            animation-delay: var(--node-delay, 0s);
+        }
+        @keyframes float-drift {
+            0%, 100% { translate: 0 0; }
+            50% { translate: 0 -8px; }
+        }
+        @keyframes trace-line {
+            to { stroke-dashoffset: -24; }
+        }
+        .leaf-dialog {
+            background: #faf8f5;
+            color: var(--leaf-paper);
+            border: 1px solid var(--leaf-line);
+            border-radius: 14px;
+            max-width: min(28rem, calc(100vw - 2rem));
+            width: 100%;
+            padding: 1.25rem;
+            box-shadow: 0 24px 80px rgba(42, 34, 49, 0.18);
+        }
+        .leaf-dialog::backdrop {
+            background: rgba(38, 32, 43, 0.38);
+            backdrop-filter: blur(5px);
+        }
+        .text-leaf-paper { color: var(--leaf-paper); }
+        .text-leaf-moss { color: var(--leaf-moss); }
+        .border-leaf-line { border-color: var(--leaf-line); }
+        .border-leaf-moss { border-color: rgba(101, 84, 124, 0.6); }
+        .bg-leaf-moss { background-color: var(--leaf-moss); }
+        .text-gold, .text-goldLight { color: var(--leaf-violet) !important; }
+        .text-ivory { color: var(--leaf-ink) !important; }
+        .text-zinc-300 { color: #514a56 !important; }
+        .text-zinc-400 { color: #665f6a !important; }
+        .text-zinc-500 { color: #77717a !important; }
+        .text-zinc-600 { color: #89838c !important; }
+        .text-rose-300 { color: #9f1239 !important; }
+        .border-borderSubtle { border-color: var(--leaf-line) !important; }
+        .bg-card, .bg-onyx { background-color: #faf8f5 !important; }
+        .bg-zinc-800, .bg-zinc-800\/80 { background-color: #e8e3eb !important; }
+        .bg-leaf-moss { color: #fff !important; background-color: var(--leaf-violet) !important; }
+        .hover\:bg-gold:hover, .hover\:bg-goldLight:hover { background-color: #ded5e7 !important; }
+        .hover\:text-onyx:hover { color: #302a36 !important; }
+        .shadow-lg { box-shadow: none !important; }
+        .bg-black\/15, .bg-black\/20, .bg-black\/25 { background-color: rgba(80, 68, 91, 0.035) !important; }
+        .float-node {
+            color: var(--leaf-ink) !important;
+            background: rgba(250, 248, 245, 0.94) !important;
+            border-color: rgba(101, 84, 124, 0.45) !important;
+            box-shadow: 0 2px 12px rgba(48, 39, 56, 0.08) !important;
+            backdrop-filter: none !important;
+        }
+        .float-rhyme { background: #faf8f5 !important; }
+        .primary-view {
+            max-width: 54rem;
+            margin-inline: auto;
+        }
+        .explore-view {
+            border-top: 1px solid var(--leaf-line);
+            padding-top: 1.5rem;
+        }
+        .tempo-status {
+            color: var(--leaf-violet);
+            font-variant-numeric: tabular-nums;
+        }
+        #txt-play { color: inherit; }
+        #btn-play {
+            background: var(--leaf-violet) !important;
+            color: #fff !important;
+            box-shadow: none !important;
+        }
+        .beat-dot { background-color: #d8d2dc !important; }
+        .beat-dot.active-dot {
+            background-color: var(--leaf-violet) !important;
+            box-shadow: 0 0 0 5px rgba(101, 84, 124, 0.12) !important;
+        }
+        .lyric-token.active-token {
+            color: #4e3a66 !important;
+            background: rgba(101, 84, 124, 0.12);
+            text-shadow: none;
+        }
+        .prompt-line { border-left-color: var(--leaf-violet) !important; }
+        .primary-input { color: var(--leaf-ink) !important; }
+        .secondary-action {
+            color: var(--leaf-ink) !important;
+            border-color: var(--leaf-line) !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+        @media (max-width: 639px) {
+            .float-node {
+                max-width: 45%;
+                font-size: 0.7rem;
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+                translate: none !important;
+            }
+        }
+        .lyric-token {
+            transition: all 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .lyric-token.active-token {
+            color: #FFE885 !important;
+            background: rgba(212, 175, 55, 0.18);
+            transform: scale(1.08);
+            border-radius: 4px;
+            padding: 0 4px;
+            text-shadow: 0 0 16px rgba(212, 175, 55, 0.6);
+        }
+        .beat-dot {
+            transition: all 0.08s ease-out;
+        }
+        .beat-dot.active-dot {
+            background-color: #D4AF37 !important;
+            box-shadow: 0 0 14px #D4AF37, 0 0 4px #FFE885;
+            transform: scale(1.4);
+        }
+    </style>
+    <style>
+        :root {
+            color-scheme: dark;
+            --leaf-ink: #f3eee7;
+            --leaf-panel: #201e22;
+            --leaf-line: rgba(243, 238, 231, 0.14);
+            --leaf-paper: #f3eee7;
+            --leaf-moss: #ef7b43;
+            --leaf-copper: #ffad77;
+            --leaf-canvas: #151417;
+            --leaf-violet: #ef7b43;
+            --leaf-violet-light: #30231f;
+        }
+        body.bg-onyx {
+            background:
+                radial-gradient(ellipse at 78% 20%, rgba(153, 67, 35, 0.12), transparent 34rem),
+                radial-gradient(ellipse at 8% 88%, rgba(74, 52, 70, 0.14), transparent 30rem),
+                var(--leaf-canvas);
+            color: var(--leaf-ink);
+        }
+        header, main, footer { max-width: 72rem !important; }
+        header {
+            min-height: 5.25rem;
+            border-bottom-color: var(--leaf-line) !important;
+        }
+        header > div:first-child { flex-shrink: 0; }
+        header > div:first-child::before {
+            content: "HL / 01";
+            display: block;
+            margin-bottom: 0.2rem;
+            color: var(--leaf-moss);
+            font: 600 9px/1 "JetBrains Mono", monospace;
+            letter-spacing: 0.18em;
+        }
+        .text-leaf-paper, .text-ivory { color: var(--leaf-paper) !important; }
+        .text-leaf-moss, .text-gold, .text-goldLight { color: var(--leaf-copper) !important; }
+        .text-zinc-300 { color: #d7d0c9 !important; }
+        .text-zinc-400 { color: #b9b1aa !important; }
+        .text-zinc-500 { color: #948c87 !important; }
+        .text-zinc-600 { color: #746d69 !important; }
+        .text-rose-300 { color: #ff9ca3 !important; }
+        .border-borderSubtle, .border-leaf-line { border-color: var(--leaf-line) !important; }
+        .border-leaf-moss { border-color: rgba(239, 123, 67, 0.72) !important; }
+        .bg-onyx, .bg-card { background-color: var(--leaf-canvas) !important; }
+        .bg-zinc-800, .bg-zinc-800\/80, .bg-black\/15, .bg-black\/20, .bg-black\/25 {
+            background-color: rgba(255, 255, 255, 0.045) !important;
+        }
+        .bg-leaf-moss, #btn-play {
+            color: #21150f !important;
+            background-color: var(--leaf-moss) !important;
+        }
+        .hover\:bg-gold:hover, .hover\:bg-goldLight:hover { background-color: #38271f !important; }
+        .hover\:text-onyx:hover { color: var(--leaf-paper) !important; }
+        .field-control {
+            color: var(--leaf-paper) !important;
+            background: #211f23 !important;
+            border: 1px solid var(--leaf-line) !important;
+        }
+        .field-control option { color: var(--leaf-paper); background: #211f23; }
+        .field-control:focus {
+            outline-color: rgba(239, 123, 67, 0.65) !important;
+        }
+        .primary-view {
+            display: grid;
+            max-width: 72rem;
+            grid-template-columns: minmax(0, 1fr) minmax(15rem, 18rem);
+            column-gap: clamp(2rem, 6vw, 6rem);
+            row-gap: 1.35rem;
+            align-items: start;
+        }
+        .primary-view > * { margin-top: 0 !important; }
+        .primary-view > .writing-header { grid-column: 1 / -1; }
+        .writing-header {
+            align-items: end;
+            padding: 1.2rem 0 0.6rem;
+        }
+        .writing-header h1 {
+            max-width: 14ch;
+            font-size: clamp(2.8rem, 5vw, 4.75rem) !important;
+            letter-spacing: -0.035em;
+            line-height: 0.98 !important;
+        }
+        .writing-header > div:last-child {
+            align-items: flex-start;
+            width: min(100%, 18rem);
+            padding-bottom: 0.25rem;
+        }
+        .writing-header > div:last-child label { color: var(--leaf-copper) !important; }
+        .writing-header .field-control { width: 100%; max-width: none; }
+        .primary-view > #lens-prompt {
+            grid-column: 2;
+            grid-row: 2 / span 2;
+            align-self: center;
+            margin: 0;
+            padding: 1.2rem 1.15rem;
+            border: 1px solid var(--leaf-line);
+            border-left: 2px solid var(--leaf-moss) !important;
+            border-radius: 0 10px 10px 0;
+            background: rgba(255, 255, 255, 0.035);
+            color: #c5bcb5 !important;
+            font-family: "Cormorant Garamond", Georgia, serif;
+            font-size: 1.35rem;
+            line-height: 1.35;
+        }
+        .writing-line {
+            grid-column: 1;
+            min-width: 0;
+            padding: 1.15rem 1.25rem 1.35rem;
+            border: 1px solid var(--leaf-line);
+            border-radius: 10px;
+            background: linear-gradient(115deg, rgba(255,255,255,0.055), rgba(255,255,255,0.018));
+            transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
+        }
+        .writing-line-one { border-left: 2px solid rgba(239, 123, 67, 0.76); }
+        .writing-line-two { margin-left: 1.6rem; }
+        .writing-line:focus-within {
+            border-color: rgba(239, 123, 67, 0.5);
+            background: linear-gradient(115deg, rgba(239,123,67,0.09), rgba(255,255,255,0.025));
+            transform: translateX(3px);
+        }
+        .writing-line > div:first-child {
+            margin-bottom: 0.7rem;
+            font-size: 10px;
+            letter-spacing: 0.12em;
+        }
+        .writing-line > div:first-child label { color: var(--leaf-copper) !important; }
+        .writing-line > div:first-child span { color: #8f8781 !important; }
+        .line-language {
+            max-width: 9.5rem;
+            padding: 0.35rem 0.5rem;
+            font-size: 9px;
+        }
+        .writing-line > div:nth-child(2) {
+            align-items: center;
+            border-bottom: 1px solid rgba(243, 238, 231, 0.19) !important;
+        }
+        .writing-line > div:nth-child(2) input:first-child { min-width: 0; }
+        .primary-input { color: var(--leaf-paper) !important; }
+        .primary-input::placeholder { color: #79726e !important; opacity: 1; }
+        .writing-line input:first-child {
+            font-size: clamp(1.55rem, 3vw, 2.3rem) !important;
+            line-height: 1.25;
+        }
+        .writing-line input[aria-label$="ending word"] {
+            color: var(--leaf-copper) !important;
+            font-size: clamp(1rem, 2vw, 1.4rem) !important;
+        }
+        .writing-tools {
+            grid-column: 2;
+            grid-row: 4 / span 2;
+            align-self: center;
+            flex-direction: column;
+            align-items: stretch !important;
+            gap: 1.1rem;
+            padding: 1.25rem;
+            border: 1px solid var(--leaf-line);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.025);
+        }
+        .writing-tools > div { gap: 0.7rem !important; }
+        .writing-tools > div > span:first-child {
+            margin-right: auto;
+            color: var(--leaf-copper) !important;
+        }
+        .beat-dot { background-color: #58504d !important; }
+        .beat-dot.active-dot {
+            background-color: var(--leaf-moss) !important;
+            box-shadow: 0 0 0 6px rgba(239, 123, 67, 0.14) !important;
+        }
+        .writing-tools #open-explore {
+            justify-content: center;
+            min-height: 2.75rem;
+            border-color: rgba(239, 123, 67, 0.55) !important;
+            color: var(--leaf-copper) !important;
+            background: rgba(239, 123, 67, 0.08) !important;
+        }
+        .writing-tools #open-explore:hover { background: rgba(239, 123, 67, 0.15) !important; }
+        .secondary-action {
+            color: var(--leaf-paper) !important;
+            border-color: var(--leaf-line) !important;
+            background: rgba(255,255,255,0.025) !important;
+        }
+        .secondary-action:hover { border-color: rgba(239, 123, 67, 0.62) !important; }
+        .tempo-status { color: var(--leaf-copper) !important; }
+        #btn-play {
+            border: 1px solid rgba(239, 123, 67, 0.5);
+            box-shadow: 0 6px 24px rgba(239, 123, 67, 0.14) !important;
+        }
+        #btn-play:hover { background: #ff8b50 !important; }
+        .explore-view { border-top-color: var(--leaf-line); }
+        .atlas-panel { background: transparent !important; }
+        .atlas-panel > .border, #atlas-detail, #atlas-word-detail > .rounded,
+        .constellation-stage, .leaf-dialog {
+            background-color: #201e22 !important;
+            color: var(--leaf-paper) !important;
+            border-color: var(--leaf-line) !important;
+        }
+        .constellation-stage {
+            background:
+                radial-gradient(ellipse at 50% 45%, rgba(239, 123, 67, 0.12), transparent 54%),
+                linear-gradient(rgba(243, 238, 231, 0.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(243, 238, 231, 0.035) 1px, transparent 1px),
+                #201e22 !important;
+        }
+        .float-node, .float-rhyme {
+            color: var(--leaf-paper) !important;
+            background: #2a2528 !important;
+            border-color: rgba(239, 123, 67, 0.45) !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.18) !important;
+        }
+        .constellation-line { stroke: rgba(239, 123, 67, 0.55); }
+        .atlas-result[aria-pressed="true"] {
+            border-color: rgba(239, 123, 67, 0.55) !important;
+            background: rgba(239, 123, 67, 0.1) !important;
+        }
+        .leaf-dialog {
+            background: #201e22 !important;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5) !important;
+        }
+        .leaf-dialog::backdrop { background: rgba(8, 7, 9, 0.72); }
+        footer { border-top-color: var(--leaf-line) !important; }
+        @media (max-width: 800px) {
+            .primary-view {
+                display: flex;
+                flex-direction: column;
+                gap: 1.2rem !important;
+            }
+            .writing-header { width: 100%; align-items: flex-start; }
+            .writing-header > div:last-child { width: min(100%, 20rem); }
+            .primary-view > #lens-prompt { width: 100%; }
+            .writing-line { width: 100%; }
+            .writing-line-two { margin-left: 0; }
+            .writing-tools { width: 100%; }
+        }
+        @media (max-width: 639px) {
+            body { padding: 1rem !important; }
+            header { align-items: flex-start; padding-bottom: 1rem; }
+            header > div:last-child { width: 100%; justify-content: flex-start; }
+            #tempo-status { margin-right: auto; }
+            .writing-header {
+                gap: 1.25rem;
+            }
+            .writing-header h1 { font-size: 2.8rem !important; }
+            .writing-header > div:last-child { width: 100%; }
+            .writing-line { padding: 1rem; }
+            .writing-line > div:nth-child(2) { gap: 0.5rem; }
+            .line-language { max-width: 8rem; }
+            .writing-line input[aria-label$="ending word"] { width: 5.5rem; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .writing-line { transition: none; }
+            .writing-line:focus-within { transform: none; }
+        }
+        body.splash-open { overflow: hidden; }
+        #studio-splash {
+            position: fixed;
+            z-index: 1000;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            padding: clamp(1.25rem, 5vw, 4.5rem);
+            color: #f5f5f2;
+            background:
+                radial-gradient(ellipse at 74% 48%, rgba(255,255,255,0.075), transparent 34rem),
+                linear-gradient(135deg, #111 0%, #080808 58%, #151515 100%);
+            opacity: 1;
+            transition: opacity 650ms cubic-bezier(0.22, 1, 0.36, 1), visibility 650ms;
+        }
+        #studio-splash[hidden] { display: none; }
+        #studio-splash::before {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            content: "";
+            opacity: 0.12;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.28'/%3E%3C/svg%3E");
+            mix-blend-mode: screen;
+        }
+        #studio-splash.is-leaving {
+            visibility: hidden;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .splash-frame {
+            position: relative;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            width: min(100%, 88rem);
+            min-height: min(100%, 52rem);
+            border: 1px solid rgba(255,255,255,0.16);
+            padding: clamp(1.25rem, 3.2vw, 3rem);
+            background: rgba(12,12,12,0.32);
+        }
+        .splash-top, .splash-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+        .splash-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            font: 500 10px/1.4 "JetBrains Mono", monospace;
+            letter-spacing: 0.17em;
+            text-transform: uppercase;
+        }
+        .splash-mark {
+            display: grid;
+            width: 2.25rem;
+            height: 2.25rem;
+            place-items: center;
+            border: 1px solid rgba(255,255,255,0.65);
+            border-radius: 50%;
+            font-family: "Cormorant Garamond", Georgia, serif;
+            font-size: 1rem;
+            letter-spacing: -0.08em;
+        }
+        .splash-edition {
+            color: rgba(255,255,255,0.5);
+            font: 10px/1.5 "JetBrains Mono", monospace;
+            letter-spacing: 0.12em;
+            text-align: right;
+            text-transform: uppercase;
+        }
+        .splash-main {
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(18rem, 0.9fr);
+            align-items: center;
+            gap: clamp(1rem, 5vw, 5rem);
+            padding: clamp(2rem, 5vh, 4rem) 0;
+        }
+        .splash-copy { position: relative; z-index: 1; }
+        .splash-eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            color: rgba(255,255,255,0.56);
+            font: 10px/1.5 "JetBrains Mono", monospace;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+        }
+        .splash-eyebrow::before {
+            width: 1.8rem;
+            height: 1px;
+            background: rgba(255,255,255,0.7);
+            content: "";
+        }
+        .splash-title {
+            margin: 1.1rem 0 0;
+            color: #f4f3ef;
+            font: 500 clamp(4.5rem, 11.5vw, 10.5rem)/0.72 "Cormorant Garamond", Georgia, serif;
+            letter-spacing: -0.075em;
+        }
+        .splash-title span { display: block; }
+        .splash-title span:last-child {
+            margin: 0.18em 0 0 0.46em;
+            font-style: italic;
+            font-weight: 400;
+        }
+        .splash-subtitle {
+            max-width: 25rem;
+            margin: clamp(2rem, 5vh, 3.75rem) 0 0;
+            color: rgba(255,255,255,0.72);
+            font: 400 clamp(1.1rem, 2vw, 1.55rem)/1.4 "Plus Jakarta Sans", sans-serif;
+            letter-spacing: -0.03em;
+        }
+        .splash-art {
+            position: relative;
+            display: grid;
+            width: min(100%, 29rem);
+            aspect-ratio: 1;
+            place-items: center;
+            justify-self: center;
+        }
+        .splash-art::before, .splash-art::after {
+            position: absolute;
+            inset: 8%;
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 50%;
+            content: "";
+        }
+        .splash-art::after {
+            inset: 18%;
+            border-style: dashed;
+            border-color: rgba(255,255,255,0.25);
+            animation: splash-orbit 44s linear infinite;
+        }
+        .splash-wave {
+            position: relative;
+            z-index: 1;
+            width: 88%;
+            overflow: visible;
+        }
+        .splash-wave circle, .splash-wave path {
+            fill: none;
+            stroke: rgba(255,255,255,0.78);
+            stroke-width: 0.35;
+            vector-effect: non-scaling-stroke;
+        }
+        .splash-wave .waveform {
+            stroke: #f5f5f2;
+            stroke-width: 1.35;
+            stroke-linecap: round;
+            stroke-dasharray: 1 1.6;
+            animation: splash-wave-drift 12s ease-in-out infinite alternate;
+        }
+        .splash-center {
+            position: absolute;
+            display: grid;
+            width: 5.5rem;
+            height: 5.5rem;
+            place-items: center;
+            border: 1px solid rgba(255,255,255,0.48);
+            border-radius: 50%;
+            color: #fff;
+            background: #101010;
+            font: italic 500 2.1rem/1 "Cormorant Garamond", Georgia, serif;
+        }
+        .splash-annotation {
+            position: absolute;
+            right: 0;
+            bottom: 12%;
+            color: rgba(255,255,255,0.48);
+            font: 9px/1.6 "JetBrains Mono", monospace;
+            letter-spacing: 0.14em;
+            text-align: right;
+            text-transform: uppercase;
+        }
+        .splash-bottom {
+            border-top: 1px solid rgba(255,255,255,0.18);
+            padding-top: 1.2rem;
+        }
+        .splash-enter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            min-height: 3.4rem;
+            border: 1px solid #f5f5f2;
+            padding: 0.8rem 1.1rem 0.8rem 1.35rem;
+            color: #111;
+            background: #f5f5f2;
+            font: 600 10px/1 "JetBrains Mono", monospace;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            transition: color 180ms ease, background 180ms ease;
+        }
+        .splash-enter:hover, .splash-enter:focus-visible {
+            color: #f5f5f2;
+            background: transparent;
+        }
+        .splash-enter:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+        .splash-enter span:last-child { font-size: 1.15rem; }
+        .splash-note {
+            color: rgba(255,255,255,0.46);
+            font: 9px/1.5 "JetBrains Mono", monospace;
+            letter-spacing: 0.1em;
+            text-align: right;
+            text-transform: uppercase;
+        }
+        @keyframes splash-orbit { to { transform: rotate(360deg); } }
+        @keyframes splash-wave-drift {
+            from { stroke-dashoffset: 0; opacity: 0.7; }
+            to { stroke-dashoffset: -16; opacity: 1; }
+        }
+        @media (max-width: 700px) {
+            .splash-frame { min-height: min(100%, 48rem); }
+            .splash-main {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                padding: 2.5rem 0;
+            }
+            .splash-title { font-size: clamp(4.8rem, 18vw, 8rem); }
+            .splash-subtitle { margin-top: 2rem; }
+            .splash-art { width: min(70vw, 19rem); }
+            .splash-center { width: 4rem; height: 4rem; font-size: 1.6rem; }
+            .splash-annotation { right: 4%; bottom: 8%; }
+        }
+        @media (max-width: 420px) {
+            #studio-splash { padding: 0.65rem; }
+            .splash-frame { min-height: calc(100svh - 1.3rem); padding: 1rem; }
+            .splash-edition { font-size: 8px; }
+            .splash-title { font-size: clamp(4.25rem, 20vw, 6rem); }
+            .splash-main { gap: 0.5rem; padding: 2rem 0; }
+            .splash-art { width: min(66vw, 15rem); }
+            .splash-note { max-width: 9rem; font-size: 8px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #studio-splash { transition: none; }
+            .splash-art::after, .splash-wave .waveform { animation: none; }
+        }
+        :root {
+            color-scheme: dark;
+            --leaf-ink: #f3f4f6;
+            --leaf-panel: #191b1e;
+            --leaf-line: #3a3e43;
+            --leaf-paper: #f3f4f6;
+            --leaf-moss: #d8f36a;
+            --leaf-copper: #d8f36a;
+            --leaf-canvas: #111315;
+            --leaf-violet: #d8f36a;
+            --leaf-violet-light: #292d22;
+        }
+        body.bg-onyx {
+            background: var(--leaf-canvas);
+            color: var(--leaf-ink);
+            font-family: Inter, Arial, sans-serif;
+            letter-spacing: 0;
+        }
+        body.bg-onyx, body.bg-onyx * { text-shadow: none !important; }
+        .font-sans, button, input, select, textarea { font-family: Inter, Arial, sans-serif !important; }
+        .font-mono, [class*="font-mono"] { font-family: "IBM Plex Mono", Consolas, monospace !important; }
+        .font-serif, .writing-line input:first-child, .writing-line input[aria-label$="ending word"] {
+            font-family: "Source Serif 4", Georgia, serif !important;
+        }
+        .text-leaf-paper, .text-ivory { color: var(--leaf-paper) !important; }
+        .text-leaf-moss, .text-gold, .text-goldLight, .text-leaf-copper {
+            color: var(--leaf-moss) !important;
+        }
+        .text-zinc-300 { color: #d7d9dc !important; }
+        .text-zinc-400 { color: #c3c6ca !important; }
+        .text-zinc-500 { color: #a8acb1 !important; }
+        .text-zinc-600 { color: #979ba0 !important; }
+        .text-rose-300 { color: #ffb4ab !important; }
+        .border-borderSubtle, .border-leaf-line { border-color: var(--leaf-line) !important; }
+        .border-leaf-moss { border-color: rgba(216, 243, 106, 0.72) !important; }
+        .bg-card, .bg-onyx { background-color: var(--leaf-canvas) !important; }
+        .bg-zinc-800, .bg-zinc-800\/80, .bg-black\/10, .bg-black\/15, .bg-black\/20, .bg-black\/25 {
+            background-color: #1b1e21 !important;
+        }
+        .bg-leaf-moss, #btn-play {
+            color: #171a12 !important;
+            background-color: var(--leaf-moss) !important;
+        }
+        .hover\:bg-gold:hover, .hover\:bg-goldLight:hover { background-color: #333a24 !important; }
+        .hover\:text-onyx:hover { color: #fff !important; }
+        .field-control {
+            color: var(--leaf-paper) !important;
+            background: #1b1e21 !important;
+            border: 1px solid #555b62 !important;
+        }
+        .field-control option { color: var(--leaf-paper); background: #1b1e21; }
+        .field-control:focus { outline: 2px solid var(--leaf-moss) !important; outline-offset: 2px; }
+        :where(button, input, select, textarea, summary, a):focus-visible {
+            outline: 2px solid var(--leaf-moss) !important;
+            outline-offset: 3px !important;
+        }
+        .primary-view, .explore-view, header, footer { color: var(--leaf-ink); }
+        header > div:first-child::before { content: none; }
+        .font-mono, [class*="font-mono"] {
+            font-family: Inter, Arial, sans-serif !important;
+            font-size: 12px !important;
+            letter-spacing: 0.035em !important;
+        }
+        .tempo-status, .splash-brand-sub, .splash-note {
+            font-family: "IBM Plex Mono", Consolas, monospace !important;
+        }
+        .writing-header h1 {
+            font-family: Inter, Arial, sans-serif !important;
+            font-weight: 600 !important;
+            letter-spacing: -0.045em !important;
+        }
+        .writing-header > div:last-child label { color: #c3c6ca !important; }
+        .writing-header .field-control { min-height: 2.75rem; }
+        .primary-view > #lens-prompt {
+            border-left-color: var(--leaf-moss) !important;
+            color: #d7d9dc !important;
+            font-family: Inter, Arial, sans-serif !important;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+        .writing-line {
+            border-color: #3a3e43;
+            border-radius: 8px;
+            background: #191b1e;
+            box-shadow: none;
+        }
+        .writing-line-one { border-left: 3px solid #62666b; }
+        .writing-line-two { margin-left: 0.9rem; }
+        .writing-line:focus-within {
+            border-color: var(--leaf-moss);
+            background: #1b1e21;
+            transform: none;
+        }
+        .writing-line > div:first-child {
+            font-size: 12px;
+            letter-spacing: 0.035em;
+        }
+        .writing-line > div:first-child label { color: #c3c6ca !important; }
+        .writing-line > div:first-child span { color: #a8acb1 !important; }
+        .line-language { max-width: 10.5rem; font-size: 11px; }
+        .writing-line > div:nth-child(2) {
+            border-bottom-color: #555b62 !important;
+        }
+        .primary-input { color: #f3f4f6 !important; }
+        .primary-input::placeholder { color: #a8acb1 !important; opacity: 1; }
+        .writing-line input:first-child {
+            font-size: clamp(1.45rem, 2.4vw, 2rem) !important;
+            line-height: 1.45;
+            letter-spacing: 0;
+        }
+        .writing-line input[aria-label$="ending word"] {
+            color: #e3e5e8 !important;
+            font-size: clamp(1.05rem, 1.7vw, 1.3rem) !important;
+        }
+        .writing-tools {
+            border-color: var(--leaf-line);
+            border-radius: 8px;
+            background: #191b1e;
+        }
+        .writing-tools > div > span:first-child { color: #c3c6ca !important; }
+        .beat-dot { background-color: #696e73 !important; }
+        .beat-dot.active-dot {
+            background-color: var(--leaf-moss) !important;
+            box-shadow: 0 0 0 5px rgba(216, 243, 106, 0.18) !important;
+        }
+        .writing-tools #open-explore {
+            border-color: #737a61 !important;
+            color: #eaf3ca !important;
+            background: #252a20 !important;
+        }
+        .writing-tools #open-explore:hover { background: #303824 !important; }
+        .secondary-action {
+            color: #f3f4f6 !important;
+            border-color: #555b62 !important;
+            background: #1b1e21 !important;
+        }
+        .secondary-action:hover { border-color: var(--leaf-moss) !important; }
+        .tempo-status { color: #eaf3ca !important; }
+        #btn-play {
+            border: 1px solid var(--leaf-moss);
+            box-shadow: none !important;
+        }
+        #btn-play:hover { background: #e4ff83 !important; }
+        .explore-view { border-top-color: var(--leaf-line); }
+        .atlas-panel { background: transparent !important; }
+        .atlas-panel > .border, #atlas-detail, #atlas-word-detail > .rounded,
+        .constellation-stage, .leaf-dialog {
+            background-color: #191b1e !important;
+            color: var(--leaf-paper) !important;
+            border-color: var(--leaf-line) !important;
+        }
+        .constellation-stage {
+            background:
+                linear-gradient(rgba(243,244,246,0.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(243,244,246,0.035) 1px, transparent 1px),
+                #191b1e !important;
+            background-size: 32px 32px;
+        }
+        .float-node, .float-rhyme {
+            color: var(--leaf-paper) !important;
+            background: #24272a !important;
+            border-color: #555b62 !important;
+            box-shadow: none !important;
+        }
+        .constellation-line { stroke: #8b9278; }
+        .atlas-result[aria-pressed="true"] {
+            border-color: var(--leaf-moss) !important;
+            background: #292e22 !important;
+        }
+        .leaf-dialog {
+            background: #191b1e !important;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6) !important;
+        }
+        .leaf-dialog::backdrop { background: rgba(0, 0, 0, 0.78); }
+        .leaf-dialog .text-[#101510] { color: #171a12 !important; }
+        footer { border-top-color: var(--leaf-line) !important; }
+        #studio-splash {
+            background: #111315;
+            color: #f3f4f6;
+        }
+        #studio-splash::before { display: none; }
+        .splash-frame {
+            width: min(100%, 72rem);
+            min-height: min(100%, 38rem);
+            border: 0;
+            padding: clamp(1.5rem, 5vw, 4rem);
+            background: transparent;
+        }
+        .splash-top { justify-content: flex-start; }
+        .splash-brand {
+            display: grid;
+            gap: 0.2rem;
+            font: 600 1rem/1.2 Inter, Arial, sans-serif;
+            letter-spacing: 0;
+            text-transform: none;
+        }
+        .splash-brand-sub {
+            color: #b8bbc0;
+            font: 500 10px/1.4 "IBM Plex Mono", Consolas, monospace;
+            letter-spacing: 0.12em;
+        }
+        .splash-main {
+            display: block;
+            align-content: center;
+            padding: clamp(3rem, 12vh, 8rem) 0;
+        }
+        .splash-eyebrow {
+            color: #c3c6ca;
+            font: 500 12px/1.5 Inter, Arial, sans-serif;
+            letter-spacing: 0.04em;
+            text-transform: none;
+        }
+        .splash-eyebrow::before { display: none; }
+        .splash-title {
+            max-width: 12ch;
+            margin: 0.7rem 0 0;
+            color: #f3f4f6;
+            font: 600 clamp(3.5rem, 9vw, 7.5rem)/1.02 Inter, Arial, sans-serif;
+            letter-spacing: -0.075em;
+        }
+        .splash-subtitle {
+            max-width: 36rem;
+            margin: 1.4rem 0 0;
+            color: #e0e2e5;
+            font: 400 clamp(1.15rem, 2vw, 1.5rem)/1.5 Inter, Arial, sans-serif;
+            letter-spacing: -0.025em;
+        }
+        .splash-value-list {
+            display: grid;
+            gap: 0.65rem;
+            margin: 1.75rem 0 0;
+            padding: 0;
+            color: #c3c6ca;
+            font: 400 14px/1.5 Inter, Arial, sans-serif;
+            list-style: none;
+        }
+        .splash-value-list li::before {
+            margin-right: 0.7rem;
+            color: #d8f36a;
+            content: "—";
+        }
+        .splash-bottom {
+            justify-content: flex-start;
+            gap: 1.5rem;
+            border-top-color: #3a3e43;
+            padding-top: 1.5rem;
+        }
+        .splash-enter {
+            min-height: 3rem;
+            border: 0;
+            border-radius: 4px;
+            padding: 0.85rem 1.2rem;
+            color: #171a12;
+            background: #d8f36a;
+            font: 600 14px/1 Inter, Arial, sans-serif;
+            letter-spacing: 0;
+            text-transform: none;
+        }
+        .splash-enter:hover, .splash-enter:focus-visible {
+            color: #171a12;
+            background: #e4ff83;
+        }
+        .splash-note {
+            color: #b8bbc0;
+            font: 400 12px/1.6 Inter, Arial, sans-serif;
+            letter-spacing: 0;
+            text-align: left;
+            text-transform: none;
+        }
+        @media (max-width: 800px) {
+            .writing-line-two { margin-left: 0; }
+        }
+        @media (max-width: 639px) {
+            .splash-frame { min-height: calc(100svh - 2rem); padding: 1.25rem; }
+            .splash-main { padding: 3rem 0; }
+            .splash-title { font-size: clamp(3.4rem, 15vw, 5.5rem); }
+            .splash-value-list { font-size: 13px; }
+            .splash-bottom { align-items: flex-start; flex-direction: column; gap: 1rem; }
+            .writing-line input[aria-label$="ending word"] { width: 5.5rem; }
+        }
+        .studio-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--leaf-line);
+            padding-bottom: 0.8rem;
+        }
+        .studio-nav button {
+            border: 1px solid transparent;
+            border-radius: 999px;
+            padding: 0.55rem 0.9rem;
+            color: #b9b1aa;
+            background: transparent;
+            font: 600 11px/1 Inter, Arial, sans-serif;
+            letter-spacing: 0.045em;
+            transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
+        }
+        .studio-nav button[aria-current="page"] {
+            border-color: rgba(239, 123, 67, 0.5);
+            color: #fff3e9;
+            background: rgba(239, 123, 67, 0.12);
+        }
+        .studio-nav button:hover { color: #fff3e9; }
+        .studio-nav button:focus-visible, .beat-step:focus-visible, .word-orbit:focus-visible {
+            outline: 2px solid #ffad77;
+            outline-offset: 3px;
+        }
+        .word-field {
+            position: relative;
+            grid-column: 1 / -1;
+            min-height: 210px;
+            overflow: hidden;
+            isolation: isolate;
+            border-block: 1px solid rgba(239, 123, 67, 0.24);
+            background:
+                radial-gradient(ellipse at 50% 52%, rgba(239, 123, 67, 0.15), transparent 52%),
+                radial-gradient(ellipse at 15% 95%, rgba(115, 71, 122, 0.14), transparent 35%);
+        }
+        .word-field::before, .word-field::after {
+            position: absolute;
+            z-index: -1;
+            inset: 18% 12%;
+            border: 1px solid rgba(255, 173, 119, 0.12);
+            border-radius: 50%;
+            content: "";
+            transform: rotate(-12deg);
+            animation: orbit-breathe 7s ease-in-out infinite alternate;
+        }
+        .word-field::after {
+            inset: 28% 22%;
+            border-color: rgba(239, 123, 67, 0.16);
+            transform: rotate(14deg);
+            animation-delay: -3s;
+        }
+        .word-field-hud {
+            position: absolute;
+            z-index: 2;
+            inset: 0.8rem 0.9rem auto;
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            color: #c8b8ac;
+            font: 500 10px/1.4 "IBM Plex Mono", Consolas, monospace;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+        .word-field-nodes { position: absolute; inset: 0; }
+        .word-field { transition: box-shadow 120ms ease, border-color 120ms ease; }
+        .word-field.beat-flash {
+            border-color: rgba(255, 173, 119, 0.65);
+            box-shadow: inset 0 0 56px rgba(239, 123, 67, 0.22);
+        }
+        .word-orbit {
+            position: absolute;
+            left: var(--word-x);
+            top: var(--word-y);
+            translate: -50% 0;
+            max-width: 40%;
+            border: 0;
+            padding: 0.2rem 0.35rem;
+            color: #ffe0c9;
+            background: transparent;
+            font: 600 clamp(1.05rem, 2.8vw, 2.1rem)/1.1 "Source Serif 4", Georgia, serif;
+            text-shadow: 0 0 16px rgba(239, 123, 67, 0.6), 0 0 34px rgba(239, 123, 67, 0.25);
+            white-space: nowrap;
+            cursor: pointer;
+            animation: word-drift var(--word-duration, 8s) ease-in-out infinite alternate;
+            animation-delay: var(--word-delay, 0s);
+        }
+        .word-orbit:nth-child(even) {
+            color: #fff3e9;
+            font-style: italic;
+            animation-name: word-drift-reverse;
+        }
+        .word-orbit:nth-child(3n) { color: #ffad77; }
+        .word-field-caption {
+            position: absolute;
+            right: 0.9rem;
+            bottom: 0.7rem;
+            color: #b9b1aa;
+            font: 500 10px/1.4 Inter, Arial, sans-serif;
+        }
+        @keyframes word-drift {
+            from { transform: translate3d(-16px, 12px, 0) rotate(-8deg) scale(0.92); opacity: 0.42; }
+            to { transform: translate3d(22px, -16px, 0) rotate(5deg) scale(1.08); opacity: 1; }
+        }
+        @keyframes word-drift-reverse {
+            from { transform: translate3d(18px, -12px, 0) rotate(7deg) scale(1.05); opacity: 0.5; }
+            to { transform: translate3d(-24px, 18px, 0) rotate(-6deg) scale(0.94); opacity: 1; }
+        }
+        @keyframes orbit-breathe {
+            from { transform: rotate(-12deg) scale(0.94); }
+            to { transform: rotate(8deg) scale(1.04); }
+        }
+        .writing-line {
+            border: 0 !important;
+            border-bottom: 1px solid var(--leaf-line) !important;
+            border-radius: 0 !important;
+            padding: 1rem 0 1.3rem !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+        .writing-line-one { border-left: 0 !important; }
+        .writing-line-two { margin-left: 0 !important; }
+        .writing-line:focus-within {
+            border-color: rgba(239, 123, 67, 0.62) !important;
+            background: linear-gradient(90deg, rgba(239, 123, 67, 0.055), transparent 70%) !important;
+            transform: none !important;
+        }
+        .primary-view {
+            display: flex !important;
+            flex-direction: column;
+            align-items: stretch !important;
+            gap: clamp(1.25rem, 3vw, 2rem);
+        }
+        .primary-view.hidden { display: none !important; }
+        .primary-view > #lens-prompt {
+            align-self: flex-end;
+            width: min(100%, 27rem);
+            grid-column: auto;
+            grid-row: auto;
+            margin: 0 !important;
+        }
+        #word-field { width: 100%; }
+        .writing-line > div:nth-child(2) { border-bottom: 0 !important; }
+        .primary-input:focus { outline: 0 !important; }
+        .writing-tools {
+            width: 100%;
+            border: 0 !important;
+            border-top: 1px solid var(--leaf-line) !important;
+            border-radius: 0 !important;
+            padding: 1rem 0 0 !important;
+            background: transparent !important;
+        }
+        .studio-screen { animation: screen-arrive 300ms ease both; }
+        @keyframes screen-arrive {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .studio-panel {
+            border: 1px solid var(--leaf-line);
+            background: linear-gradient(135deg, rgba(255,255,255,0.045), rgba(255,255,255,0.012));
+        }
+        .tuner-readout {
+            min-height: 12rem;
+            background: radial-gradient(ellipse at 50% 70%, rgba(239, 123, 67, 0.17), transparent 65%);
+        }
+        #tuner-waveform {
+            display: block;
+            width: 100%;
+            height: 100px;
+        }
+        .beat-grid {
+            display: grid;
+            grid-template-columns: repeat(16, minmax(1.2rem, 1fr));
+            gap: 0.3rem;
+        }
+        .beat-step {
+            min-width: 0;
+            aspect-ratio: 1;
+            border: 1px solid rgba(243, 238, 231, 0.16);
+            border-radius: 4px;
+            background: rgba(255,255,255,0.035);
+            transition: background 120ms ease, transform 120ms ease, border-color 120ms ease;
+        }
+        .beat-step:nth-child(4n + 1) { border-color: rgba(255, 173, 119, 0.36); }
+        .beat-step[aria-pressed="true"] {
+            border-color: #ffad77;
+            background: #ef7b43;
+            box-shadow: 0 0 16px rgba(239, 123, 67, 0.27);
+        }
+        .beat-step.playhead-step { outline: 2px solid #f3eee7; outline-offset: 2px; }
+        .beat-step:active { transform: scale(0.9); }
+        .beat-row {
+            display: grid;
+            grid-template-columns: 5.5rem minmax(0, 1fr);
+            align-items: center;
+            gap: 0.7rem;
+        }
+        .beat-row-label {
+            color: #e2d7ce;
+            font: 500 11px/1.2 Inter, Arial, sans-serif;
+        }
+        .beat-row-label small {
+            display: block;
+            margin-top: 0.25rem;
+            color: #aa9d94;
+            font: 400 9px/1.2 "IBM Plex Mono", Consolas, monospace;
+        }
+        .bass-toggle[aria-pressed="true"] {
+            border-color: rgba(239, 123, 67, 0.7) !important;
+            color: #fff3e9 !important;
+            background: rgba(239, 123, 67, 0.17) !important;
+        }
+        @media (max-width: 640px) {
+            .word-field { min-height: 175px; }
+            .word-field-hud { font-size: 9px; letter-spacing: 0.07em; }
+            .word-orbit { max-width: 46%; font-size: clamp(0.9rem, 4vw, 1.35rem); }
+            .beat-row {
+                grid-template-columns: 4.3rem minmax(0, 1fr);
+                gap: 0.35rem;
+                max-width: 100%;
+                overflow-x: auto;
+            }
+            .beat-grid { grid-template-columns: repeat(16, 1.1rem); gap: 0.16rem; }
+            .beat-step { border-radius: 2px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .studio-screen, .word-orbit, .word-field::before, .word-field::after {
+                animation: none !important;
+                transform: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="splash-open bg-onyx text-ivory font-sans min-h-screen flex flex-col justify-between p-4 sm:p-8 antialiased selection:bg-gold selection:text-onyx">
+    <section id="studio-splash" role="dialog" aria-modal="true" aria-labelledby="splash-title" aria-describedby="splash-description">
+        <div class="splash-frame">
+            <div class="splash-top">
+                <div class="splash-brand">
+                    <span>Hidden Leaf</span>
+                    <span class="splash-brand-sub">WRITING STUDIO</span>
+                </div>
+            </div>
+            <div class="splash-main">
+                <div class="splash-copy">
+                    <p class="splash-eyebrow">Hindi-English rap writing</p>
+                    <h1 id="splash-title" class="splash-title">Hidden Leaf</h1>
+                    <p id="splash-description" class="splash-subtitle">Write in your voice. Find your note. Shape the beat.</p>
+                    <ul class="splash-value-list" aria-label="Studio tools">
+                        <li>Draft in Roman Hindi and English</li>
+                        <li>Find your vocal pitch against a chosen key</li>
+                        <li>Edit a 16-step beat and hold a bass drone</li>
+                        <li>Explore moving word and rhyme sparks</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="splash-bottom">
+                <button id="splash-enter" class="splash-enter" type="button" onclick="enterStudio()" autofocus>
+                    <span>Start writing</span><span aria-hidden="true">→</span>
+                </button>
+                <span class="splash-note">Drafts save in this browser.<br>Microphone and sound stay off until you choose them.</span>
+            </div>
+        </div>
+    </section>
+    <header inert class="max-w-4xl w-full mx-auto flex flex-wrap items-center justify-between gap-y-3 border-b border-borderSubtle pb-4 shrink-0 sm:flex-nowrap">
+        <div class="flex items-center gap-3">
+            <div>
+                <span class="font-serif font-semibold text-xl tracking-wide text-leaf-paper">Hidden Leaf</span>
+                <span class="block text-[10px] font-mono text-zinc-500 uppercase tracking-widest">HINDI-ENGLISH RAP WRITING</span>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
+            <label for="select-palette" class="text-xs text-zinc-500">Tempo</label>
+            <select id="select-palette" onchange="changePalette(this.value)" class="field-control rounded px-2.5 py-1.5 text-xs cursor-pointer">
+                <option value="slowpulse">Slow Pulse · 64 BPM</option>
+                <option value="halftime">Half-Time · 72 BPM</option>
+                <option value="headnod">Head Nod · 82 BPM</option>
+                <option value="velvetjazz">Velvet Pocket · 88 BPM</option>
+                <option value="tabladrift">Tabla Drift · 92 BPM</option>
+                <option value="forwardmotion">Forward Motion · 100 BPM</option>
+                <option value="doubletime">Double-Time · 120 BPM</option>
+                <option value="custom">Custom · 60–160 BPM</option>
+            </select>
+            <span id="tempo-status" class="tempo-status text-[10px] font-mono" aria-live="polite">88 BPM · laid-back</span>
+            <label id="custom-bpm-label" for="custom-bpm" class="sr-only">Custom tempo in beats per minute</label>
+            <input id="custom-bpm" type="number" min="60" max="160" value="88" inputmode="numeric" class="field-control hidden w-20 rounded px-2 py-1.5 text-xs" aria-label="Custom tempo, 60 to 160 BPM">
+            <button id="btn-play" onclick="togglePlay()" aria-label="Play beat" class="px-4 py-1.5 rounded font-mono text-xs font-bold uppercase tracking-wider active:scale-95 transition flex items-center gap-1.5">
+                <svg id="icon-play" class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                <svg id="icon-stop" class="w-3.5 h-3.5 fill-current hidden" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
+                <span id="txt-play">PLAY</span>
+            </button>
+        </div>
+    </header>
+
+    <main inert class="max-w-4xl w-full mx-auto my-auto py-8 space-y-8">
+        <nav id="studio-nav" class="studio-nav" aria-label="Studio screens">
+            <button type="button" data-screen="write" aria-current="page" onclick="showWriting()">01 &nbsp; WRITE</button>
+            <button type="button" data-screen="vocal" onclick="showVocal()">02 &nbsp; VOCAL TUNE</button>
+            <button type="button" data-screen="beat" onclick="showBeat()">03 &nbsp; BEAT LAB</button>
+            <button type="button" data-screen="explore" onclick="showExplore()">EXPLORE WORDS</button>
+        </nav>
+        <section id="writing-home" class="primary-view space-y-8" aria-label="Writing canvas">
+            <div class="writing-header flex flex-wrap items-start justify-between gap-4">
+                <div class="max-w-2xl">
+                    <p class="text-[10px] font-mono uppercase tracking-[0.2em] text-leaf-moss">Your writing canvas</p>
+                    <h1 class="mt-2 font-sans text-3xl font-semibold leading-tight text-leaf-paper sm:text-4xl">Write in your voice.</h1>
+                    <p id="draft-status" class="mt-2 text-[10px] font-mono text-zinc-500" aria-live="polite">Draft saves in this browser.</p>
+                </div>
+                <div class="flex flex-col items-end gap-2">
+                    <label for="select-lens" class="text-[10px] font-mono uppercase tracking-widest text-zinc-500">A question to write with</label>
+                    <select id="select-lens" onchange="changeLens(this.value)" class="field-control max-w-xs rounded px-2.5 py-1.5 text-xs cursor-pointer">
+                        <option value="intention">What do I mean?</option>
+                        <option value="message">What do these words say?</option>
+                        <option value="listener">What might the listener hear?</option>
+                    </select>
+                </div>
+            </div>
+            <section id="word-field" class="word-field" aria-label="Floating words and curated rhyme inspiration">
+                <div class="word-field-hud">
+                    <span>Word field / live inspiration</span>
+                    <span id="word-field-source">Curated sound echoes</span>
+                </div>
+                <div id="word-field-nodes" class="word-field-nodes"></div>
+                <p class="word-field-caption">Choose a word to preview it in your verse</p>
+            </section>
+            <p id="lens-prompt" class="prompt-line border-l-2 pl-3 text-sm text-zinc-500"></p>
+
+        <div class="writing-line writing-line-one space-y-2">
+            <div class="flex items-center justify-between text-xs font-mono">
+                <label for="input-line-1" class="text-zinc-500 uppercase tracking-wider">Line 1</label>
+                <div class="flex flex-wrap items-center justify-end gap-2">
+                    <label for="language-line-1" class="sr-only">Language mix for line 1</label>
+                    <select id="language-line-1" class="line-language field-control rounded" aria-label="Language mix for line 1">
+                        <option value="mixed">Hindi-English mix</option>
+                        <option value="roman-hindi">Roman Hindi/Urdu</option>
+                        <option value="english">English</option>
+                    </select>
+                    <span id="meter-line-1" class="text-zinc-500">Speak it over the beat</span>
+                </div>
+            </div>
+
+            <div class="flex items-baseline gap-3 border-b border-borderSubtle focus-within:border-leaf-moss transition-colors pb-3">
+                <input id="input-line-1" type="text" oninput="updateMetrics()" value="" placeholder="Start with a thought, image, or question…" class="primary-input flex-1 bg-transparent font-serif text-2xl placeholder-zinc-400 focus:outline-none tracking-wide sm:text-3xl">
+                <input id="rhyme-line-1" type="text" oninput="updateMetrics()" value="" placeholder="ending" aria-label="Line 1 ending word" class="primary-input w-24 text-right bg-transparent font-serif text-lg placeholder-zinc-400 focus:outline-none sm:w-40 sm:text-xl">
+            </div>
+
+            <div id="fluid-tokens-1" class="hidden" aria-hidden="true"></div>
+        </div>
+
+        <div class="writing-line writing-line-two space-y-2">
+            <div class="flex items-center justify-between text-xs font-mono">
+                <label for="input-line-2" class="text-zinc-500 uppercase tracking-wider">Line 2</label>
+                <div class="flex flex-wrap items-center justify-end gap-2">
+                    <label for="language-line-2" class="sr-only">Language mix for line 2</label>
+                    <select id="language-line-2" class="line-language field-control rounded" aria-label="Language mix for line 2">
+                        <option value="mixed">Hindi-English mix</option>
+                        <option value="roman-hindi">Roman Hindi/Urdu</option>
+                        <option value="english">English</option>
+                    </select>
+                    <span id="meter-line-2" class="text-zinc-500">Speak it over the beat</span>
+                </div>
+            </div>
+
+            <div class="flex items-baseline gap-3 border-b border-borderSubtle focus-within:border-leaf-moss transition-colors pb-3">
+                <input id="input-line-2" type="text" oninput="updateMetrics()" value="" placeholder="Let the second line turn, answer, or complicate it…" class="primary-input flex-1 bg-transparent font-serif text-2xl placeholder-zinc-400 focus:outline-none tracking-wide sm:text-3xl">
+                <input id="rhyme-line-2" type="text" oninput="updateMetrics()" value="" placeholder="ending" aria-label="Line 2 ending word" class="primary-input w-24 text-right bg-transparent font-serif text-lg placeholder-zinc-400 focus:outline-none sm:w-40 sm:text-xl">
+            </div>
+
+            <div id="fluid-tokens-2" class="hidden" aria-hidden="true"></div>
+        </div>
+
+            <div class="writing-tools flex flex-wrap items-center justify-between gap-3 border-t border-borderSubtle pt-4">
+                <div class="flex items-center gap-3" aria-label="Four beat visual pulse">
+                    <span class="text-[10px] font-mono text-zinc-500">BEAT</span>
+                    <span id="dot-0" class="beat-dot h-2 w-2 rounded-full"></span>
+                    <span id="dot-1" class="beat-dot h-2 w-2 rounded-full"></span>
+                    <span id="dot-2" class="beat-dot h-2 w-2 rounded-full"></span>
+                    <span id="dot-3" class="beat-dot h-2 w-2 rounded-full"></span>
+                </div>
+                <button id="open-explore" type="button" onclick="showExplore()" class="secondary-action rounded border px-4 py-2 text-xs font-medium hover:border-leaf-moss">
+                    Explore the atlas <span aria-hidden="true">↗</span>
+                </button>
+            </div>
+        </section>
+
+        <section id="explore-view" class="explore-view hidden space-y-6" aria-label="Explore words">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <p class="text-[10px] font-mono uppercase tracking-widest text-leaf-moss">Word Atlas / curated inspiration</p>
+                    <h2 class="mt-1 font-serif text-3xl text-leaf-paper">Explore words</h2>
+                    <p class="mt-1 text-xs text-zinc-500">Browse meaning and sound. Nothing changes in your verse until you choose to use a word.</p>
+                </div>
+                <button type="button" onclick="showWriting()" class="secondary-action rounded border px-4 py-2 text-xs font-medium hover:border-leaf-moss">← Back to writing</button>
+            </div>
+
+        <section class="atlas-panel border rounded-xl p-4 sm:p-5 space-y-4" aria-labelledby="atlas-heading">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                    <p class="text-[10px] font-mono uppercase tracking-[0.22em] text-leaf-moss">Field notes / growing lexicon</p>
+                    <h2 id="atlas-heading" class="mt-1 font-serif text-2xl sm:text-3xl text-leaf-paper">Word Atlas</h2>
+                    <p class="mt-1 max-w-xl text-xs leading-relaxed text-zinc-400">Explore a word’s sense, sound, and associations. This seed lexicon still needs review with Hindi-English writers; treat every note as a prompt, not authority.</p>
+                </div>
+                <button id="btn-favorites-filter" type="button" aria-pressed="false" onclick="toggleFavoritesFilter()" class="rounded border border-leaf-line px-3 py-2 text-xs font-mono text-zinc-300 hover:border-leaf-moss hover:text-leaf-paper">
+                    <span id="favorites-filter-label">SHOW SAVED WORDS</span>
+                </button>
+            </div>
+                    <section class="rounded-xl border border-leaf-line bg-black/10 p-3 sm:p-4" aria-labelledby="constellation-heading">
+                        <div class="flex flex-wrap items-start justify-between gap-3">
+                            <div>
+                                <p class="text-[10px] font-mono uppercase tracking-[0.2em] text-leaf-moss">Meaning × sound playground</p>
+                                <h3 id="constellation-heading" class="mt-1 font-serif text-xl text-leaf-paper">Word Constellation</h3>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <button type="button" onclick="generateConstellation()" class="rounded bg-leaf-moss px-3 py-2 text-xs font-semibold text-[#101510] hover:brightness-110">Weave a word thread</button>
+                                <button id="btn-add-to-constellation" type="button" onclick="addSelectedToConstellation()" disabled class="rounded border border-leaf-line px-3 py-2 text-xs text-zinc-400 disabled:cursor-not-allowed disabled:opacity-50">Add selected word</button>
+                            </div>
+                        </div>
+                        <p class="mt-2 text-[10px] leading-relaxed text-zinc-500">Curated inspiration, not a generated verse. Tap a word to explore it; choose “Use this word” to add it deliberately.</p>
+                        <div id="constellation-stage" class="constellation-stage relative mt-3 min-h-56 overflow-hidden rounded-lg border border-leaf-line sm:min-h-64" aria-label="Animated word constellation">
+                            <svg class="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                                <g id="constellation-links"></g>
+                            </svg>
+                            <div id="constellation-nodes" class="absolute inset-0"></div>
+                            <p id="constellation-empty" class="absolute inset-x-4 top-1/2 -translate-y-1/2 text-center text-xs text-zinc-500">Choose “Weave a word thread” to reveal a curated idea cluster.</p>
+                        </div>
+                        <div id="constellation-copy" class="mt-3 hidden grid gap-2 sm:grid-cols-2">
+                            <div class="rounded-lg border border-leaf-line bg-black/15 p-3">
+                                <p id="constellation-title" class="mb-2 font-serif text-base text-leaf-moss"></p>
+                                <p class="text-[9px] font-mono uppercase tracking-widest text-leaf-moss">Meaning thread</p>
+                                <p id="constellation-thread" class="mt-1 text-sm leading-relaxed text-leaf-paper"></p>
+                            </div>
+                            <div class="rounded-lg border border-leaf-line bg-black/15 p-3">
+                                <p class="text-[9px] font-mono uppercase tracking-widest text-leaf-moss">Writer’s question</p>
+                                <p id="constellation-question" class="mt-1 text-sm leading-relaxed text-leaf-paper"></p>
+                            </div>
+                        </div>
+                        <div id="constellation-rhymes" class="mt-3 hidden">
+                            <p class="text-[9px] font-mono uppercase tracking-widest text-zinc-500">Sound echoes from this word family · select to preview</p>
+                            <div id="constellation-rhyme-list" class="mt-2 flex flex-wrap gap-2"></div>
+                        </div>
+                    </section>
+                    <div class="grid gap-4 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+                <div class="space-y-3">
+                    <label for="atlas-search" class="block text-[10px] font-mono uppercase tracking-widest text-zinc-400">Find a word, meaning, or transliteration</label>
+                    <input id="atlas-search" type="search" oninput="renderAtlas()" placeholder="Try: silence, khamoshi, kainaat…" class="field-control w-full rounded-lg px-3 py-2.5 text-sm">
+                    <div class="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                        <label class="sr-only" for="atlas-language">Filter by language</label>
+                        <select id="atlas-language" onchange="renderAtlas()" class="field-control rounded px-2.5 py-2 text-xs">
+                            <option value="all">All languages</option>
+                            <option value="Hindi / Urdu">Hindi / Urdu</option>
+                            <option value="English">English</option>
+                        </select>
+                        <label class="sr-only" for="atlas-theme">Filter by theme</label>
+                        <select id="atlas-theme" onchange="renderAtlas()" class="field-control rounded px-2.5 py-2 text-xs">
+                            <option value="all">All themes</option>
+                            <option value="identity">Identity</option>
+                            <option value="time">Time</option>
+                            <option value="silence">Silence</option>
+                            <option value="journey">Journey</option>
+                            <option value="memory">Memory</option>
+                            <option value="conflict">Conflict</option>
+                            <option value="hope">Hope</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center justify-between text-[10px] font-mono text-zinc-500">
+                        <span id="atlas-result-count" aria-live="polite"></span>
+                        <button type="button" onclick="clearAtlasFilters()" class="underline decoration-dotted underline-offset-2 hover:text-leaf-paper">Clear filters</button>
+                    </div>
+                    <div id="atlas-results" class="max-h-72 space-y-1 overflow-y-auto pr-1"></div>
+                </div>
+                <article id="atlas-detail" class="min-h-64 rounded-lg border border-leaf-line bg-black/15 p-4 sm:p-5" aria-live="polite">
+                    <div id="atlas-empty-state" class="flex h-full min-h-52 flex-col justify-center">
+                        <p class="text-[10px] font-mono uppercase tracking-[0.2em] text-leaf-moss">Start with a spark</p>
+                        <h3 class="mt-2 font-serif text-xl text-leaf-paper">Choose a word to open its field notes.</h3>
+                        <p class="mt-2 max-w-sm text-xs leading-relaxed text-zinc-400">Search by spelling or meaning. Then inspect its nuance and related sounds before deciding whether it belongs in your verse.</p>
+                    </div>
+                    <div id="atlas-word-detail" class="hidden space-y-4">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <p id="detail-language" class="text-[10px] font-mono uppercase tracking-widest text-leaf-moss"></p>
+                                <h3 id="detail-word" class="mt-1 font-serif text-3xl text-leaf-paper"></h3>
+                                <p id="detail-transliteration" class="mt-1 text-sm text-zinc-300"></p>
+                            </div>
+                            <button id="btn-favorite-word" type="button" onclick="toggleFavoriteWord()" aria-pressed="false" class="rounded border border-leaf-line px-2.5 py-2 text-[10px] font-mono text-zinc-300 hover:border-leaf-moss" aria-label="Save this word">SAVE</button>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-mono uppercase tracking-widest text-zinc-500">Sense &amp; nuance</p>
+                            <p id="detail-meaning" class="mt-1 text-sm text-leaf-paper"></p>
+                            <p id="detail-note" class="mt-1 text-xs leading-relaxed text-zinc-400"></p>
+                        </div>
+                        <div class="rounded border border-leaf-line bg-black/15 p-3">
+                            <p class="text-[10px] font-mono uppercase tracking-widest text-zinc-500">Say it / sound notes</p>
+                            <p id="detail-pronunciation" class="mt-1 text-xs text-zinc-300"></p>
+                            <p id="detail-confidence" class="mt-1 text-[10px] leading-relaxed text-zinc-500"></p>
+                        </div>
+                        <div class="rounded border border-leaf-line bg-black/15 p-3">
+                            <label for="detail-personal-note" class="text-[10px] font-mono uppercase tracking-widest text-leaf-moss">Your pronunciation / context note</label>
+                            <textarea id="detail-personal-note" rows="2" maxlength="500" oninput="savePersonalWordNote()" placeholder="How do you say or use this word in your voice?" class="field-control mt-2 w-full resize-y rounded px-3 py-2 text-xs leading-relaxed"></textarea>
+                            <p id="personal-note-status" class="mt-1 text-[10px] text-zinc-500" aria-live="polite">Private to this browser; not shared.</p>
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between gap-2">
+                                <p class="text-[10px] font-mono uppercase tracking-widest text-zinc-500">Curated sound associations</p>
+                            </div>
+                            <div id="detail-rhymes" class="mt-2 space-y-2"></div>
+                            <p class="mt-2 text-[10px] leading-relaxed text-zinc-500">Labels describe the written sound relationship, not a guaranteed rhyme. Say candidates aloud in your own accent.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2 border-t border-leaf-line pt-3">
+                            <button type="button" onclick="openInsertPreview(1)" class="rounded bg-leaf-moss px-3 py-2 text-xs font-semibold text-[#101510] hover:brightness-110">Use this word · line 1</button>
+                            <button type="button" onclick="openInsertPreview(2)" class="rounded border border-leaf-line px-3 py-2 text-xs font-semibold text-leaf-paper hover:border-leaf-moss">Use this word · line 2</button>
+                        </div>
+                    </div>
+                </article>
+            </div>
+            <p class="text-[10px] text-zinc-500">Prototype lexicon: a small sample, not yet community-verified or exhaustive. Meanings and pronunciation may vary by region and context.</p>
+        </section>
+
+        <div class="atlas-panel border rounded-lg p-3 space-y-2">
+            <div class="flex items-center justify-between text-xs font-mono text-zinc-400">
+                <span>CURATED SOUND FAMILY FOR <strong id="current-root-label" class="text-gold">...</strong></span>
+                <span id="rhyme-priority-label" class="text-[10px] text-zinc-500">Suggested sound associations, not guaranteed rhymes.</span>
+            </div>
+            <div id="rhyme-suggestions" class="flex flex-wrap gap-2"></div>
+        </div>
+        </section>
+
+        <section id="vocal-view" class="studio-screen hidden space-y-7" aria-label="Vocal tuning">
+            <div class="flex flex-wrap items-end justify-between gap-4">
+                <div>
+                    <p class="text-[10px] font-mono uppercase tracking-[0.2em] text-leaf-moss">02 / voice monitor</p>
+                    <h2 class="mt-2 font-sans text-4xl font-semibold tracking-tight text-leaf-paper sm:text-5xl">Vocal tuning</h2>
+                    <p class="mt-2 max-w-xl text-sm leading-relaxed text-zinc-400">Hear your natural pitch against a chosen key. Your microphone is analyzed locally and is never recorded or sent anywhere.</p>
+                </div>
+                <button type="button" onclick="showWriting()" class="secondary-action rounded border px-4 py-2 text-xs">← Back to writing</button>
+            </div>
+            <div class="studio-panel rounded-xl p-4 sm:p-7">
+                <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_16rem]">
+                    <div class="tuner-readout flex flex-col items-center justify-center rounded-lg px-4 py-7 text-center">
+                        <p id="tuner-note" class="font-sans text-7xl font-semibold tracking-tight text-leaf-paper sm:text-8xl" aria-live="polite">—</p>
+                        <p id="tuner-frequency" class="mt-1 font-mono text-sm text-zinc-400">Start the mic to see pitch</p>
+                        <div class="mt-6 flex w-full max-w-md items-center gap-3">
+                            <span class="font-mono text-[10px] text-zinc-500">FLAT</span>
+                            <div class="relative h-2 flex-1 rounded-full bg-white/10">
+                                <span class="absolute left-1/2 top-1/2 h-6 w-px -translate-y-1/2 bg-zinc-300"></span>
+                                <span id="tuner-cents-marker" class="absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-leaf-moss transition-[left] duration-100"></span>
+                            </div>
+                            <span class="font-mono text-[10px] text-zinc-500">SHARP</span>
+                        </div>
+                        <p id="tuner-target" class="mt-3 text-xs text-zinc-400">Target note: choose a key</p>
+                    </div>
+                    <div class="space-y-4">
+                        <label class="block text-xs text-zinc-400" for="tuner-key">Song key
+                            <select id="tuner-key" class="field-control mt-2 w-full rounded px-3 py-2.5 text-sm">
+                                <option value="0">C</option><option value="1">C♯ / D♭</option><option value="2">D</option>
+                                <option value="3">D♯ / E♭</option><option value="4">E</option><option value="5">F</option>
+                                <option value="6">F♯ / G♭</option><option value="7">G</option><option value="8">G♯ / A♭</option>
+                                <option value="9">A</option><option value="10">A♯ / B♭</option><option value="11">B</option>
+                            </select>
+                        </label>
+                        <label class="block text-xs text-zinc-400" for="tuner-scale">Scale
+                            <select id="tuner-scale" class="field-control mt-2 w-full rounded px-3 py-2.5 text-sm">
+                                <option value="major">Major</option>
+                                <option value="minor">Natural minor</option>
+                                <option value="chromatic">Chromatic</option>
+                            </select>
+                        </label>
+                        <button id="btn-mic" type="button" onclick="toggleVocalMonitor()" aria-pressed="false" class="w-full rounded bg-leaf-moss px-4 py-3 text-sm font-semibold text-[#101510]">
+                            Start microphone
+                        </button>
+                        <p id="mic-status" class="min-h-10 text-xs leading-relaxed text-zinc-400" aria-live="polite">Microphone is off. Start it when you are ready.</p>
+                    </div>
+                </div>
+                <div class="mt-5 border-t border-leaf-line pt-4">
+                    <p class="mb-2 text-[10px] font-mono uppercase tracking-widest text-zinc-400">Live input waveform</p>
+                    <canvas id="tuner-waveform" aria-label="Live microphone waveform"></canvas>
+                </div>
+            </div>
+            <p class="rounded border-l-2 border-leaf-moss bg-white/[0.025] px-4 py-3 text-xs leading-relaxed text-zinc-400">Pitch guide only: this prototype detects your note and shows the nearest in-key target. It does not pitch-correct, record, or monitor your voice through speakers yet.</p>
+            <div class="flex justify-end">
+                <button type="button" onclick="showBeat()" class="rounded bg-leaf-moss px-4 py-3 text-sm font-semibold text-[#101510]">Continue to beat lab →</button>
+            </div>
+        </section>
+
+        <section id="beat-view" class="studio-screen hidden space-y-7" aria-label="Beat editor">
+            <div class="flex flex-wrap items-end justify-between gap-4">
+                <div>
+                    <p class="text-[10px] font-mono uppercase tracking-[0.2em] text-leaf-moss">03 / rhythm workshop</p>
+                    <h2 class="mt-2 font-sans text-4xl font-semibold tracking-tight text-leaf-paper sm:text-5xl">Beat lab</h2>
+                    <p class="mt-2 max-w-xl text-sm leading-relaxed text-zinc-400">Shape the 16-step groove. Changes save with this browser draft and update the playing beat.</p>
+                </div>
+                <button type="button" onclick="showVocal()" class="secondary-action rounded border px-4 py-2 text-xs">← Vocal tuning</button>
+            </div>
+            <div class="studio-panel rounded-xl p-4 sm:p-6">
+                <div class="flex flex-wrap items-center justify-between gap-4 border-b border-leaf-line pb-4">
+                    <div>
+                        <p class="text-[10px] font-mono uppercase tracking-widest text-zinc-400">Current groove</p>
+                        <p id="beat-groove-label" class="mt-1 font-serif text-2xl text-leaf-paper">Velvet Pocket</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <label for="beat-bpm" class="text-xs text-zinc-400">BPM</label>
+                        <input id="beat-bpm" type="number" min="60" max="160" value="88" class="field-control w-20 rounded px-3 py-2 text-sm" aria-label="Beat tempo, 60 to 160 BPM">
+                    </div>
+                </div>
+                <div id="beat-editor" class="mt-5 space-y-4" aria-label="Editable beat step grid"></div>
+                <div class="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-leaf-line pt-4">
+                    <button id="btn-drone" type="button" aria-pressed="false" onclick="toggleDrone()" class="bass-toggle secondary-action flex min-h-11 items-center gap-3 rounded border px-4 py-2.5 text-xs font-semibold">
+                        <span id="drone-led" class="h-2 w-2 rounded-full bg-zinc-600"></span>
+                        <span id="drone-label">BASS DRONE · OFF</span>
+                    </button>
+                    <p class="max-w-sm text-[10px] leading-relaxed text-zinc-500">A continuous low A tone for writing against. Keep your listening volume comfortable.</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap justify-between gap-3">
+                <button type="button" onclick="showWriting()" class="secondary-action rounded border px-4 py-3 text-sm">← Back to writing</button>
+                <button type="button" onclick="showWriting()" class="rounded bg-leaf-moss px-4 py-3 text-sm font-semibold text-[#101510]">Return to writing →</button>
+            </div>
+        </section>
+    </main>
+
+    <footer inert class="max-w-4xl w-full mx-auto mt-6 border-t border-borderSubtle pt-3 shrink-0 text-xs">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <span id="toast-notify" class="text-leaf-moss opacity-0 transition-opacity duration-300" aria-live="polite">Saved</span>
+                <button id="undo-insertion" type="button" onclick="undoInsertion()" class="hidden text-leaf-moss underline underline-offset-2">Undo insertion</button>
+            </div>
+            <details class="text-xs">
+                <summary class="cursor-pointer text-zinc-500 hover:text-leaf-paper">More writing actions</summary>
+                <div class="mt-2 flex flex-wrap justify-end gap-2">
+                    <button onclick="insertWaqfa()" class="secondary-action rounded border px-3 py-1.5">Add breath mark //</button>
+                    <button onclick="inscribeSher()" class="secondary-action rounded border px-3 py-1.5">Save sher</button>
+                    <button onclick="copyFolio()" class="secondary-action rounded border px-3 py-1.5">Copy folio (<span id="folio-count">1</span>)</button>
+                </div>
+            </details>
+        </div>
+        <p class="mt-5 border-t border-borderSubtle pt-3 text-center text-[11px] tracking-wide text-zinc-400">
+            © 2026 Hidden Leaf Studio. All rights reserved.
+        </p>
+    </footer>
+
+    <dialog id="insert-dialog" class="leaf-dialog">
+        <form method="dialog" id="insert-form">
+            <p class="text-[10px] font-mono uppercase tracking-[0.2em] text-leaf-moss">Deliberate insertion</p>
+            <h2 class="mt-1 font-serif text-2xl text-leaf-paper">Preview before it enters the verse</h2>
+            <p class="mt-3 text-xs text-zinc-400">You can change the destination. Nothing is edited until you confirm.</p>
+            <div class="mt-4 rounded border border-leaf-line bg-black/20 p-3">
+                <p class="text-[10px] font-mono uppercase tracking-widest text-zinc-500">Selected word or rhyme</p>
+                <p id="insert-preview-word" class="mt-1 text-lg text-leaf-paper"></p>
+            </div>
+            <label for="insert-target" class="mt-4 block text-xs font-mono text-zinc-300">Insert into</label>
+            <select id="insert-target" class="field-control mt-1 w-full rounded px-3 py-2 text-sm">
+                <option value="1">Line 1</option>
+                <option value="2">Line 2</option>
+            </select>
+            <p id="insert-target-context" class="mt-2 text-[10px] text-zinc-500"></p>
+            <div class="mt-5 flex justify-end gap-2">
+                <button type="button" onclick="document.getElementById('insert-dialog').close()" class="secondary-action rounded border px-3 py-2 text-xs">Cancel</button>
+                <button type="button" onclick="commitInsertion()" class="rounded bg-leaf-moss px-3 py-2 text-xs font-semibold hover:brightness-110">Use this word</button>
+            </div>
+        </form>
+    </dialog>
+
+    <script>
+        const RHYME_DICTIONARY = {
+            KAINAAT: [
+                { word: 'zaat', meaning: 'shared -aat ending · check aloud' },
+                { word: 'halaat', meaning: 'shared -aat ending · check aloud' },
+                { word: 'saugaat', meaning: 'shared written ending · accent may vary' },
+                { word: 'jazbaat', meaning: 'shared -aat ending · check stress' }
+            ],
+            TASSAVVUR: [
+                { word: 'takabbur', meaning: 'similar ending · check pronunciation' },
+                { word: 'tadabbur', meaning: 'similar ending · check pronunciation' },
+                { word: 'tafakkur', meaning: 'similar ending · check pronunciation' }
+            ],
+            GUFTAGOO: [
+                { word: 'rubaaroo', meaning: 'shared -oo ending · check stress' },
+                { word: 'aarzoo', meaning: 'shared -oo ending · check stress' },
+                { word: 'justajoo', meaning: 'shared -oo ending · check stress' }
+            ],
+            CHETNA: [
+                { word: 'vedna', meaning: 'similar -na ending · not exact' },
+                { word: 'sochna', meaning: 'similar -na ending · not exact' }
+            ]
+        };
+
+        const LENS_GUIDANCE = {
+            intention: {
+                prompt: 'What are you trying to say beneath the surface?'
+            },
+            message: {
+                prompt: 'What idea remains if the rhyme disappears?'
+            },
+            listener: {
+                prompt: 'What should a listener feel on first listen?'
+            }
+        };
+
+        const WORD_ATLAS = [
+            { id: 'kainaat', word: 'kainaat', transliteration: 'kainaat', language: 'Hindi / Urdu', meaning: 'The universe; the whole created world.', note: 'Can make a personal feeling feel cosmic, or contrast vastness with one small life.', pronunciation: 'Often said kai-naat. Stress and vowel length vary by speaker.', confidence: 'Romanized pronunciation guide only. Check the version you use in performance.', themes: ['identity', 'time'], rhymes: [
+                { word: 'zaat', kind: 'Shared ending sound', note: 'Common spellings share an -aat ending; test vowel length aloud.', scores: { sound: 1, meaning: 2, delivery: 1 }, lenses: ['intention', 'message'] },
+                { word: 'halaat', kind: 'Shared ending sound', note: 'A familiar -aat family; contextual fit matters more than the ending.', scores: { sound: 2, meaning: 1, delivery: 2 }, lenses: ['message', 'listener'] },
+                { word: 'jazbaat', kind: 'Shared ending sound', note: 'Related ending in common transliteration; multisyllable stress may differ.', scores: { sound: 3, meaning: 3, delivery: 3 }, lenses: ['intention', 'listener'] }
+            ] },
+            { id: 'zaat', word: 'zaat', transliteration: 'zaat', language: 'Hindi / Urdu', meaning: 'Self, being, essence; in some contexts, lineage or social identity.', note: 'Its sense is context-sensitive. Consider whether your line means inner self, identity, or inherited status.', pronunciation: 'Often rendered zaat; long aa in many Urdu/Hindi pronunciations.', confidence: 'Meaning shifts by context and community. Avoid treating one gloss as universal.', themes: ['identity', 'memory'], rhymes: [
+                { word: 'kainaat', kind: 'Shared ending sound', note: 'Common transliterations share an -aat ending.', scores: { sound: 1, meaning: 2, delivery: 1 }, lenses: ['message', 'listener'] },
+                { word: 'jazbaat', kind: 'Shared ending sound', note: 'A familiar -aat family; check stress in your delivery.', scores: { sound: 2, meaning: 1, delivery: 2 }, lenses: ['intention', 'message'] }
+            ] },
+            { id: 'jazbaat', word: 'jazbaat', transliteration: 'jazbaat', language: 'Hindi / Urdu', meaning: 'Emotions or feelings, often strongly felt.', note: 'A direct emotional word; an image or action nearby can make the feeling more specific.', pronunciation: 'Often rendered jaz-baat; pronunciation varies across speakers.', confidence: 'Roman spelling is not a pronunciation standard.', themes: ['identity', 'conflict'], rhymes: [
+                { word: 'halaat', kind: 'Shared ending sound', note: 'Common transliterations share an -aat ending.', scores: { sound: 1, meaning: 1, delivery: 1 }, lenses: ['message', 'listener'] },
+                { word: 'saugaat', kind: 'Shared ending sound', note: 'Similar written ending; verify the vowel and stress you use.', scores: { sound: 2, meaning: 2, delivery: 2 }, lenses: ['intention', 'listener'] }
+            ] },
+            { id: 'khamoshi', word: 'khamoshi', transliteration: 'khamoshi', language: 'Hindi / Urdu', meaning: 'Silence, quiet, or the state of being silent.', note: 'Can suggest peace, withheld speech, distance, or refusal depending on the scene.', pronunciation: 'Often rendered khaa-mo-shee; the initial consonant varies by accent.', confidence: 'Roman spellings do not consistently distinguish every consonant or vowel.', themes: ['silence', 'memory'], rhymes: [
+                { word: 'madhoshi', kind: 'Near rhyme', note: 'Similar -oshi sound in common transliteration; not guaranteed exact.', scores: { sound: 1, meaning: 2, delivery: 2 }, lenses: ['intention', 'listener'] },
+                { word: 'roshni', kind: 'Sound echo', note: 'Shares some consonant/vowel color, not a strict end rhyme.', scores: { sound: 2, meaning: 1, delivery: 1 }, lenses: ['message', 'listener'] }
+            ] },
+            { id: 'waqt', word: 'waqt', transliteration: 'waqt', language: 'Hindi / Urdu', meaning: 'Time or a particular moment; also the right or appointed time.', note: 'Useful for tension between waiting, urgency, and hindsight.', pronunciation: 'Often rendered waqt; the final consonant cluster may be simplified by speakers.', confidence: 'Check the cluster against your natural accent and tempo.', themes: ['time', 'memory'], rhymes: [
+                { word: 'sakht', kind: 'Consonant echo', note: 'A compact consonant echo; the vowel differs, so treat as a slant rhyme.', scores: { sound: 1, meaning: 2, delivery: 1 }, lenses: ['message', 'listener'] },
+                { word: 'takht', kind: 'Consonant echo', note: 'Similar compact ending; a slant rhyme rather than a guaranteed exact rhyme.', scores: { sound: 2, meaning: 1, delivery: 2 }, lenses: ['intention', 'listener'] }
+            ] },
+            { id: 'aaina', word: 'aaina', transliteration: 'aaina', language: 'Hindi / Urdu', meaning: 'A mirror; also a way of seeing or reflecting something.', note: 'Can be literal, self-reflective, or a witness to change. Whose reflection is it?', pronunciation: 'Often rendered aa-ee-naa; vowel sequence varies in speech.', confidence: 'Roman spellings like aaina/aina can hide different vowel timing.', themes: ['identity', 'memory'], rhymes: [
+                { word: 'nageena', kind: 'Near rhyme', note: 'Shares a broad -eena ending in some pronunciations; verify aloud.', scores: { sound: 1, meaning: 2, delivery: 2 }, lenses: ['intention', 'listener'] },
+                { word: 'zamaana', kind: 'Assonance', note: 'Vowel echo in common spellings, not a strict rhyme.', scores: { sound: 2, meaning: 1, delivery: 1 }, lenses: ['message', 'listener'] }
+            ] },
+            { id: 'tanhaai', word: 'tanhaai', transliteration: 'tanhaai', language: 'Hindi / Urdu', meaning: 'Solitude or loneliness; the emotional tone depends on context.', note: 'Ask whether the speaker chose the solitude or was left in it.', pronunciation: 'Often rendered tan-haa-ee; syllable boundaries shift in fast speech.', confidence: 'A rough reading aid, not phonetic transcription.', themes: ['silence', 'identity'], rhymes: [
+                { word: 'parchhaai', kind: 'Near rhyme', note: 'Similar long-vowel ending in common transliteration; accent-sensitive.', scores: { sound: 1, meaning: 1, delivery: 2 }, lenses: ['intention', 'message'] },
+                { word: 'rihaai', kind: 'Near rhyme', note: 'Shared -aai sound in common transliteration; test cadence.', scores: { sound: 2, meaning: 2, delivery: 1 }, lenses: ['listener', 'intention'] }
+            ] },
+            { id: 'parchhaai', word: 'parchhaai', transliteration: 'parchhaai', language: 'Hindi / Urdu', meaning: 'A shadow or reflected outline.', note: 'Can imply presence, a past self, or something that follows. What casts it?', pronunciation: 'Often rendered par-chhaa-ee; consonant varies by speaker.', confidence: 'Roman spelling does not fully encode aspiration or vowel timing.', themes: ['memory', 'identity'], rhymes: [
+                { word: 'tanhaai', kind: 'Near rhyme', note: 'Similar ending in common transliteration; verify your pronunciation.', scores: { sound: 1, meaning: 2, delivery: 1 }, lenses: ['intention', 'listener'] },
+                { word: 'rihaai', kind: 'Near rhyme', note: 'Shared broad -aai ending; not necessarily exact in every accent.', scores: { sound: 2, meaning: 1, delivery: 2 }, lenses: ['message', 'listener'] }
+            ] },
+            { id: 'safar', word: 'safar', transliteration: 'safar', language: 'Hindi / Urdu', meaning: 'A journey or passage from one place or state to another.', note: 'Can be physical or inward. A concrete place makes the metaphor more grounded.', pronunciation: 'Often rendered sa-far; stress and vowel quality vary.', confidence: 'Common transliteration is approximate.', themes: ['journey', 'time'], rhymes: [
+                { word: 'asar', kind: 'Near rhyme', note: 'Related -ar ending in common transliteration; first vowel differs.', scores: { sound: 1, meaning: 2, delivery: 1 }, lenses: ['message', 'listener'] },
+                { word: 'nazar', kind: 'Near rhyme', note: 'Shared broad ending; vowel and stress need checking.', scores: { sound: 2, meaning: 1, delivery: 2 }, lenses: ['intention', 'listener'] }
+            ] },
+            { id: 'umeed', word: 'umeed', transliteration: 'umeed', language: 'Hindi / Urdu', meaning: 'Hope or expectation.', note: 'Can be a source of strength or a burden. What does the speaker risk by hoping?', pronunciation: 'Often rendered um-meed with a long final vowel.', confidence: 'Transliteration is approximate; speakers vary.', themes: ['hope', 'journey'], rhymes: [
+                { word: 'naved', kind: 'Near rhyme', note: 'A less common poetic association; check familiarity and pronunciation.', scores: { sound: 1, meaning: 1, delivery: 2 }, lenses: ['intention', 'message'] },
+                { word: 'deed', kind: 'Sound echo', note: 'Shares a long-vowel plus d ending in some readings; usage may feel marked.', scores: { sound: 2, meaning: 2, delivery: 1 }, lenses: ['listener', 'message'] }
+            ] },
+            { id: 'mitti', word: 'mitti', transliteration: 'mitti', language: 'Hindi / Urdu', meaning: 'Soil or earth; by extension, homeland, origin, or material life.', note: 'A tactile image. Whose land, labor, or memory does this soil hold?', pronunciation: 'Often rendered mit-tee; retroflex consonant may not appear in Roman text.', confidence: 'Roman spelling does not distinguish every consonant contrast.', themes: ['memory', 'identity'], rhymes: [
+                { word: 'chitthi', kind: 'Near rhyme', note: 'Similar written ending in transliteration; consonant quality differs.', scores: { sound: 1, meaning: 1, delivery: 2 }, lenses: ['intention', 'listener'] },
+                { word: 'sitti', kind: 'Sound echo', note: 'A playful sound association, not a universal exact rhyme.', scores: { sound: 2, meaning: 2, delivery: 1 }, lenses: ['message', 'listener'] }
+            ] },
+            { id: 'dehleez', word: 'dehleez', transliteration: 'dehleez', language: 'Hindi / Urdu', meaning: 'A threshold or doorway edge; figuratively, a boundary or point of entry.', note: 'A strong transition image: what is left behind, and what waits beyond?', pronunciation: 'Often rendered deh-leez; the final consonant may vary.', confidence: 'Roman spelling is approximate; local usage differs.', themes: ['journey', 'identity'], rhymes: [
+                { word: 'tameez', kind: 'Near rhyme', note: 'Similar -eez ending in many transliterations; consonants and stress differ.', scores: { sound: 1, meaning: 2, delivery: 1 }, lenses: ['message', 'listener'] },
+                { word: 'cheez', kind: 'Sound echo', note: 'Shares a broad final sound; short word may need rhythmic support.', scores: { sound: 2, meaning: 1, delivery: 2 }, lenses: ['intention', 'listener'] }
+            ] },
+            { id: 'afterimage', word: 'afterimage', transliteration: 'AF-ter-im-ij', language: 'English', meaning: 'An image that remains in vision after looking away; figuratively, a lasting impression.', note: 'Useful for memory that persists after the source is gone.', pronunciation: 'Common English pronunciation has four syllables; accents vary.', confidence: 'English dictionary-style estimate; check your own delivery.', themes: ['memory', 'time'], rhymes: [
+                { word: 'damage', kind: 'Near rhyme', note: 'Similar final unstressed sound in many accents; not an exact rhyme.', scores: { sound: 1, meaning: 2, delivery: 1 }, lenses: ['intention', 'listener'] },
+                { word: 'vanish', kind: 'Assonance', note: 'Loose vowel/consonant echo; use only if it fits your pronunciation.', scores: { sound: 2, meaning: 1, delivery: 2 }, lenses: ['message', 'listener'] }
+            ] },
+            { id: 'undertow', word: 'undertow', transliteration: 'UN-der-toh', language: 'English', meaning: 'A subsurface current pulling away from shore; figuratively, a hidden force beneath the surface.', note: 'Can carry a double image of danger and concealed emotional pressure.', pronunciation: 'Often three syllables; regional stress varies.', confidence: 'Check stress against the beat.', themes: ['conflict', 'memory'], rhymes: [
+                { word: 'below', kind: 'Near rhyme', note: 'Shared -ow ending in many accents; not guaranteed across dialects.', scores: { sound: 1, meaning: 2, delivery: 1 }, lenses: ['intention', 'listener'] },
+                { word: 'overflow', kind: 'Multisyllabic echo', note: 'Related final sound and longer cadence; test stress placement.', scores: { sound: 2, meaning: 1, delivery: 2 }, lenses: ['message', 'listener'] }
+            ] },
+            { id: 'threshold', word: 'threshold', transliteration: 'THRESH-hold', language: 'English', meaning: 'A doorway entrance; figuratively, the point at which change begins.', note: 'Pairs well with scenes of leaving, choosing, or being unable to cross.', pronunciation: 'Usually two syllables; initial consonant cluster can be demanding at tempo.', confidence: 'Delivery note is subjective; test over the intended beat.', themes: ['journey', 'identity'], rhymes: [
+                { word: 'breath-hold', kind: 'Multisyllabic echo', note: 'Phrase-level sound play; not a single-word exact rhyme.', scores: { sound: 1, meaning: 2, delivery: 2 }, lenses: ['intention', 'listener'] },
+                { word: 'behold', kind: 'Near rhyme', note: 'Shares the final -hold sound; syllable count differs.', scores: { sound: 2, meaning: 1, delivery: 1 }, lenses: ['message', 'listener'] }
+            ] },
+            { id: 'hollow', word: 'hollow', transliteration: 'HOL-oh', language: 'English', meaning: 'Empty inside; also an emotional sense of absence or lack.', note: 'A familiar word; a specific object or physical detail can make it feel less generic.', pronunciation: 'Often two syllables; accent may reduce the second vowel.', confidence: 'Stress is usually first syllable; verify in your flow.', themes: ['silence', 'conflict'], rhymes: [
+                { word: 'follow', kind: 'End rhyme', note: 'Common English rhyme in many accents.', scores: { sound: 1, meaning: 2, delivery: 1 }, lenses: ['message', 'listener'] },
+                { word: 'swallow', kind: 'End rhyme', note: 'Common English rhyme; meaning can be literal or figurative.', scores: { sound: 2, meaning: 1, delivery: 2 }, lenses: ['intention', 'listener'] }
+            ] }
+        ];
+
+        const CONSTELLATIONS = [
+            {
+                title: 'The self inside the vast',
+                words: ['aaina', 'zaat', 'kainaat'],
+                thread: 'A mirror catches a self; that self is only one small part of a vast universe.',
+                question: 'What detail in the reflection reveals the speaker’s place in a much larger world?'
+            },
+            {
+                title: 'What silence carries',
+                words: ['khamoshi', 'parchhaai', 'waqt'],
+                thread: 'Silence leaves a shadow; time changes whether it feels like grief, peace, or refusal.',
+                question: 'What is left unsaid, and how does its meaning shift by the end of the verse?'
+            },
+            {
+                title: 'At the edge of change',
+                words: ['safar', 'dehleez', 'umeed'],
+                thread: 'A journey reaches a threshold; hope becomes the choice to cross—or not.',
+                question: 'What concrete thing is on either side of the threshold?'
+            },
+            {
+                title: 'The ground beneath a feeling',
+                words: ['mitti', 'jazbaat', 'afterimage'],
+                thread: 'The earth holds what happened; an afterimage is what the feeling refuses to release.',
+                question: 'Can the emotion be shown through an object, place, or action instead of named directly?'
+            },
+            {
+                title: 'The pressure of a moment',
+                words: ['waqt', 'jazbaat', 'tanhaai'],
+                thread: 'A moment becomes a circumstance; solitude reveals what pressure has changed.',
+                question: 'Does the speaker feel trapped by the moment, or choose what it means next?'
+            }
+        ];
+
+        const DRAFT_STORAGE_KEY = 'hidden-leaf-draft-v1';
+        const FAVORITES_STORAGE_KEY = 'hidden-leaf-favorites-v1';
+        const PERSONAL_WORD_NOTES_KEY = 'hidden-leaf-word-notes-v1';
+        let activeWordId = null;
+        let savedWordIds = [];
+        let personalWordNotes = {};
+        let personalNoteTimer = null;
+        let favoritesOnly = false;
+        let constellationIndex = -1;
+        let constellationWordIds = [];
+        let pendingInsertionWord = '';
+        let lastCaret = null;
+        let lastInsertion = null;
+        let saveTimer = null;
+        let storageError = '';
+        let isInitializing = true;
+
+        let audioCtx = null;
+        let isPlaying = false;
+        let masterBPM = 88;
+        let currentStep32 = 0;
+        let nextStepDueTime = 0.0;
+        let lookaheadTimer = null;
+        let currentPalette = 'jazzhop';
+        let currentLens = 'intention';
+        let isDroneOn = false;
+        let oscA = null;
+        let oscB = null;
+        let droneGain = null;
+        let tunerStream = null;
+        let tunerContext = null;
+        let tunerAnalyser = null;
+        let tunerSource = null;
+        let tunerFrame = null;
+        let micRequestId = 0;
+        let isMicRequestPending = false;
+
+        const PATTERNS = {
+            jazzhop: {
+                bpm: 88,
+                k: [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0],
+                s: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1],
+                h: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+                c: [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
+            },
+            drillnoir: {
+                bpm: 70,
+                k: [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+                s: [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+                h: [1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1],
+                c: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
+            },
+            tablaloft: {
+                bpm: 92,
+                k: [1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+                s: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+                h: [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+                c: [1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0]
+            }
+        };
+
+        const TEMPO_PRESETS = {
+            slowpulse: { bpm: 64, groove: 'drillnoir', label: 'spacious' },
+            halftime: { bpm: 72, groove: 'drillnoir', label: 'heavy' },
+            headnod: { bpm: 82, groove: 'jazzhop', label: 'steady' },
+            velvetjazz: { bpm: 88, groove: 'jazzhop', label: 'laid-back' },
+            tabladrift: { bpm: 92, groove: 'tablaloft', label: 'rolling' },
+            forwardmotion: { bpm: 100, groove: 'tablaloft', label: 'driving' },
+            doubletime: { bpm: 120, groove: 'drillnoir', label: 'fast' },
+            custom: { bpm: 88, groove: 'jazzhop', label: 'custom' }
+        };
+
+        let currentTempoPreset = 'velvetjazz';
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioClass = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioClass();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function clearVisualState() {
+            document.querySelectorAll('.lyric-token').forEach((token) => token.classList.remove('active-token'));
+            document.querySelectorAll('.beat-step.playhead-step').forEach((step) => step.classList.remove('playhead-step'));
+            document.getElementById('word-field').classList.remove('beat-flash');
+            for (let i = 0; i < 4; i++) {
+                const dot = document.getElementById('dot-' + i);
+                if (dot) dot.classList.remove('active-dot');
+            }
+        }
+
+        function stopPlayback() {
+            if (lookaheadTimer) {
+                clearTimeout(lookaheadTimer);
+                lookaheadTimer = null;
+            }
+            if (audioCtx && !isDroneOn) {
+                audioCtx.suspend();
+            }
+            isPlaying = false;
+            clearVisualState();
+            const btn = document.getElementById('btn-play');
+            const txt = document.getElementById('txt-play');
+            const iconPlay = document.getElementById('icon-play');
+            const iconStop = document.getElementById('icon-stop');
+            if (btn && txt) {
+                txt.textContent = 'PLAY';
+                btn.setAttribute('aria-label', 'Play beat');
+                btn.classList.remove('bg-zinc-800');
+                btn.classList.add('bg-gold');
+                btn.classList.remove('text-ivory');
+                btn.classList.add('text-onyx');
+            }
+            if (iconPlay) iconPlay.classList.remove('hidden');
+            if (iconStop) iconStop.classList.add('hidden');
+        }
+
+        function playKick(t) {
+            const osc = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            osc.frequency.setValueAtTime(120, t);
+            osc.frequency.exponentialRampToValueAtTime(42, t + 0.18);
+            g.gain.setValueAtTime(0.8, t);
+            g.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+            osc.connect(g);
+            g.connect(audioCtx.destination);
+            osc.start(t);
+            osc.stop(t + 0.23);
+        }
+
+        function playSnare(t) {
+            const bSize = audioCtx.sampleRate * 0.1;
+            const b = audioCtx.createBuffer(1, bSize, audioCtx.sampleRate);
+            const d = b.getChannelData(0);
+            for (let i = 0; i < bSize; i++) d[i] = Math.random() * 2 - 1;
+
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = b;
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(1400, t);
+
+            const g = audioCtx.createGain();
+            g.gain.setValueAtTime(0.35, t);
+            g.gain.exponentialRampToValueAtTime(0.005, t + 0.09);
+
+            noise.connect(filter);
+            filter.connect(g);
+            g.connect(audioCtx.destination);
+            noise.start(t);
+        }
+
+        function playHat(t) {
+            const bSize = audioCtx.sampleRate * 0.03;
+            const b = audioCtx.createBuffer(1, bSize, audioCtx.sampleRate);
+            const d = b.getChannelData(0);
+            for (let i = 0; i < bSize; i++) d[i] = (Math.random() * 2 - 1) * 0.4;
+
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = b;
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'highpass';
+            filter.frequency.setValueAtTime(7500, t);
+
+            const g = audioCtx.createGain();
+            g.gain.setValueAtTime(0.09, t);
+            g.gain.exponentialRampToValueAtTime(0.005, t + 0.03);
+
+            noise.connect(filter);
+            filter.connect(g);
+            g.connect(audioCtx.destination);
+            noise.start(t);
+        }
+
+        function playChord(t, step16) {
+            if (currentPalette === 'jazzhop') {
+                const freqs = step16 === 0 ? [146.83, 174.61, 220.00, 261.63] : [130.81, 164.81, 196.00, 246.94];
+                freqs.forEach((f) => {
+                    const osc = audioCtx.createOscillator();
+                    const g = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(f, t);
+                    g.gain.setValueAtTime(0.015, t);
+                    g.gain.exponentialRampToValueAtTime(0.0005, t + 1.1);
+                    osc.connect(g);
+                    g.connect(audioCtx.destination);
+                    osc.start(t);
+                    osc.stop(t + 1.15);
+                });
+            }
+        }
+
+        function scheduler() {
+            if (!audioCtx || !isPlaying) return;
+            while (nextStepDueTime < audioCtx.currentTime + 0.12) {
+                scheduleStep(currentStep32, nextStepDueTime);
+                advanceStep();
+            }
+            lookaheadTimer = setTimeout(scheduler, 25.0);
+        }
+
+        function advanceStep() {
+            const secPerBeat = 60.0 / masterBPM;
+            nextStepDueTime += 0.25 * secPerBeat;
+            currentStep32 = (currentStep32 + 1) % 32;
+        }
+
+        function scheduleStep(step32, time) {
+            const step16 = step32 % 16;
+            const pat = PATTERNS[currentPalette];
+            if (pat.k[step16]) playKick(time);
+            if (pat.s[step16]) playSnare(time);
+            if (pat.h[step16]) playHat(time);
+            if (pat.c[step16]) playChord(time, step16);
+
+            const delayMs = Math.max(0, (time - audioCtx.currentTime) * 1000);
+            setTimeout(() => {
+                triggerVisuals(step32);
+            }, delayMs);
+        }
+
+        function triggerVisuals(step32) {
+            const isBar1 = step32 < 16;
+            const stepInBar = step32 % 16;
+            const beatInBar = Math.floor(stepInBar / 4);
+            document.querySelectorAll('#beat-editor .beat-row').forEach((row) => {
+                row.querySelectorAll('.beat-step').forEach((step, index) => {
+                    step.classList.toggle('playhead-step', index === stepInBar);
+                });
+            });
+            const wordField = document.getElementById('word-field');
+            wordField.classList.add('beat-flash');
+            setTimeout(() => wordField.classList.remove('beat-flash'), 110);
+
+            if (stepInBar % 4 === 0) {
+                for (let i = 0; i < 4; i++) {
+                    const dot = document.getElementById('dot-' + i);
+                    if (dot) dot.classList.remove('active-dot');
+                }
+                const dot = document.getElementById('dot-' + beatInBar);
+                if (dot) dot.classList.add('active-dot');
+            }
+
+            const containerId = isBar1 ? 'fluid-tokens-1' : 'fluid-tokens-2';
+            const tokens = document.getElementById(containerId).querySelectorAll('.lyric-token');
+            if (tokens.length > 0) {
+                const targetIdx = Math.min(tokens.length - 1, Math.floor((stepInBar / 16) * tokens.length));
+                tokens.forEach((tok, idx) => {
+                    if (idx === targetIdx) tok.classList.add('active-token');
+                    else tok.classList.remove('active-token');
+                });
+            }
+        }
+
+        function togglePlay() {
+            initAudio();
+            isPlaying = !isPlaying;
+
+            const btn = document.getElementById('btn-play');
+            const txt = document.getElementById('txt-play');
+            const iconPlay = document.getElementById('icon-play');
+            const iconStop = document.getElementById('icon-stop');
+
+            if (isPlaying) {
+                currentStep32 = 0;
+                nextStepDueTime = audioCtx.currentTime + 0.05;
+                scheduler();
+                txt.textContent = 'STOP';
+                btn.setAttribute('aria-label', 'Stop beat');
+                btn.classList.remove('bg-gold');
+                btn.classList.add('bg-zinc-800');
+                btn.classList.remove('text-onyx');
+                btn.classList.add('text-ivory');
+                iconPlay.classList.add('hidden');
+                iconStop.classList.remove('hidden');
+            } else {
+                stopPlayback();
+            }
+        }
+
+        function changePalette(val) {
+            const preset = TEMPO_PRESETS[val];
+            if (!preset) return;
+            currentTempoPreset = val;
+            currentPalette = preset.groove;
+            const customInput = document.getElementById('custom-bpm');
+            customInput.classList.toggle('hidden', val !== 'custom');
+            masterBPM = val === 'custom'
+                ? Math.min(160, Math.max(60, Number(customInput.value) || 88))
+                : preset.bpm;
+            document.getElementById('tempo-status').textContent =
+                masterBPM + ' BPM · ' + (val === 'custom' ? 'custom tempo' : preset.label);
+            document.getElementById('beat-bpm').value = String(masterBPM);
+            const selectedTempo = document.getElementById('select-palette').selectedOptions[0].textContent;
+            document.getElementById('beat-groove-label').textContent =
+                val === 'custom' ? 'Custom groove' : selectedTempo.split('·')[0].trim();
+            renderBeatEditor();
+            if (isPlaying) {
+                clearTimeout(lookaheadTimer);
+                currentStep32 = 0;
+                nextStepDueTime = audioCtx.currentTime + 0.05;
+                scheduler();
+            }
+            saveDraftSoon();
+        }
+
+        function changeCustomBpm(value) {
+            const bpm = Number(value);
+            const input = document.getElementById('custom-bpm');
+            if (!Number.isInteger(bpm) || bpm < 60 || bpm > 160) {
+                input.setCustomValidity('Enter a whole-number tempo between 60 and 160 BPM.');
+                input.reportValidity();
+                return;
+            }
+            input.setCustomValidity('');
+            masterBPM = bpm;
+            document.getElementById('beat-bpm').value = String(bpm);
+            document.getElementById('tempo-status').textContent = bpm + ' BPM · custom tempo';
+            if (isPlaying) {
+                clearTimeout(lookaheadTimer);
+                currentStep32 = 0;
+                nextStepDueTime = audioCtx.currentTime + 0.05;
+                scheduler();
+            }
+            saveDraftSoon();
+        }
+
+        function showExplore() {
+            setStudioScreen('explore');
+            renderAtlas();
+            document.getElementById('atlas-search').focus();
+        }
+
+        function showWriting() {
+            setStudioScreen('write');
+            const target = lastCaret && document.getElementById(lastCaret.id);
+            const input = target || document.getElementById('input-line-1');
+            input.focus();
+            if (target && lastCaret) input.setSelectionRange(lastCaret.start, lastCaret.end);
+        }
+
+        function showVocal() {
+            setStudioScreen('vocal');
+            document.getElementById('btn-mic').focus();
+        }
+
+        function showBeat() {
+            setStudioScreen('beat');
+            renderBeatEditor();
+        }
+
+        function setStudioScreen(screen) {
+            const screens = {
+                write: 'writing-home',
+                explore: 'explore-view',
+                vocal: 'vocal-view',
+                beat: 'beat-view'
+            };
+            Object.entries(screens).forEach(([name, id]) => {
+                document.getElementById(id).classList.toggle('hidden', name !== screen);
+            });
+            document.querySelectorAll('#studio-nav [data-screen]').forEach((button) => {
+                if (button.dataset.screen === screen) button.setAttribute('aria-current', 'page');
+                else button.removeAttribute('aria-current');
+            });
+            if (screen !== 'vocal' && (tunerStream || tunerFrame || isMicRequestPending)) {
+                stopVocalMonitor();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderBeatEditor() {
+            const editor = document.getElementById('beat-editor');
+            if (!editor) return;
+            editor.replaceChildren();
+            const tracks = [
+                { key: 'k', name: 'KICK', note: 'Low hit' },
+                { key: 's', name: 'SNARE', note: 'Backbeat' },
+                { key: 'h', name: 'HI-HAT', note: 'Timekeeper' },
+                { key: 'c', name: 'CHORD', note: 'Texture' }
+            ];
+            tracks.forEach((track) => {
+                const row = document.createElement('div');
+                row.className = 'beat-row';
+                const label = document.createElement('p');
+                label.className = 'beat-row-label';
+                label.textContent = track.name;
+                const sublabel = document.createElement('small');
+                sublabel.textContent = track.note;
+                label.append(sublabel);
+                const grid = document.createElement('div');
+                grid.className = 'beat-grid';
+                PATTERNS[currentPalette][track.key].forEach((active, step) => {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'beat-step';
+                    button.setAttribute('aria-label', track.name + ' step ' + (step + 1));
+                    button.setAttribute('aria-pressed', String(Boolean(active)));
+                    button.addEventListener('click', () => {
+                        const pattern = PATTERNS[currentPalette][track.key];
+                        pattern[step] = pattern[step] ? 0 : 1;
+                        button.setAttribute('aria-pressed', String(Boolean(pattern[step])));
+                        saveDraftSoon();
+                    });
+                    grid.append(button);
+                });
+                row.append(label, grid);
+                editor.append(row);
+            });
+        }
+
+        function toggleDrone() {
+            initAudio();
+            const button = document.getElementById('btn-drone');
+            const led = document.getElementById('drone-led');
+            const label = document.getElementById('drone-label');
+            if (!isDroneOn) {
+                oscA = audioCtx.createOscillator();
+                oscB = audioCtx.createOscillator();
+                droneGain = audioCtx.createGain();
+                oscA.type = 'triangle';
+                oscB.type = 'sine';
+                oscA.frequency.setValueAtTime(55, audioCtx.currentTime);
+                oscB.frequency.setValueAtTime(110, audioCtx.currentTime);
+                droneGain.gain.setValueAtTime(0.035, audioCtx.currentTime);
+                oscA.connect(droneGain);
+                oscB.connect(droneGain);
+                droneGain.connect(audioCtx.destination);
+                oscA.start();
+                oscB.start();
+                isDroneOn = true;
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+            } else {
+                if (oscA) { oscA.stop(); oscA.disconnect(); oscA = null; }
+                if (oscB) { oscB.stop(); oscB.disconnect(); oscB = null; }
+                if (droneGain) { droneGain.disconnect(); droneGain = null; }
+                isDroneOn = false;
+                if (!isPlaying) audioCtx.suspend();
+            }
+            button.setAttribute('aria-pressed', String(isDroneOn));
+            label.textContent = 'BASS DRONE · ' + (isDroneOn ? 'ON' : 'OFF');
+            led.className = isDroneOn
+                ? 'h-2 w-2 rounded-full bg-gold animate-pulse'
+                : 'h-2 w-2 rounded-full bg-zinc-600';
+            button.classList.toggle('border-gold/50', isDroneOn);
+        }
+
+        function noteName(midiNote) {
+            const names = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
+            return names[((midiNote % 12) + 12) % 12] + (Math.floor(midiNote / 12) - 1);
+        }
+
+        function estimatePitch(samples, sampleRate) {
+            let rms = 0;
+            for (let i = 0; i < samples.length; i++) rms += samples[i] * samples[i];
+            rms = Math.sqrt(rms / samples.length);
+            if (rms < 0.008) return null;
+
+            const minLag = Math.floor(sampleRate / 1000);
+            const maxLag = Math.min(Math.floor(sampleRate / 50), samples.length - 2);
+            let bestLag = -1;
+            let bestCorrelation = 0;
+            for (let lag = minLag; lag <= maxLag; lag++) {
+                let correlation = 0;
+                for (let i = 0; i < samples.length - lag; i++) {
+                    correlation += samples[i] * samples[i + lag];
+                }
+                correlation /= samples.length - lag;
+                if (correlation > bestCorrelation) {
+                    bestCorrelation = correlation;
+                    bestLag = lag;
+                }
+            }
+            if (bestLag < 0 || bestCorrelation < 0.35) return null;
+
+            const left = bestLag > minLag ? bestLag - 1 : bestLag;
+            const right = Math.min(bestLag + 1, maxLag);
+            const correlationAt = (lag) => {
+                let sum = 0;
+                for (let i = 0; i < samples.length - lag; i++) sum += samples[i] * samples[i + lag];
+                return sum / (samples.length - lag);
+            };
+            const a = correlationAt(left);
+            const b = correlationAt(bestLag);
+            const c = correlationAt(right);
+            const denominator = a - 2 * b + c;
+            const offset = denominator ? 0.5 * (a - c) / denominator : 0;
+            return sampleRate / (bestLag + offset);
+        }
+
+        async function toggleVocalMonitor() {
+            if (tunerStream || isMicRequestPending) {
+                stopVocalMonitor();
+                return;
+            }
+            const button = document.getElementById('btn-mic');
+            const status = document.getElementById('mic-status');
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                status.textContent = 'Microphone input is unavailable here. Open the studio on localhost or a secure connection.';
+                return;
+            }
+            const requestId = ++micRequestId;
+            isMicRequestPending = true;
+            button.disabled = true;
+            status.textContent = 'Requesting microphone access…';
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+                });
+                if (requestId !== micRequestId) {
+                    stream.getTracks().forEach((track) => track.stop());
+                    return;
+                }
+                tunerStream = stream;
+                const AudioClass = window.AudioContext || window.webkitAudioContext;
+                if (!AudioClass) throw new Error('Web Audio is unavailable in this browser.');
+                tunerContext = new AudioClass();
+                await tunerContext.resume();
+                if (requestId !== micRequestId || !tunerStream) return;
+                tunerAnalyser = tunerContext.createAnalyser();
+                tunerAnalyser.fftSize = 2048;
+                tunerSource = tunerContext.createMediaStreamSource(stream);
+                tunerSource.connect(tunerAnalyser);
+                button.disabled = false;
+                button.textContent = 'Stop microphone';
+                button.setAttribute('aria-pressed', 'true');
+                status.textContent = 'Mic is live. Sing or speak one steady note to read pitch.';
+                runTunerFrame();
+            } catch (error) {
+                if (requestId !== micRequestId) return;
+                if (tunerStream) tunerStream.getTracks().forEach((track) => track.stop());
+                tunerStream = null;
+                if (tunerSource) tunerSource.disconnect();
+                tunerSource = null;
+                tunerAnalyser = null;
+                if (tunerContext) {
+                    tunerContext.close();
+                    tunerContext = null;
+                }
+                button.disabled = false;
+                button.textContent = 'Start microphone';
+                button.setAttribute('aria-pressed', 'false');
+                status.textContent = error.name === 'NotAllowedError'
+                    ? 'Microphone access was blocked. Allow it in browser permissions, then try again.'
+                    : 'Microphone could not start: ' + error.message;
+            } finally {
+                if (requestId === micRequestId) isMicRequestPending = false;
+            }
+        }
+
+        function runTunerFrame() {
+            if (!tunerAnalyser || !tunerContext) return;
+            const canvas = document.getElementById('tuner-waveform');
+            const context = canvas.getContext('2d');
+            const bounds = canvas.getBoundingClientRect();
+            const pixelRatio = window.devicePixelRatio || 1;
+            const width = Math.max(1, Math.floor(bounds.width * pixelRatio));
+            const height = Math.max(1, Math.floor(bounds.height * pixelRatio));
+            if (canvas.width !== width || canvas.height !== height) {
+                canvas.width = width;
+                canvas.height = height;
+            }
+            const samples = new Float32Array(tunerAnalyser.fftSize);
+            tunerAnalyser.getFloatTimeDomainData(samples);
+            context.clearRect(0, 0, width, height);
+            context.beginPath();
+            context.strokeStyle = '#ffad77';
+            context.lineWidth = Math.max(1, pixelRatio);
+            for (let i = 0; i < samples.length; i++) {
+                const x = (i / (samples.length - 1)) * width;
+                const y = (0.5 - samples[i] * 0.42) * height;
+                if (i === 0) context.moveTo(x, y);
+                else context.lineTo(x, y);
+            }
+            context.stroke();
+
+            const pitchSamples = new Float32Array(Math.floor(samples.length / 2));
+            for (let i = 0; i < pitchSamples.length; i++) pitchSamples[i] = samples[i * 2];
+            const frequency = estimatePitch(pitchSamples, tunerContext.sampleRate / 2);
+            if (frequency) {
+                const midi = 69 + 12 * Math.log2(frequency / 440);
+                const nearestMidi = Math.round(midi);
+                const cents = Math.round((midi - nearestMidi) * 100);
+                const root = Number(document.getElementById('tuner-key').value);
+                const scale = document.getElementById('tuner-scale').value;
+                const intervals = scale === 'major' ? [0, 2, 4, 5, 7, 9, 11]
+                    : scale === 'minor' ? [0, 2, 3, 5, 7, 8, 10]
+                        : Array.from({ length: 12 }, (_, index) => index);
+                const allowed = intervals.map((interval) => (root + interval) % 12);
+                const targetMidi = Array.from({ length: 13 }, (_, index) => nearestMidi - 6 + index)
+                    .filter((candidate) => allowed.includes(((candidate % 12) + 12) % 12))
+                    .sort((a, b) => Math.abs(midi - a) - Math.abs(midi - b))[0];
+                const offset = Math.max(5, Math.min(95, 50 + cents * 0.9));
+                document.getElementById('tuner-note').textContent = noteName(nearestMidi);
+                document.getElementById('tuner-frequency').textContent =
+                    frequency.toFixed(1) + ' Hz · ' + Math.abs(cents) + ' cents ' + (cents < 0 ? 'flat' : 'sharp');
+                document.getElementById('tuner-target').textContent =
+                    'Nearest in-key note: ' + noteName(targetMidi) + ' · guide only';
+                document.getElementById('tuner-cents-marker').style.left = offset + '%';
+            } else {
+                document.getElementById('tuner-note').textContent = '—';
+                document.getElementById('tuner-frequency').textContent = 'Sing a steady note to read pitch';
+                document.getElementById('tuner-target').textContent = 'Target note appears when a pitch is detected';
+                document.getElementById('tuner-cents-marker').style.left = '50%';
+            }
+            tunerFrame = requestAnimationFrame(runTunerFrame);
+        }
+
+        function stopVocalMonitor() {
+            micRequestId++;
+            isMicRequestPending = false;
+            if (tunerFrame) cancelAnimationFrame(tunerFrame);
+            tunerFrame = null;
+            if (tunerStream) tunerStream.getTracks().forEach((track) => track.stop());
+            tunerStream = null;
+            if (tunerSource) tunerSource.disconnect();
+            tunerSource = null;
+            tunerAnalyser = null;
+            if (tunerContext) {
+                tunerContext.close();
+                tunerContext = null;
+            }
+            const button = document.getElementById('btn-mic');
+            const status = document.getElementById('mic-status');
+            if (button) {
+                button.disabled = false;
+                button.textContent = 'Start microphone';
+                button.setAttribute('aria-pressed', 'false');
+            }
+            if (status) status.textContent = 'Microphone is off.';
+        }
+
+        let folio = [
+            'Ek boond mein chhupi hai // saari KAINAAT,\nPehchan le bas tu // apni sachi ZAAT.'
+        ];
+
+        function setDraftStatus(message, hasError) {
+            const status = document.getElementById('draft-status');
+            if (!status) return;
+            status.textContent = message;
+            status.className = hasError
+                ? 'mt-1 text-[10px] font-mono text-rose-300'
+                : 'mt-1 text-[10px] font-mono text-zinc-500';
+        }
+
+        function saveDraftSoon() {
+            if (isInitializing) return;
+            clearTimeout(saveTimer);
+            saveTimer = setTimeout(saveDraft, 250);
+        }
+
+        function saveDraft() {
+            clearTimeout(saveTimer);
+            const draft = {
+                line1: document.getElementById('input-line-1').value,
+                rhyme1: document.getElementById('rhyme-line-1').value,
+                line2: document.getElementById('input-line-2').value,
+                rhyme2: document.getElementById('rhyme-line-2').value,
+                preset: document.getElementById('select-palette').value,
+                customBpm: masterBPM,
+                patterns: Object.fromEntries(Object.entries(PATTERNS).map(([name, pattern]) => [
+                    name,
+                    Object.fromEntries(Object.entries(pattern).map(([track, steps]) => [track, steps.slice()]))
+                ])),
+                lens: document.getElementById('select-lens').value,
+                languageLine1: document.getElementById('language-line-1').value,
+                languageLine2: document.getElementById('language-line-2').value
+            };
+            try {
+                localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+                setDraftStatus('Draft saved in this browser.', false);
+            } catch (error) {
+                setDraftStatus('Draft could not be saved in this browser. Copy your work to keep a backup.', true);
+            }
+        }
+
+        function restoreDraft() {
+            try {
+                const stored = localStorage.getItem(DRAFT_STORAGE_KEY);
+                if (!stored) return;
+                const draft = JSON.parse(stored);
+                if (!draft || typeof draft !== 'object' || Array.isArray(draft)) {
+                    throw new Error('Saved draft is not a valid object.');
+                }
+                if (draft.patterns && typeof draft.patterns === 'object' && !Array.isArray(draft.patterns)) {
+                    Object.entries(PATTERNS).forEach(([name, pattern]) => {
+                        const savedPattern = draft.patterns[name];
+                        if (!savedPattern || typeof savedPattern !== 'object') return;
+                        Object.keys(pattern).forEach((track) => {
+                            const savedSteps = savedPattern[track];
+                            if (Array.isArray(savedSteps) && savedSteps.length === 16
+                                && savedSteps.every((step) => step === 0 || step === 1)) {
+                                pattern[track] = savedSteps.slice();
+                            }
+                        });
+                    });
+                }
+                const fields = [
+                    ['line1', 'input-line-1'],
+                    ['rhyme1', 'rhyme-line-1'],
+                    ['line2', 'input-line-2'],
+                    ['rhyme2', 'rhyme-line-2']
+                ];
+                fields.forEach(([key, id]) => {
+                    if (typeof draft[key] === 'string') document.getElementById(id).value = draft[key];
+                });
+                const legacyPreset = { jazzhop: 'velvetjazz', drillnoir: 'halftime', tablaloft: 'tabladrift' };
+                const preset = TEMPO_PRESETS[draft.preset]
+                    ? draft.preset
+                    : legacyPreset[draft.palette];
+                if (preset) {
+                    document.getElementById('select-palette').value = preset;
+                    currentTempoPreset = preset;
+                    currentPalette = TEMPO_PRESETS[preset].groove;
+                    const customBpm = Number(draft.customBpm);
+                    document.getElementById('custom-bpm').value =
+                        Number.isInteger(customBpm) && customBpm >= 60 && customBpm <= 160
+                            ? customBpm
+                            : TEMPO_PRESETS[preset].bpm;
+                    masterBPM = preset === 'custom'
+                        ? Number(document.getElementById('custom-bpm').value)
+                        : TEMPO_PRESETS[preset].bpm;
+                }
+                if (Object.prototype.hasOwnProperty.call(LENS_GUIDANCE, draft.lens)) {
+                    document.getElementById('select-lens').value = draft.lens;
+                    currentLens = draft.lens;
+                }
+                if (['mixed', 'roman-hindi', 'english'].includes(draft.languageLine1)) {
+                    document.getElementById('language-line-1').value = draft.languageLine1;
+                }
+                if (['mixed', 'roman-hindi', 'english'].includes(draft.languageLine2)) {
+                    document.getElementById('language-line-2').value = draft.languageLine2;
+                }
+            } catch (error) {
+                storageError = 'Saved draft could not be read. Your current writing is still available.';
+            }
+        }
+
+        function loadPersonalWordNotes() {
+            try {
+                const stored = localStorage.getItem(PERSONAL_WORD_NOTES_KEY);
+                if (!stored) return;
+                const parsed = JSON.parse(stored);
+                if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)
+                    || Object.values(parsed).some((note) => typeof note !== 'string')) {
+                    throw new Error('Personal word notes are not a valid object.');
+                }
+                const knownIds = new Set(WORD_ATLAS.map((entry) => entry.id));
+                personalWordNotes = Object.fromEntries(
+                    Object.entries(parsed).filter(([id]) => knownIds.has(id))
+                );
+            } catch (error) {
+                storageError = 'Personal word notes could not be read.';
+            }
+        }
+
+        function savePersonalWordNote() {
+            if (!activeWordId) return;
+            clearTimeout(personalNoteTimer);
+            const wordId = activeWordId;
+            const note = document.getElementById('detail-personal-note').value;
+            const status = document.getElementById('personal-note-status');
+            status.textContent = 'Saving privately in this browser…';
+            personalNoteTimer = setTimeout(() => {
+                personalNoteTimer = null;
+                const saved = persistPersonalWordNote(wordId, note);
+                if (saved) {
+                    if (activeWordId === wordId) {
+                        status.textContent = 'Saved privately in this browser; not shared.';
+                    }
+                } else {
+                    if (activeWordId === wordId) {
+                        status.textContent = 'Could not save this note in the browser. Copy it elsewhere to keep it.';
+                        status.classList.add('text-rose-300');
+                    }
+                }
+            }, 250);
+        }
+
+        function persistPersonalWordNote(wordId, note) {
+            if (note.trim()) personalWordNotes[wordId] = note;
+            else delete personalWordNotes[wordId];
+            try {
+                localStorage.setItem(PERSONAL_WORD_NOTES_KEY, JSON.stringify(personalWordNotes));
+                return true;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        function flushPersonalWordNote() {
+            if (!personalNoteTimer || !activeWordId) return;
+            clearTimeout(personalNoteTimer);
+            personalNoteTimer = null;
+            const note = document.getElementById('detail-personal-note').value;
+            if (!persistPersonalWordNote(activeWordId, note)) {
+                storageError = 'Personal word note could not be saved in this browser.';
+            }
+        }
+
+        function loadSavedWords() {
+            try {
+                const stored = localStorage.getItem(FAVORITES_STORAGE_KEY);
+                if (!stored) return;
+                const parsed = JSON.parse(stored);
+                if (!Array.isArray(parsed) || parsed.some((id) => typeof id !== 'string')) {
+                    throw new Error('Saved word list is not valid.');
+                }
+                const knownIds = new Set(WORD_ATLAS.map((entry) => entry.id));
+                savedWordIds = parsed.filter((id) => knownIds.has(id));
+            } catch (error) {
+                storageError = 'Saved words could not be read.';
+            }
+        }
+
+        function renderAtlas() {
+            const query = document.getElementById('atlas-search').value.trim().toLocaleLowerCase();
+            const language = document.getElementById('atlas-language').value;
+            const theme = document.getElementById('atlas-theme').value;
+            const resultList = document.getElementById('atlas-results');
+            const normalizedQuery = query.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            const results = WORD_ATLAS.filter((entry) => {
+                if (language !== 'all' && entry.language !== language) return false;
+                if (theme !== 'all' && !entry.themes.includes(theme)) return false;
+                if (favoritesOnly && !savedWordIds.includes(entry.id)) return false;
+                const searchable = [
+                    entry.word, entry.transliteration, entry.meaning, entry.note, ...entry.themes
+                ].join(' ').toLocaleLowerCase();
+                const normalizedSearchable = searchable.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                return !query || searchable.includes(query) || normalizedSearchable.includes(normalizedQuery);
+            });
+
+            resultList.replaceChildren();
+            document.getElementById('atlas-result-count').textContent =
+                results.length + (results.length === 1 ? ' WORD' : ' WORDS');
+            if (!results.length) {
+                const empty = document.createElement('p');
+                empty.className = 'rounded-lg border border-leaf-line p-3 text-xs leading-relaxed text-zinc-400';
+                empty.textContent = favoritesOnly && savedWordIds.length === 0
+                    ? 'No saved words yet. Open a word and choose Save to build your own collection.'
+                    : 'No words match these filters. Clear a filter or try a different spelling or meaning.';
+                resultList.append(empty);
+                return;
+            }
+
+            results.forEach((entry) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.role = 'option';
+                button.setAttribute('aria-pressed', String(activeWordId === entry.id));
+                button.className = 'atlas-result w-full rounded-lg border border-transparent px-3 py-2 text-left transition hover:border-leaf-line hover:bg-white/5';
+                button.addEventListener('click', () => selectAtlasWord(entry.id));
+                const row = document.createElement('span');
+                row.className = 'flex items-center justify-between gap-2';
+                const word = document.createElement('span');
+                word.className = 'font-serif text-lg text-leaf-paper';
+                word.textContent = entry.word;
+                const saved = document.createElement('span');
+                saved.className = 'text-[9px] font-mono text-leaf-moss';
+                saved.textContent = savedWordIds.includes(entry.id) ? 'SAVED' : '';
+                row.append(word, saved);
+                const caption = document.createElement('span');
+                caption.className = 'mt-0.5 block text-[10px] text-zinc-500';
+                caption.textContent = entry.language + ' · ' + entry.meaning;
+                button.append(row, caption);
+                resultList.append(button);
+            });
+        }
+
+        function selectAtlasWord(id) {
+            const entry = WORD_ATLAS.find((item) => item.id === id);
+            if (!entry) return;
+            flushPersonalWordNote();
+            activeWordId = id;
+            document.getElementById('atlas-empty-state').classList.add('hidden');
+            document.getElementById('atlas-word-detail').classList.remove('hidden');
+            document.getElementById('detail-language').textContent = entry.language + ' · ' + entry.themes.join(' / ');
+            document.getElementById('detail-word').textContent = entry.word;
+            document.getElementById('detail-transliteration').textContent =
+                (entry.language === 'Hindi / Urdu' ? 'Roman spelling: ' : 'Pronunciation guide: ')
+                + entry.transliteration;
+            document.getElementById('detail-meaning').textContent = entry.meaning;
+            document.getElementById('detail-note').textContent = entry.note;
+            document.getElementById('detail-pronunciation').textContent = entry.pronunciation;
+            document.getElementById('detail-confidence').textContent = entry.confidence;
+            document.getElementById('detail-personal-note').value = personalWordNotes[id] || '';
+            document.getElementById('personal-note-status').textContent =
+                'Private to this browser; not shared.';
+            document.getElementById('personal-note-status').classList.remove('text-rose-300');
+            const favoriteButton = document.getElementById('btn-favorite-word');
+            const isSaved = savedWordIds.includes(id);
+            favoriteButton.textContent = isSaved ? 'SAVED' : 'SAVE';
+            favoriteButton.setAttribute('aria-pressed', String(isSaved));
+            favoriteButton.setAttribute('aria-label', isSaved ? 'Remove saved word' : 'Save this word');
+            renderAtlas();
+            renderWordRhymes();
+            updateConstellationControls();
+        }
+
+        function generateConstellation() {
+            constellationIndex = (constellationIndex + 1) % CONSTELLATIONS.length;
+            constellationWordIds = CONSTELLATIONS[constellationIndex].words.slice();
+            renderConstellation();
+        }
+
+        function addSelectedToConstellation() {
+            if (!activeWordId || constellationWordIds.length >= 4) return;
+            if (constellationIndex < 0) {
+                constellationIndex = 0;
+                constellationWordIds = CONSTELLATIONS[0].words.slice();
+            }
+            if (!constellationWordIds.includes(activeWordId)) {
+                constellationWordIds.push(activeWordId);
+            }
+            renderConstellation();
+        }
+
+        function updateConstellationControls() {
+            const button = document.getElementById('btn-add-to-constellation');
+            const alreadyIncluded = activeWordId && constellationWordIds.includes(activeWordId);
+            const isFull = constellationWordIds.length >= 4;
+            button.disabled = !activeWordId || Boolean(alreadyIncluded) || isFull;
+            button.textContent = alreadyIncluded
+                ? 'Already in this thread'
+                : isFull
+                    ? 'Thread is full'
+                    : 'Add selected word';
+        }
+
+        function renderConstellation() {
+            const collection = CONSTELLATIONS[constellationIndex];
+            const nodes = document.getElementById('constellation-nodes');
+            const links = document.getElementById('constellation-links');
+            const positions = [
+                { x: 25, y: 55 },
+                { x: 50, y: 27 },
+                { x: 75, y: 55 },
+                { x: 50, y: 78 }
+            ];
+            const coordinates = [
+                [25, 55], [50, 27], [75, 55], [50, 78]
+            ];
+            nodes.replaceChildren();
+            links.replaceChildren();
+            document.getElementById('constellation-empty').classList.add('hidden');
+            document.getElementById('constellation-copy').classList.remove('hidden');
+            document.getElementById('constellation-rhymes').classList.remove('hidden');
+            document.getElementById('constellation-title').textContent = collection.title;
+            document.getElementById('constellation-thread').textContent = collection.thread;
+            document.getElementById('constellation-question').textContent = collection.question;
+
+            constellationWordIds.forEach((id, index) => {
+                const entry = WORD_ATLAS.find((item) => item.id === id);
+                if (!entry) return;
+                const position = positions[index % positions.length];
+                const point = coordinates[index % coordinates.length];
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'float-node rounded-full border border-leaf-moss/60 bg-[#182018]/95 px-3 py-2 text-xs font-semibold text-leaf-paper shadow-lg shadow-black/30 backdrop-blur-sm hover:bg-[#273326]';
+                button.style.setProperty('--node-x', position.x + '%');
+                button.style.setProperty('--node-y', position.y + '%');
+                button.style.setProperty('--node-delay', (index * -0.7) + 's');
+                button.setAttribute('aria-label', 'Explore word ' + entry.word);
+                button.title = entry.meaning;
+                button.textContent = entry.word;
+                button.addEventListener('click', () => selectAtlasWord(id));
+                nodes.append(button);
+
+                if (index > 0) {
+                    const previous = coordinates[(index - 1) % coordinates.length];
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', String(previous[0]));
+                    line.setAttribute('y1', String(previous[1]));
+                    line.setAttribute('x2', String(point[0]));
+                    line.setAttribute('y2', String(point[1]));
+                    line.setAttribute('class', 'constellation-line');
+                    links.append(line);
+                }
+            });
+
+            renderConstellationRhymes();
+            updateConstellationControls();
+        }
+
+        function renderConstellationRhymes() {
+            const list = document.getElementById('constellation-rhyme-list');
+            list.replaceChildren();
+            const rhymeMap = new Map();
+            constellationWordIds.forEach((id) => {
+                const entry = WORD_ATLAS.find((item) => item.id === id);
+                if (!entry) return;
+                entry.rhymes.forEach((rhyme) => {
+                    const key = rhyme.word.toLocaleLowerCase();
+                    if (!rhymeMap.has(key)) rhymeMap.set(key, { ...rhyme, sourceId: id });
+                });
+            });
+            Array.from(rhymeMap.values())
+                .slice(0, 9)
+                .forEach((rhyme, index) => {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'float-rhyme rounded-full border border-leaf-line bg-black/25 px-3 py-1.5 text-[10px] font-mono text-zinc-300 hover:border-leaf-moss hover:text-leaf-paper';
+                    button.style.setProperty('--node-delay', (index * -0.45) + 's');
+                    button.title = rhyme.kind + ': ' + rhyme.note;
+                    button.textContent = rhyme.word + ' · ' + rhyme.kind;
+                    button.addEventListener('click', () => {
+                        selectAtlasWord(rhyme.sourceId);
+                        openInsertPreview(2, rhyme.word);
+                    });
+                    list.append(button);
+                });
+        }
+
+        function toggleFavoriteWord() {
+            if (!activeWordId) return;
+            if (savedWordIds.includes(activeWordId)) {
+                savedWordIds = savedWordIds.filter((id) => id !== activeWordId);
+            } else {
+                savedWordIds.push(activeWordId);
+            }
+            try {
+                localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(savedWordIds));
+                selectAtlasWord(activeWordId);
+                if (favoritesOnly && !savedWordIds.includes(activeWordId)) renderAtlas();
+            } catch (error) {
+                setDraftStatus('Word could not be saved. Browser storage may be unavailable.', true);
+            }
+        }
+
+        function toggleFavoritesFilter() {
+            favoritesOnly = !favoritesOnly;
+            const button = document.getElementById('btn-favorites-filter');
+            button.setAttribute('aria-pressed', String(favoritesOnly));
+            document.getElementById('favorites-filter-label').textContent =
+                favoritesOnly ? 'SHOW ALL WORDS' : 'SHOW SAVED WORDS';
+            renderAtlas();
+        }
+
+        function clearAtlasFilters() {
+            document.getElementById('atlas-search').value = '';
+            document.getElementById('atlas-language').value = 'all';
+            document.getElementById('atlas-theme').value = 'all';
+            favoritesOnly = false;
+            document.getElementById('btn-favorites-filter').setAttribute('aria-pressed', 'false');
+            document.getElementById('favorites-filter-label').textContent = 'SHOW SAVED WORDS';
+            renderAtlas();
+        }
+
+        function renderWordRhymes() {
+            const list = document.getElementById('detail-rhymes');
+            const entry = WORD_ATLAS.find((item) => item.id === activeWordId);
+            list.replaceChildren();
+            if (!entry || !entry.rhymes.length) {
+                const empty = document.createElement('p');
+                empty.className = 'text-xs text-zinc-500';
+                empty.textContent = 'No curated sound associations for this word yet.';
+                list.append(empty);
+                return;
+            }
+            const rhymes = entry.rhymes.slice();
+            rhymes.forEach((rhyme) => {
+                const card = document.createElement('div');
+                card.className = 'flex flex-wrap items-center justify-between gap-2 rounded border border-leaf-line px-3 py-2';
+                const description = document.createElement('div');
+                const word = document.createElement('p');
+                word.className = 'text-sm font-medium text-leaf-paper';
+                word.textContent = rhyme.word;
+                const kind = document.createElement('p');
+                kind.className = 'text-[9px] font-mono uppercase tracking-wider text-leaf-moss';
+                kind.textContent = rhyme.kind;
+                const note = document.createElement('p');
+                note.className = 'mt-1 max-w-sm text-[10px] leading-relaxed text-zinc-500';
+                note.textContent = rhyme.note;
+                description.append(word, kind, note);
+                const previewButton = document.createElement('button');
+                previewButton.type = 'button';
+                previewButton.className = 'rounded border border-leaf-line px-2 py-1.5 text-[10px] text-zinc-300 hover:border-leaf-moss hover:text-leaf-paper';
+                previewButton.textContent = 'Preview';
+                previewButton.addEventListener('click', () => openInsertPreview(2, rhyme.word));
+                card.append(description, previewButton);
+                list.append(card);
+            });
+        }
+
+        function openInsertPreview(lineNumber, word) {
+            const entry = WORD_ATLAS.find((item) => item.id === activeWordId);
+            pendingInsertionWord = word || (entry && entry.word) || '';
+            if (!pendingInsertionWord) return;
+            const dialog = document.getElementById('insert-dialog');
+            document.getElementById('insert-preview-word').textContent = pendingInsertionWord;
+            document.getElementById('insert-target').value = String(lineNumber);
+            updateInsertTargetContext();
+            dialog.showModal();
+        }
+
+        function updateInsertTargetContext() {
+            const lineNumber = document.getElementById('insert-target').value;
+            const line = document.getElementById('input-line-' + lineNumber).value.trim();
+            document.getElementById('insert-target-context').textContent = line
+                ? 'Current line: ' + line
+                : 'This line is currently empty.';
+        }
+
+        function commitInsertion() {
+            if (!pendingInsertionWord) return;
+            const targetNumber = document.getElementById('insert-target').value;
+            const target = document.getElementById('input-line-' + targetNumber);
+            const previousValue = target.value;
+            const caret = lastCaret && lastCaret.id === target.id
+                ? lastCaret
+                : { start: previousValue.length, end: previousValue.length };
+            const start = Math.max(0, Math.min(caret.start, previousValue.length));
+            const end = Math.max(start, Math.min(caret.end, previousValue.length));
+            const prefix = previousValue.slice(0, start);
+            const suffix = previousValue.slice(end);
+            const beforeSpace = prefix && !/\s$/.test(prefix) ? ' ' : '';
+            const afterSpace = suffix && !/^\s/.test(suffix) ? ' ' : '';
+            const insertedText = beforeSpace + pendingInsertionWord + afterSpace;
+            const nextValue = prefix + insertedText + suffix;
+            target.value = nextValue;
+            const caretPosition = prefix.length + insertedText.length;
+            target.focus();
+            target.setSelectionRange(caretPosition, caretPosition);
+            lastCaret = { id: target.id, start: caretPosition, end: caretPosition };
+            lastInsertion = {
+                id: target.id,
+                previousValue,
+                nextValue,
+                selectionStart: start,
+                selectionEnd: end
+            };
+            document.getElementById('insert-dialog').close();
+            pendingInsertionWord = '';
+            document.getElementById('undo-insertion').classList.remove('hidden');
+            updateMetrics();
+            setDraftStatus('Word inserted into line ' + targetNumber + '. Use Undo insertion to reverse it.', false);
+            showWriting();
+        }
+
+        function undoInsertion() {
+            if (!lastInsertion) return;
+            const target = document.getElementById(lastInsertion.id);
+            if (target.value !== lastInsertion.nextValue) {
+                setDraftStatus('Undo is unavailable because this line changed after insertion.', true);
+                document.getElementById('undo-insertion').classList.add('hidden');
+                lastInsertion = null;
+                return;
+            }
+            target.value = lastInsertion.previousValue;
+            target.focus();
+            target.setSelectionRange(lastInsertion.selectionStart, lastInsertion.selectionEnd);
+            lastCaret = {
+                id: target.id,
+                start: lastInsertion.selectionStart,
+                end: lastInsertion.selectionEnd
+            };
+            lastInsertion = null;
+            document.getElementById('undo-insertion').classList.add('hidden');
+            updateMetrics();
+            setDraftStatus('Insertion undone. Draft saved in this browser.', false);
+        }
+
+        function trackLyricCaret(event) {
+            const input = event.target;
+            if (!input || !/^input-line-[12]$/.test(input.id)) return;
+            lastCaret = {
+                id: input.id,
+                start: input.selectionStart,
+                end: input.selectionEnd
+            };
+        }
+
+        function trackActiveLyricCaret() {
+            const input = document.activeElement;
+            if (!input || !/^input-line-[12]$/.test(input.id)) return;
+            lastCaret = {
+                id: input.id,
+                start: input.selectionStart,
+                end: input.selectionEnd
+            };
+        }
+
+        function countSyllables(str) {
+            if (!str || !str.trim()) return 0;
+            if (/[\p{Script=Devanagari}\u0600-\u06ff]/u.test(str)) return null;
+            const clean = str.toLowerCase().replace(/[^a-z\s]/g, ' ').trim();
+            if (!clean) return 0;
+            let count = 0;
+            clean.split(/\s+/).forEach((w) => {
+                const matches = w.match(/[aeiouy]+/g);
+                let c = matches ? matches.length : 1;
+                if (w.length > 3 && w.endsWith('e') && !w.endsWith('ee') && c > 1) c--;
+                count += Math.max(1, c);
+            });
+            return count;
+        }
+
+        function updateMetrics() {
+            const l1 = document.getElementById('input-line-1').value;
+            const r1 = document.getElementById('rhyme-line-1').value.trim();
+            const l2 = document.getElementById('input-line-2').value;
+            const r2 = document.getElementById('rhyme-line-2').value.trim();
+            const mode1 = document.getElementById('language-line-1').value;
+            const mode2 = document.getElementById('language-line-2').value;
+            const text1 = l1 + ' ' + r1;
+            const text2 = l2 + ' ' + r2;
+            const hasUnsupportedScript1 = /[\p{Script=Devanagari}\u0600-\u06ff]/u.test(text1);
+            const hasUnsupportedScript2 = /[\p{Script=Devanagari}\u0600-\u06ff]/u.test(text2);
+
+            const syl1 = mode1 === 'english' && !hasUnsupportedScript1 ? countSyllables(text1) : null;
+            const syl2 = mode2 === 'english' && !hasUnsupportedScript2 ? countSyllables(text2) : null;
+
+            updateMeterBadge(1, syl1, mode1, hasUnsupportedScript1, text1.trim().length > 0);
+            updateMeterBadge(2, syl2, mode2, hasUnsupportedScript2, text2.trim().length > 0);
+            renderFluidTokens(1, l1, r1);
+            renderFluidTokens(2, l2, r2);
+            renderWordField(l1, r1, l2, r2);
+            updateRhymeSuggestions(r1);
+            renderWordRhymes();
+            saveDraftSoon();
+        }
+
+        function updateMeterBadge(num, count, mode, hasUnsupportedScript, hasContent) {
+            const el = document.getElementById('meter-line-' + num);
+            if (!hasContent) {
+                el.textContent = 'Say it over the beat';
+                el.className = 'text-zinc-500 text-[10px]';
+            } else if (mode === 'mixed') {
+                el.textContent = 'Code-switching · speak over beat';
+                el.className = 'text-leaf-moss text-[10px]';
+            } else if (mode === 'roman-hindi') {
+                el.textContent = 'Roman spelling varies · say it aloud';
+                el.className = 'text-leaf-moss text-[10px]';
+            } else if (hasUnsupportedScript) {
+                el.textContent = 'English-only estimate · say this aloud';
+                el.className = 'text-leaf-moss text-xs';
+            } else if (count === null) {
+                el.textContent = 'Estimate unavailable';
+                el.className = 'text-zinc-400 text-xs';
+            } else if (count === 0) {
+                el.textContent = 'Say it over the beat';
+                el.className = 'text-zinc-500 text-[10px]';
+            } else {
+                el.textContent = '≈' + count + ' syllables · rough estimate';
+                el.className = 'text-zinc-500 text-[10px]';
+            }
+        }
+
+        function renderFluidTokens(num, text, rhyme) {
+            const container = document.getElementById('fluid-tokens-' + num);
+            container.replaceChildren();
+            const words = text.trim() ? text.trim().split(/\s+/) : [];
+            words.forEach((word, index) => {
+                if (index > 0) container.append(' ');
+                const token = document.createElement('span');
+                token.className = word === '//'
+                    ? 'lyric-token text-gold italic opacity-70'
+                    : 'lyric-token';
+                token.textContent = word;
+                container.append(token);
+            });
+            if (rhyme) {
+                container.append(' ');
+                const token = document.createElement('span');
+                token.className = 'lyric-token text-gold font-bold';
+                token.textContent = rhyme;
+                container.append(token);
+            }
+        }
+
+        function renderWordField(line1, rhyme1, line2, rhyme2) {
+                const host = document.getElementById('word-field-nodes');
+                const typedRoot = rhyme1 || rhyme2 || (line1.trim().split(/\s+/).pop() || '')
+                    || (line2.trim().split(/\s+/).pop() || '');
+                const root = typedRoot.toLocaleLowerCase().replace(/[.,!?;:]+$/g, '');
+                const matchedEntry = WORD_ATLAS.find((item) => item.id === root || item.word.toLocaleLowerCase() === root);
+                const entry = matchedEntry || (!root ? WORD_ATLAS.find((item) => item.id === 'kainaat') : null);
+                const dictionaryRhymes = RHYME_DICTIONARY[root.toUpperCase()] || [];
+                const suggestions = entry ? entry.rhymes.map((rhyme) => rhyme.word) : dictionaryRhymes.map((rhyme) => rhyme.word);
+                const sparks = root && !entry && !dictionaryRhymes.length ? ['kainaat', 'jazbaat', 'roshni'] : [];
+                const words = Array.from(new Set([typedRoot || (entry ? entry.word : 'kainaat'), ...suggestions, ...sparks]))
+                    .filter(Boolean).slice(0, 7);
+                const signature = words.join('|');
+                if (host.dataset.signature === signature) return;
+                host.dataset.signature = signature;
+                host.replaceChildren();
+                const positions = [
+                    [12, 35], [35, 60], [58, 32], [70, 58], [24, 72], [66, 76], [47, 40]
+                ];
+                words.forEach((word, index) => {
+                    const button = document.createElement('button');
+                    const [x, y] = positions[index];
+                    button.type = 'button';
+                    button.className = 'word-orbit';
+                    button.style.setProperty('--word-x', x + '%');
+                    button.style.setProperty('--word-y', y + '%');
+                    button.style.setProperty('--word-delay', (-0.9 * index) + 's');
+                    button.style.setProperty('--word-duration', (6 + (index % 4) * 1.1) + 's');
+                    button.textContent = word;
+                    button.setAttribute('aria-label', 'Preview ' + word + ' for line 2');
+                    button.title = 'Preview this word in your verse';
+                    button.addEventListener('click', () => openInsertPreview(2, word));
+                    host.append(button);
+                });
+                document.getElementById('word-field-source').textContent = matchedEntry || dictionaryRhymes.length
+                    ? 'Sound echoes for ' + root
+                    : root ? 'Word sparks · not rhyme checked' : 'Curated -aat sound family';
+        }
+
+        function updateRhymeSuggestions(rootWord) {
+            const root = rootWord.trim().toLocaleLowerCase();
+            const container = document.getElementById('rhyme-suggestions');
+            const label = document.getElementById('current-root-label');
+            const priorityLabel = document.getElementById('rhyme-priority-label');
+            label.textContent = root || '...';
+
+            const matches = RHYME_DICTIONARY[root.toUpperCase()] || [];
+            priorityLabel.textContent = 'Suggestions are based on written sound endings; test them aloud.';
+            container.replaceChildren();
+            if (!matches.length) {
+                const empty = document.createElement('p');
+                empty.className = 'text-xs text-zinc-500';
+                empty.textContent = root
+                    ? "No curated sound family for this word yet. Try another root; we won't fill the list with unrelated words."
+                    : 'Add an ending word in Line 1 to see curated sound associations.';
+                container.append(empty);
+                return;
+            }
+
+            matches.forEach((match) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'secondary-action rounded border px-3 py-1.5 text-xs font-mono flex items-center gap-1.5 hover:border-leaf-moss';
+                button.setAttribute('aria-label', 'Preview ' + match.word + ' for line 2');
+                button.addEventListener('click', () => insertRhyme(match.word));
+                const word = document.createElement('span');
+                word.className = 'font-bold';
+                word.textContent = match.word;
+                const meaning = document.createElement('span');
+                meaning.className = 'text-[10px] opacity-60';
+                meaning.textContent = match.meaning;
+                button.append(word, meaning);
+                container.append(button);
+            });
+        }
+
+        function changeLens(lens) {
+            if (!LENS_GUIDANCE[lens]) return;
+            currentLens = lens;
+            document.getElementById('lens-prompt').textContent = LENS_GUIDANCE[lens].prompt;
+            updateRhymeSuggestions(document.getElementById('rhyme-line-1').value.trim());
+            renderWordRhymes();
+            saveDraftSoon();
+        }
+
+        function insertRhyme(word) {
+            openInsertPreview(2, word);
+        }
+
+        function insertWaqfa() {
+            const focused = document.activeElement;
+            const input = focused && /^input-line-[12]$/.test(focused.id)
+                ? focused
+                : document.getElementById('input-line-1');
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            const before = input.value.slice(0, start);
+            const after = input.value.slice(end);
+            const pause = (before && !/\s$/.test(before) ? ' ' : '') + '//' + (after && !/^\s/.test(after) ? ' ' : '');
+            input.value = before + pause + after;
+            input.focus();
+            const caretPosition = before.length + pause.length;
+            input.setSelectionRange(caretPosition, caretPosition);
+            lastCaret = { id: input.id, start: caretPosition, end: caretPosition };
+            updateMetrics();
+        }
+
+        function inscribeSher() {
+            const l1 = document.getElementById('input-line-1').value.trim();
+            const r1 = document.getElementById('rhyme-line-1').value.trim();
+            const l2 = document.getElementById('input-line-2').value.trim();
+            const r2 = document.getElementById('rhyme-line-2').value.trim();
+
+            if (!l1 && !l2) {
+                setDraftStatus('Add words to at least one line before inscribing.', true);
+                return;
+            }
+
+            folio.push(l1 + ' ' + r1 + ',\n' + l2 + ' ' + r2 + '.');
+            document.getElementById('folio-count').textContent = folio.length;
+
+            const toast = document.getElementById('toast-notify');
+            toast.style.opacity = '1';
+            setTimeout(() => { toast.style.opacity = '0'; }, 1800);
+        }
+
+        async function copyFolio() {
+            const toast = document.getElementById('toast-notify');
+            try {
+                if (!navigator.clipboard || !navigator.clipboard.writeText) {
+                    throw new Error('Clipboard API is unavailable in this browser context.');
+                }
+                await navigator.clipboard.writeText(folio.join('\n\n'));
+                toast.textContent = 'Copied to Clipboard ✦';
+                toast.style.opacity = '1';
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.textContent = 'Inscribed into Folio ✦';
+                }, 1800);
+            } catch (error) {
+                setDraftStatus('Clipboard access failed. Check browser permissions or select and copy the text manually.', true);
+            }
+        }
+
+        function enterStudio() {
+            const splash = document.getElementById('studio-splash');
+            if (!splash || splash.classList.contains('is-leaving')) return;
+            document.querySelector('header').inert = false;
+            document.querySelector('main').inert = false;
+            document.querySelector('footer').inert = false;
+            document.body.classList.remove('splash-open');
+            splash.classList.add('is-leaving');
+            window.setTimeout(() => {
+                splash.hidden = true;
+                document.getElementById('input-line-1').focus();
+            }, 660);
+        }
+
+        window.addEventListener('keydown', (e) => {
+            const interactiveTarget = e.target && e.target.closest
+                ? e.target.closest('input, textarea, select, button, [contenteditable="true"]')
+                : null;
+            if (e.code === 'Space' && !interactiveTarget) {
+                e.preventDefault();
+                togglePlay();
+            }
+            if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                e.preventDefault();
+                inscribeSher();
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            restoreDraft();
+            loadSavedWords();
+            loadPersonalWordNotes();
+            changePalette(document.getElementById('select-palette').value);
+            changeLens(document.getElementById('select-lens').value);
+            updateMetrics();
+            renderAtlas();
+            document.addEventListener('focusin', trackLyricCaret);
+            document.addEventListener('keyup', trackLyricCaret);
+            document.addEventListener('mouseup', trackLyricCaret);
+            document.addEventListener('select', trackLyricCaret, true);
+            document.addEventListener('selectionchange', trackActiveLyricCaret);
+            document.getElementById('insert-target').addEventListener('change', updateInsertTargetContext);
+            document.getElementById('select-palette').addEventListener('change', saveDraftSoon);
+            document.getElementById('language-line-1').addEventListener('change', updateMetrics);
+            document.getElementById('language-line-2').addEventListener('change', updateMetrics);
+            document.getElementById('custom-bpm').addEventListener('input', (event) => {
+                if (event.target.validity.valid) changeCustomBpm(event.target.value);
+            });
+            document.getElementById('custom-bpm').addEventListener('change', (event) => {
+                changeCustomBpm(event.target.value);
+            });
+            document.getElementById('beat-bpm').addEventListener('change', (event) => {
+                document.getElementById('custom-bpm').value = event.target.value;
+                document.getElementById('select-palette').value = 'custom';
+                changePalette('custom');
+                changeCustomBpm(event.target.value);
+            });
+            document.getElementById('tuner-key').addEventListener('change', () => {
+                document.getElementById('tuner-target').textContent = 'Target note updates with your next pitch.';
+            });
+            document.getElementById('tuner-scale').addEventListener('change', () => {
+                document.getElementById('tuner-target').textContent = 'Target note updates with your next pitch.';
+            });
+            isInitializing = false;
+            setDraftStatus(storageError || 'Draft saves in this browser.', Boolean(storageError));
+        });
+
+        window.addEventListener('pagehide', () => {
+            flushPersonalWordNote();
+            saveDraft();
+            stopVocalMonitor();
+            stopPlayback();
+            if (isDroneOn) toggleDrone();
+        });
+    </script>
+</body>
+</html>
