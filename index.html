@@ -340,11 +340,7 @@
         }
         .writing-line > div:first-child label { color: var(--leaf-copper) !important; }
         .writing-line > div:first-child span { color: #8f8781 !important; }
-        .line-language {
-            max-width: 9.5rem;
-            padding: 0.35rem 0.5rem;
-            font-size: 9px;
-        }
+        .line-language { white-space: nowrap; font-size: 9px; }
         .writing-line > div:nth-child(2) {
             align-items: center;
             border-bottom: 1px solid rgba(243, 238, 231, 0.19) !important;
@@ -1335,8 +1331,8 @@
             .writing-line > div:first-child { align-items: center; gap: 0.45rem; margin-bottom: 0.4rem; font-size: 11px; letter-spacing: 0.02em; }
             .writing-line > div:first-child > label { flex-shrink: 0; font-size: 12px; }
             .writing-line > div:first-child > div { gap: 0.35rem; }
-            .line-language { max-width: none; min-height: 2.75rem; padding: 0.4rem 0.5rem; font-size: 12px; }
-            .writing-line > div:first-child > div > span { display: none; }
+            .line-language { padding: 0.25rem; font-size: 10px; }
+            .writing-line > div:first-child > div > span[id^="meter-line-"] { display: none; }
             .lyric-entry { gap: 0.3rem; }
             .lyric-entry textarea {
                 min-height: 4.75rem;
@@ -1444,6 +1440,12 @@
                     <p id="draft-status" class="mt-2 text-[10px] font-mono text-zinc-500" aria-live="polite">Draft saves in this browser.</p>
                 </div>
                 <div class="revision-control flex flex-col items-end gap-2">
+                    <label for="writing-language" class="text-[10px] font-mono uppercase tracking-widest text-zinc-500">Writing language · all word tools</label>
+                    <select id="writing-language" class="field-control max-w-xs rounded px-2.5 py-1.5 text-xs" aria-label="Writing language for the whole studio">
+                        <option value="mixed">Hindi-English mix</option>
+                        <option value="roman-hindi">Roman Hindi/Urdu</option>
+                        <option value="english">English</option>
+                    </select>
                     <label for="select-lens" class="mobile-screen-reader-label text-[10px] font-mono uppercase tracking-widest text-zinc-500">A question to write with</label>
                     <select id="select-lens" onchange="changeLens(this.value)" class="field-control max-w-xs rounded px-2.5 py-1.5 text-xs cursor-pointer">
                         <option value="intention">What do I mean?</option>
@@ -1468,12 +1470,7 @@
             <div class="flex items-center justify-between text-xs font-mono">
                 <label for="input-line-1" class="text-zinc-500 uppercase tracking-wider">Line 1</label>
                 <div class="flex flex-wrap items-center justify-end gap-2">
-                    <label for="language-line-1" class="sr-only">Language mix for line 1</label>
-                    <select id="language-line-1" class="line-language field-control rounded" aria-label="Language mix for line 1">
-                        <option value="mixed">Hindi-English mix</option>
-                        <option value="roman-hindi">Roman Hindi/Urdu</option>
-                        <option value="english">English</option>
-                    </select>
+                    <span id="line-language-label-1" class="line-language text-zinc-500">Hindi-English mix</span>
                     <span id="meter-line-1" class="text-zinc-500">Speak it over the beat</span>
                 </div>
             </div>
@@ -1493,12 +1490,7 @@
             <div class="flex items-center justify-between text-xs font-mono">
                 <label for="input-line-2" class="text-zinc-500 uppercase tracking-wider">Line 2</label>
                 <div class="flex flex-wrap items-center justify-end gap-2">
-                    <label for="language-line-2" class="sr-only">Language mix for line 2</label>
-                    <select id="language-line-2" class="line-language field-control rounded" aria-label="Language mix for line 2">
-                        <option value="mixed">Hindi-English mix</option>
-                        <option value="roman-hindi">Roman Hindi/Urdu</option>
-                        <option value="english">English</option>
-                    </select>
+                    <span id="line-language-label-2" class="line-language text-zinc-500">Hindi-English mix</span>
                     <span id="meter-line-2" class="text-zinc-500">Speak it over the beat</span>
                 </div>
             </div>
@@ -1586,15 +1578,11 @@
                     </section>
                     <div class="grid gap-4 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
                 <div class="space-y-3">
-                    <label for="atlas-search" class="block text-[10px] font-mono uppercase tracking-widest text-zinc-400">Find a word, meaning, or transliteration</label>
+                    <label id="atlas-search-label" for="atlas-search" class="block text-[10px] font-mono uppercase tracking-widest text-zinc-400">Find a word, meaning, or transliteration</label>
                     <input id="atlas-search" type="search" oninput="renderAtlas()" placeholder="Try: silence, khamoshi, kainaat…" class="field-control w-full rounded-lg px-3 py-2.5 text-sm">
                     <div class="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                        <label class="sr-only" for="atlas-language">Filter by language</label>
-                        <select id="atlas-language" onchange="renderAtlas()" class="field-control rounded px-2.5 py-2 text-xs">
-                            <option value="all">All languages</option>
-                            <option value="Hindi / Urdu">Hindi / Urdu</option>
-                            <option value="English">English</option>
-                        </select>
+                        <span class="sr-only" id="atlas-language-label">Vocabulary language follows the writing-language setting</span>
+                        <span id="atlas-language" class="field-control rounded px-2.5 py-2 text-xs" role="status" aria-labelledby="atlas-language-label">Hindi-English mix</span>
                         <label class="sr-only" for="atlas-theme">Filter by theme</label>
                         <select id="atlas-theme" onchange="renderAtlas()" class="field-control rounded px-2.5 py-2 text-xs">
                             <option value="all">All themes</option>
@@ -1905,6 +1893,38 @@
             { id: 'hollow', word: 'hollow', transliteration: 'HOL-oh', language: 'English', meaning: 'Empty inside; also an emotional sense of absence or lack.', note: 'A familiar word; a specific object or physical detail can make it feel less generic.', pronunciation: 'Often two syllables; accent may reduce the second vowel.', confidence: 'Stress is usually first syllable; verify in your flow.', themes: ['silence', 'conflict'], rhymes: [
                 { word: 'follow', kind: 'End rhyme', note: 'Common English rhyme in many accents.', scores: { sound: 1, meaning: 2, delivery: 1 }, lenses: ['message', 'listener'] },
                 { word: 'swallow', kind: 'End rhyme', note: 'Common English rhyme; meaning can be literal or figurative.', scores: { sound: 2, meaning: 1, delivery: 2 }, lenses: ['intention', 'listener'] }
+            ] },
+            { id: 'ember', word: 'ember', transliteration: 'EM-ber', language: 'English', meaning: 'A glowing piece left after a fire; a small heat that remains.', note: 'Can carry survival, aftermath, or a quiet beginning without naming the feeling.', pronunciation: 'Usually two syllables with first-syllable stress; accents vary.', confidence: 'Rhyme suggestions are sound prompts; test them in your own accent.', themes: ['hope', 'memory'], rhymes: [
+                { word: 'remember', kind: 'Near rhyme', note: 'Shares a strong -ember sound in many accents; syllable count differs.', scores: { sound: 1, meaning: 2, delivery: 1 }, lenses: ['intention', 'message'] },
+                { word: 'December', kind: 'Near rhyme', note: 'Similar final stressed sound; the longer word changes cadence.', scores: { sound: 2, meaning: 1, delivery: 2 }, lenses: ['listener', 'message'] }
+            ] },
+            { id: 'fracture', word: 'fracture', transliteration: 'FRAK-cher', language: 'English', meaning: 'A break or crack; also a rupture in trust, identity, or a relationship.', note: 'A physical break can make an abstract conflict visible.', pronunciation: 'Usually two syllables; the final sound varies slightly by accent.', confidence: 'Treat related endings as near rhymes, not guarantees.', themes: ['conflict', 'identity'], rhymes: [
+                { word: 'capture', kind: 'Near rhyme', note: 'Similar unstressed ending in many accents; not an exact rhyme.', scores: { sound: 1, meaning: 2, delivery: 2 }, lenses: ['message', 'listener'] },
+                { word: 'after', kind: 'Sound echo', note: 'A loose consonant and vowel echo; not a strict rhyme.', scores: { sound: 2, meaning: 1, delivery: 1 }, lenses: ['intention', 'listener'] }
+            ] },
+            { id: 'static', word: 'static', transliteration: 'STAT-ik', language: 'English', meaning: 'Crackling interference; also a state of little movement or unresolved noise.', note: 'Can make silence, distance, or a crowded mind audible.', pronunciation: 'Usually two syllables with first-syllable stress.', confidence: 'The listed sound echoes vary by accent and delivery.', themes: ['silence', 'conflict'], rhymes: [
+                { word: 'automatic', kind: 'Multisyllabic echo', note: 'Shares the stressed -atic ending; the lead-in adds syllables.', scores: { sound: 1, meaning: 2, delivery: 2 }, lenses: ['message', 'listener'] },
+                { word: 'erratic', kind: 'Near rhyme', note: 'Similar -atic ending in many accents; stress placement differs.', scores: { sound: 2, meaning: 1, delivery: 1 }, lenses: ['intention', 'listener'] }
+            ] },
+            { id: 'gravity', word: 'gravity', transliteration: 'GRAV-i-tee', language: 'English', meaning: 'The force that pulls bodies together; figuratively, seriousness or weight.', note: 'Moves between physical pull and emotional consequence.', pronunciation: 'Usually three syllables with first-syllable stress.', confidence: 'Rhyme suggestions are approximate; check your accent and cadence.', themes: ['identity', 'time'], rhymes: [
+                { word: 'cavity', kind: 'Near rhyme', note: 'Shares a similar final vowel pattern; consonants differ.', scores: { sound: 1, meaning: 2, delivery: 2 }, lenses: ['message', 'listener'] },
+                { word: 'brevity', kind: 'Near rhyme', note: 'A related -ity ending; not a guaranteed full rhyme.', scores: { sound: 2, meaning: 1, delivery: 1 }, lenses: ['intention', 'message'] }
+            ] },
+            { id: 'blueprint', word: 'blueprint', transliteration: 'BLOO-print', language: 'English', meaning: 'A plan or design; figuratively, an inherited pattern for a life.', note: 'Ask who drew the plan and whether the speaker wants to follow it.', pronunciation: 'Usually two syllables with first-syllable stress.', confidence: 'Listed words share a clear final sound in common English accents.', themes: ['identity', 'journey'], rhymes: [
+                { word: 'footprint', kind: 'End rhyme', note: 'Shares the -print ending; the image can turn toward evidence or legacy.', scores: { sound: 1, meaning: 2, delivery: 1 }, lenses: ['message', 'listener'] },
+                { word: 'fingerprint', kind: 'End rhyme', note: 'Shares the -print ending; suggests an individual mark or trace.', scores: { sound: 2, meaning: 1, delivery: 2 }, lenses: ['intention', 'listener'] }
+            ] },
+            { id: 'daylight', word: 'daylight', transliteration: 'DAY-light', language: 'English', meaning: 'Natural light during the day; figuratively, clarity or exposure.', note: 'Can signal relief, reveal something hidden, or make a private scene public.', pronunciation: 'Usually two syllables with first-syllable stress.', confidence: 'Phrase-level echoes are cadence prompts; they are not single-word rhymes.', themes: ['hope', 'time'], rhymes: [
+                { word: 'late night', kind: 'Phrase echo', note: 'Shares the -ight sound across a phrase; test the spacing in flow.', scores: { sound: 1, meaning: 2, delivery: 2 }, lenses: ['message', 'listener'] },
+                { word: 'stage light', kind: 'Phrase echo', note: 'A shared final sound; stress and word boundaries change the cadence.', scores: { sound: 2, meaning: 1, delivery: 1 }, lenses: ['intention', 'listener'] }
+            ] },
+            { id: 'pulse', word: 'pulse', transliteration: 'PULS', language: 'English', meaning: 'A rhythmic beat in the body; also a signal that something is alive or active.', note: 'Connects body, music, urgency, and the presence of life.', pronunciation: 'One syllable; final consonant cluster may soften at tempo.', confidence: 'A near rhyme can shift with accent and delivery.', themes: ['identity', 'conflict'], rhymes: [
+                { word: 'false', kind: 'Near rhyme', note: 'Shares a broad vowel and final cluster in many accents; not exact.', scores: { sound: 1, meaning: 2, delivery: 2 }, lenses: ['message', 'listener'] },
+                { word: 'convulse', kind: 'Near rhyme', note: 'Shares the final -ulse sound; extra syllables change the cadence.', scores: { sound: 2, meaning: 1, delivery: 1 }, lenses: ['intention', 'listener'] }
+            ] },
+            { id: 'echo', word: 'echo', transliteration: 'EK-oh', language: 'English', meaning: 'A sound reflected back; figuratively, a memory, influence, or repeated voice.', note: 'Can make a past voice present without explaining what it means.', pronunciation: 'Usually two syllables; the first carries the stress.', confidence: 'Sound echoes depend on the accent and the vowel in delivery.', themes: ['memory', 'silence'], rhymes: [
+                { word: 'let go', kind: 'Phrase echo', note: 'Shares a broad ending sound across two words; not a strict single-word rhyme.', scores: { sound: 1, meaning: 2, delivery: 1 }, lenses: ['message', 'listener'] },
+                { word: 'shadow', kind: 'Near rhyme', note: 'Similar vowel color in some accents; consonants and stress differ.', scores: { sound: 2, meaning: 1, delivery: 2 }, lenses: ['intention', 'listener'] }
             ] }
         ];
 
@@ -1929,8 +1949,8 @@
             },
             {
                 title: 'The ground beneath a feeling',
-                words: ['mitti', 'jazbaat', 'afterimage'],
-                thread: 'The earth holds what happened; an afterimage is what the feeling refuses to release.',
+                words: ['mitti', 'jazbaat', 'khamoshi'],
+                thread: 'The ground holds memory; feeling presses against what remains unsaid.',
                 question: 'Can the emotion be shown through an object, place, or action instead of named directly?'
             },
             {
@@ -1940,6 +1960,48 @@
                 question: 'Does the speaker feel trapped by the moment, or choose what it means next?'
             }
         ];
+
+        const ENGLISH_CONSTELLATIONS = [
+            {
+                title: 'What remains after the fire',
+                words: ['ember', 'afterimage', 'echo'],
+                thread: 'A small heat persists; an afterimage keeps the past visible even after its source is gone.',
+                question: 'What detail proves the speaker has changed, even if the memory remains?'
+            },
+            {
+                title: 'The pull beneath the surface',
+                words: ['undertow', 'gravity', 'pulse'],
+                thread: 'Hidden force, physical pull, and a living rhythm make pressure something the body can feel.',
+                question: 'Where does the pressure show up first: in the room, the body, or the choice?'
+            },
+            {
+                title: 'A plan at the threshold',
+                words: ['blueprint', 'threshold', 'daylight'],
+                thread: 'An inherited plan meets a point of change, where what was hidden can come into view.',
+                question: 'What part of the old plan does the speaker choose to keep or break?'
+            },
+            {
+                title: 'Noise, silence, and the break',
+                words: ['static', 'hollow', 'fracture', 'echo'],
+                thread: 'Interference and silence surround a break; the echo reveals what still carries through.',
+                question: 'What sound remains after the break, and who recognizes it?'
+            }
+        ];
+
+        const MIXED_CONSTELLATIONS = CONSTELLATIONS.concat([
+            {
+                title: 'A memory crossing languages',
+                words: ['kainaat', 'afterimage', 'waqt'],
+                thread: 'A vast world, a lasting image, and one charged moment connect across Hindi and English vocabulary.',
+                question: 'Which image carries the same feeling in both languages, and which detail resists translation?'
+            },
+            {
+                title: 'The self, the echo, the road',
+                words: ['zaat', 'echo', 'safar'],
+                thread: 'Identity travels with the voices and memories that follow it.',
+                question: 'What does the speaker carry forward, and what sound do they leave behind?'
+            }
+        ]);
 
         const DRAFT_STORAGE_KEY = 'hidden-leaf-draft-v1';
         const FAVORITES_STORAGE_KEY = 'hidden-leaf-favorites-v1';
@@ -2597,6 +2659,7 @@
 
         function saveDraft() {
             clearTimeout(saveTimer);
+            const languageMode = document.getElementById('writing-language').value;
             const draft = {
                 line1: document.getElementById('input-line-1').value,
                 rhyme1: document.getElementById('rhyme-line-1').value,
@@ -2611,8 +2674,9 @@
                         .map(([track, steps]) => [track, steps.slice()]))
                 ])),
                 lens: document.getElementById('select-lens').value,
-                languageLine1: document.getElementById('language-line-1').value,
-                languageLine2: document.getElementById('language-line-2').value
+                languageMode,
+                languageLine1: languageMode,
+                languageLine2: languageMode
             };
             try {
                 localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
@@ -2673,12 +2737,14 @@
                     document.getElementById('select-lens').value = draft.lens;
                     currentLens = draft.lens;
                 }
-                if (['mixed', 'roman-hindi', 'english'].includes(draft.languageLine1)) {
-                    document.getElementById('language-line-1').value = draft.languageLine1;
-                }
-                if (['mixed', 'roman-hindi', 'english'].includes(draft.languageLine2)) {
-                    document.getElementById('language-line-2').value = draft.languageLine2;
-                }
+                const legacyModes = [draft.languageLine1, draft.languageLine2]
+                    .filter((mode) => ['mixed', 'roman-hindi', 'english'].includes(mode));
+                const languageMode = ['mixed', 'roman-hindi', 'english'].includes(draft.languageMode)
+                    ? draft.languageMode
+                    : legacyModes.length === 2 && legacyModes[0] === legacyModes[1]
+                        ? legacyModes[0]
+                        : 'mixed';
+                document.getElementById('writing-language').value = languageMode;
             } catch (error) {
                 storageError = 'Saved draft could not be read. Your current writing is still available.';
             }
@@ -2761,14 +2827,86 @@
             }
         }
 
+        function getWritingLanguageMode() {
+            return document.getElementById('writing-language').value;
+        }
+
+        function getAllowedAtlasEntries() {
+            const mode = getWritingLanguageMode();
+            if (mode === 'english') return WORD_ATLAS.filter((entry) => entry.language === 'English');
+            if (mode === 'roman-hindi') return WORD_ATLAS.filter((entry) => entry.language === 'Hindi / Urdu');
+            return WORD_ATLAS;
+        }
+
+        function getConstellationsForMode() {
+            const mode = getWritingLanguageMode();
+            return mode === 'english'
+                ? ENGLISH_CONSTELLATIONS
+                : mode === 'roman-hindi'
+                    ? CONSTELLATIONS
+                    : MIXED_CONSTELLATIONS;
+        }
+
+        function updateWritingLanguage() {
+            const mode = getWritingLanguageMode();
+            const languageLabels = {
+                mixed: 'Hindi-English mix',
+                'roman-hindi': 'Roman Hindi/Urdu',
+                english: 'English'
+            };
+            const atlasLanguage = {
+                mixed: 'Hindi-English mix',
+                'roman-hindi': 'Roman Hindi/Urdu',
+                english: 'English'
+            };
+            document.getElementById('line-language-label-1').textContent = languageLabels[mode];
+            document.getElementById('line-language-label-2').textContent = languageLabels[mode];
+            document.getElementById('atlas-language').textContent = atlasLanguage[mode];
+            document.getElementById('atlas-search').value = '';
+            document.getElementById('atlas-search').placeholder = mode === 'english'
+                ? 'Try: silence, ember, afterimage…'
+                : mode === 'roman-hindi'
+                    ? 'Try: khamoshi, kainaat, safar…'
+                    : 'Try: silence, khamoshi, kainaat…';
+            document.getElementById('atlas-search-label').textContent = mode === 'english'
+                ? 'Find an English word, meaning, or theme'
+                : mode === 'roman-hindi'
+                    ? 'Find a Roman Hindi/Urdu word, meaning, or theme'
+                    : 'Find a word, meaning, or transliteration';
+            document.getElementById('atlas-search').setAttribute(
+                'aria-label',
+                mode === 'english'
+                    ? 'Search English words, meanings, and themes'
+                    : mode === 'roman-hindi'
+                        ? 'Search Roman Hindi or Urdu words, meanings, and themes'
+                        : 'Search words, meanings, and themes across both languages'
+            );
+
+            if (activeWordId && !getAllowedAtlasEntries().some((entry) => entry.id === activeWordId)) {
+                flushPersonalWordNote();
+                activeWordId = null;
+                document.getElementById('atlas-word-detail').classList.add('hidden');
+                document.getElementById('atlas-empty-state').classList.remove('hidden');
+            }
+
+            constellationIndex = -1;
+            constellationWordIds = [];
+            document.getElementById('constellation-nodes').replaceChildren();
+            document.getElementById('constellation-links').replaceChildren();
+            document.getElementById('constellation-copy').classList.add('hidden');
+            document.getElementById('constellation-rhymes').classList.add('hidden');
+            document.getElementById('constellation-empty').classList.remove('hidden');
+            updateConstellationControls();
+            renderAtlas();
+            updateMetrics();
+        }
+
         function renderAtlas() {
             const query = document.getElementById('atlas-search').value.trim().toLocaleLowerCase();
-            const language = document.getElementById('atlas-language').value;
             const theme = document.getElementById('atlas-theme').value;
             const resultList = document.getElementById('atlas-results');
             const normalizedQuery = query.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-            const results = WORD_ATLAS.filter((entry) => {
-                if (language !== 'all' && entry.language !== language) return false;
+            const results = getAllowedAtlasEntries().filter((entry) => {
                 if (theme !== 'all' && !entry.themes.includes(theme)) return false;
                 if (favoritesOnly && !savedWordIds.includes(entry.id)) return false;
                 const searchable = [
@@ -2816,7 +2954,7 @@
         }
 
         function selectAtlasWord(id) {
-            const entry = WORD_ATLAS.find((item) => item.id === id);
+            const entry = getAllowedAtlasEntries().find((item) => item.id === id);
             if (!entry) return;
             flushPersonalWordNote();
             activeWordId = id;
@@ -2846,8 +2984,9 @@
         }
 
         function generateConstellation() {
-            constellationIndex = (constellationIndex + 1) % CONSTELLATIONS.length;
-            constellationWordIds = CONSTELLATIONS[constellationIndex].words.slice();
+            const collections = getConstellationsForMode();
+            constellationIndex = (constellationIndex + 1) % collections.length;
+            constellationWordIds = collections[constellationIndex].words.slice();
             renderConstellation();
         }
 
@@ -2855,7 +2994,7 @@
             if (!activeWordId || constellationWordIds.length >= 4) return;
             if (constellationIndex < 0) {
                 constellationIndex = 0;
-                constellationWordIds = CONSTELLATIONS[0].words.slice();
+                constellationWordIds = getConstellationsForMode()[0].words.slice();
             }
             if (!constellationWordIds.includes(activeWordId)) {
                 constellationWordIds.push(activeWordId);
@@ -2876,7 +3015,8 @@
         }
 
         function renderConstellation() {
-            const collection = CONSTELLATIONS[constellationIndex];
+            const collection = getConstellationsForMode()[constellationIndex];
+            if (!collection) return;
             const nodes = document.getElementById('constellation-nodes');
             const links = document.getElementById('constellation-links');
             const positions = [
@@ -2986,7 +3126,6 @@
 
         function clearAtlasFilters() {
             document.getElementById('atlas-search').value = '';
-            document.getElementById('atlas-language').value = 'all';
             document.getElementById('atlas-theme').value = 'all';
             favoritesOnly = false;
             document.getElementById('btn-favorites-filter').setAttribute('aria-pressed', 'false');
@@ -2996,7 +3135,7 @@
 
         function renderWordRhymes() {
             const list = document.getElementById('detail-rhymes');
-            const entry = WORD_ATLAS.find((item) => item.id === activeWordId);
+            const entry = getAllowedAtlasEntries().find((item) => item.id === activeWordId);
             list.replaceChildren();
             if (!entry || !entry.rhymes.length) {
                 const empty = document.createElement('p');
@@ -3148,8 +3287,8 @@
             const r1 = document.getElementById('rhyme-line-1').value.trim();
             const l2 = document.getElementById('input-line-2').value;
             const r2 = document.getElementById('rhyme-line-2').value.trim();
-            const mode1 = document.getElementById('language-line-1').value;
-            const mode2 = document.getElementById('language-line-2').value;
+            const mode1 = getWritingLanguageMode();
+            const mode2 = mode1;
             const text1 = l1 + ' ' + r1;
             const text2 = l2 + ' ' + r2;
             const hasUnsupportedScript1 = /[\p{Script=Devanagari}\u0600-\u06ff]/u.test(text1);
@@ -3229,42 +3368,66 @@
         }
 
         function renderWordField(line1, rhyme1, line2, rhyme2) {
-                const host = document.getElementById('word-field-nodes');
-                const typedRoot = rhyme1 || rhyme2 || (line1.trim().split(/\s+/).pop() || '')
-                    || (line2.trim().split(/\s+/).pop() || '');
-                const root = typedRoot.toLocaleLowerCase().replace(/[.,!?;:]+$/g, '');
-                const matchedEntry = WORD_ATLAS.find((item) => item.id === root || item.word.toLocaleLowerCase() === root);
-                const entry = matchedEntry || (!root ? WORD_ATLAS.find((item) => item.id === 'kainaat') : null);
-                const dictionaryRhymes = RHYME_DICTIONARY[root.toUpperCase()] || [];
-                const suggestions = entry ? entry.rhymes.map((rhyme) => rhyme.word) : dictionaryRhymes.map((rhyme) => rhyme.word);
-                const sparks = root && !entry && !dictionaryRhymes.length ? ['kainaat', 'jazbaat', 'roshni'] : [];
-                const words = Array.from(new Set([typedRoot || (entry ? entry.word : 'kainaat'), ...suggestions, ...sparks]))
-                    .filter(Boolean).slice(0, 7);
-                const signature = words.join('|');
-                if (host.dataset.signature === signature) return;
-                host.dataset.signature = signature;
-                host.replaceChildren();
-                const positions = [
-                    [12, 35], [35, 60], [58, 32], [70, 58], [24, 72], [66, 76], [47, 40]
-                ];
-                words.forEach((word, index) => {
-                    const button = document.createElement('button');
-                    const [x, y] = positions[index];
-                    button.type = 'button';
-                    button.className = 'word-orbit';
-                    button.style.setProperty('--word-x', x + '%');
-                    button.style.setProperty('--word-y', y + '%');
-                    button.style.setProperty('--word-delay', (-0.9 * index) + 's');
-                    button.style.setProperty('--word-duration', (6 + (index % 4) * 1.1) + 's');
-                    button.textContent = word;
-                    button.setAttribute('aria-label', 'Preview ' + word + ' for line 2');
-                    button.title = 'Preview this word in your verse';
-                    button.addEventListener('click', () => openInsertPreview(2, word));
-                    host.append(button);
-                });
-                document.getElementById('word-field-source').textContent = matchedEntry || dictionaryRhymes.length
-                    ? 'Sound echoes for ' + root
-                    : root ? 'Word sparks · not rhyme checked' : 'Curated -aat sound family';
+            const host = document.getElementById('word-field-nodes');
+            const mode = getWritingLanguageMode();
+            const typedRoot = rhyme1 || rhyme2 || (line1.trim().split(/\s+/).pop() || '')
+                || (line2.trim().split(/\s+/).pop() || '');
+            const root = typedRoot.toLocaleLowerCase().replace(/[.,!?;:]+$/g, '');
+            const allowedEntries = getAllowedAtlasEntries();
+            const entry = allowedEntries.find((item) => item.id === root || item.word.toLocaleLowerCase() === root);
+            const dictionaryRhymes = mode === 'english' ? [] : RHYME_DICTIONARY[root.toUpperCase()] || [];
+            const suggestions = entry
+                ? entry.rhymes.map((rhyme) => rhyme.word)
+                : dictionaryRhymes.map((rhyme) => rhyme.word);
+            const themeSource = entry || allowedEntries.find((candidate) => {
+                const searchable = (line1 + ' ' + line2).toLocaleLowerCase();
+                return candidate.themes.some((theme) => searchable.includes(theme));
+            }) || allowedEntries[0];
+            const relatedVocabulary = themeSource
+                ? allowedEntries
+                    .filter((candidate) => candidate.id !== (entry && entry.id)
+                        && candidate.themes.some((theme) => themeSource.themes.includes(theme)))
+                    .map((candidate) => candidate.word)
+                    .slice(0, 4)
+                : [];
+            const visibleRoot = entry ? entry.word : (mode === 'mixed' && typedRoot ? typedRoot : '');
+            const words = Array.from(new Set([
+                visibleRoot,
+                ...suggestions,
+                ...relatedVocabulary
+            ])).filter(Boolean).slice(0, 7);
+            const signature = mode + '|' + words.join('|');
+            if (host.dataset.signature === signature) return;
+            host.dataset.signature = signature;
+            host.replaceChildren();
+            const positions = [
+                [12, 35], [35, 60], [58, 32], [70, 58], [24, 72], [66, 76], [47, 40]
+            ];
+            words.forEach((word, index) => {
+                const button = document.createElement('button');
+                const [x, y] = positions[index];
+                button.type = 'button';
+                button.className = 'word-orbit';
+                button.style.setProperty('--word-x', x + '%');
+                button.style.setProperty('--word-y', y + '%');
+                button.style.setProperty('--word-delay', (-0.9 * index) + 's');
+                button.style.setProperty('--word-duration', (6 + (index % 4) * 1.1) + 's');
+                button.textContent = word;
+                button.setAttribute('aria-label', 'Preview ' + word + ' for line 2');
+                button.title = 'Curated vocabulary; test any sound relationship aloud';
+                button.addEventListener('click', () => openInsertPreview(2, word));
+                host.append(button);
+            });
+
+            const source = document.getElementById('word-field-source');
+            source.textContent = (entry || dictionaryRhymes.length) && suggestions.length
+                ? 'Curated ' + (entry ? entry.language : mode === 'roman-hindi' ? 'Hindi / Urdu' : 'Hindi-English')
+                    + ' sound echoes + related words for ' + (entry ? entry.word : root)
+                : mode === 'english'
+                    ? 'English vocabulary · not rhyme-checked'
+                    : mode === 'roman-hindi'
+                        ? 'Roman Hindi/Urdu vocabulary · not rhyme-checked'
+                        : 'Hindi-English vocabulary · not rhyme-checked';
         }
 
         function updateRhymeSuggestions(rootWord) {
@@ -3274,14 +3437,26 @@
             const priorityLabel = document.getElementById('rhyme-priority-label');
             label.textContent = root || '...';
 
-            const matches = RHYME_DICTIONARY[root.toUpperCase()] || [];
+            const entry = getAllowedAtlasEntries().find((item) =>
+                item.id === root || item.word.toLocaleLowerCase() === root
+            );
+            const matches = entry
+                ? entry.rhymes.map((rhyme) => ({
+                    word: rhyme.word,
+                    meaning: rhyme.kind + ' · ' + rhyme.note
+                }))
+                : getWritingLanguageMode() === 'english'
+                    ? []
+                    : RHYME_DICTIONARY[root.toUpperCase()] || [];
             priorityLabel.textContent = 'Suggestions are based on written sound endings; test them aloud.';
             container.replaceChildren();
             if (!matches.length) {
                 const empty = document.createElement('p');
                 empty.className = 'text-xs text-zinc-500';
                 empty.textContent = root
-                    ? "No curated sound family for this word yet. Try another root; we won't fill the list with unrelated words."
+                    ? getWritingLanguageMode() === 'english'
+                        ? 'No curated English sound family for this word yet. English word sparks are available in the floating field, but are not presented as rhymes.'
+                        : "No curated sound family for this word yet. Try another root; we won't fill the list with unrelated words."
                     : 'Add an ending word in Line 1 to see curated sound associations.';
                 container.append(empty);
                 return;
@@ -3408,7 +3583,7 @@
             loadPersonalWordNotes();
             changePalette(document.getElementById('select-palette').value);
             changeLens(document.getElementById('select-lens').value);
-            updateMetrics();
+            updateWritingLanguage();
             const revisionDetails = document.getElementById('revision-details');
             revisionDetails.open = !window.matchMedia('(max-width: 639px)').matches;
             document.querySelectorAll('.lyric-entry textarea').forEach((textarea) => {
@@ -3423,8 +3598,7 @@
             document.addEventListener('selectionchange', trackActiveLyricCaret);
             document.getElementById('insert-target').addEventListener('change', updateInsertTargetContext);
             document.getElementById('select-palette').addEventListener('change', saveDraftSoon);
-            document.getElementById('language-line-1').addEventListener('change', updateMetrics);
-            document.getElementById('language-line-2').addEventListener('change', updateMetrics);
+            document.getElementById('writing-language').addEventListener('change', updateWritingLanguage);
             document.getElementById('custom-bpm').addEventListener('input', (event) => {
                 if (event.target.validity.valid) changeCustomBpm(event.target.value);
             });
