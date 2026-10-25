@@ -1177,9 +1177,82 @@
         .beat-step:active { transform: scale(0.9); }
         .beat-row {
             display: grid;
-            grid-template-columns: 5.5rem minmax(0, 1fr);
+            grid-template-columns: 5.5rem auto minmax(0, 1fr);
             align-items: center;
             gap: 0.7rem;
+        }
+        .beat-track-controls {
+            display: flex;
+            gap: 0.25rem;
+        }
+        .beat-track-control {
+            min-width: 2.75rem;
+            min-height: 2.75rem;
+            border: 1px solid rgba(243, 238, 231, 0.16);
+            border-radius: 4px;
+            color: #aa9d94;
+            font: 500 9px/1 "IBM Plex Mono", Consolas, monospace;
+            transition: color 120ms ease, border-color 120ms ease, background 120ms ease;
+        }
+        .beat-track-control[aria-pressed="true"] {
+            border-color: rgba(239, 123, 67, 0.7);
+            color: #fff3e9;
+            background: rgba(239, 123, 67, 0.17);
+        }
+        .beat-row-suppressed .beat-row-label,
+        .beat-row-suppressed .beat-grid { opacity: 0.42; }
+        .beat-visualizer {
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        .beat-visualizer > summary {
+            display: flex;
+            min-height: 2.75rem;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding: 0.55rem 0.75rem;
+            color: #d7d7d7;
+            cursor: pointer;
+            font: 500 10px/1.3 "IBM Plex Mono", Consolas, monospace;
+            letter-spacing: 0.08em;
+            list-style: none;
+            text-transform: uppercase;
+        }
+        .beat-visualizer > summary::-webkit-details-marker { display: none; }
+        .beat-visualizer > summary::after {
+            content: "+";
+            color: #aaa;
+            font-size: 1rem;
+        }
+        .beat-visualizer[open] > summary::after { content: "−"; }
+        .beat-visualizer-canvas {
+            display: block;
+            width: 100%;
+            height: 8rem;
+            background:
+                radial-gradient(ellipse at 22% 110%, rgba(255, 255, 255, 0.11), transparent 48%),
+                radial-gradient(ellipse at 78% -12%, rgba(190, 190, 190, 0.075), transparent 52%),
+                radial-gradient(ellipse at 50% 55%, rgba(255, 255, 255, 0.025), transparent 70%);
+            background-size: 155% 155%, 170% 170%, 130% 130%;
+            background-position: 0% 100%, 100% 0%, 50% 50%;
+            animation: beat-dust-drift 32s ease-in-out infinite alternate;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        @keyframes beat-dust-drift {
+            0% { background-position: 0% 100%, 100% 0%, 50% 50%; }
+            100% { background-position: 100% 15%, 5% 95%, 55% 45%; }
+        }
+        .beat-visualizer-hint {
+            margin: 0;
+            padding: 0 0.75rem 0.55rem;
+            color: #888;
+            font: 400 9px/1.4 "IBM Plex Mono", Consolas, monospace;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .beat-visualizer-canvas { animation: none; }
         }
         .beat-row-label {
             color: #e2d7ce;
@@ -1234,12 +1307,24 @@
             .word-field-hud { font-size: 9px; letter-spacing: 0.07em; }
             .word-orbit { max-width: 46%; font-size: clamp(0.9rem, 4vw, 1.35rem); }
             .beat-row {
-                grid-template-columns: 4.3rem minmax(0, 1fr);
-                gap: 0.35rem;
+                grid-template-columns: minmax(0, 1fr) auto;
+                align-items: center;
+                gap: 0.45rem;
                 max-width: 100%;
-                overflow-x: auto;
+                overflow: visible;
             }
-            .beat-grid { grid-template-columns: repeat(16, 1.1rem); gap: 0.16rem; }
+            .beat-grid {
+                grid-column: 1 / -1;
+                width: 100%;
+                min-width: 0;
+                grid-template-columns: repeat(8, minmax(0, 1fr));
+                gap: clamp(0.2rem, 1.5vw, 0.4rem);
+            }
+            .beat-step {
+                min-width: 0;
+                min-height: 2.8rem;
+                aspect-ratio: auto;
+            }
             .beat-step { border-radius: 2px; }
         }
         @media (max-width: 639px) {
@@ -1350,16 +1435,393 @@
             .studio-screen h2 { font-size: clamp(2rem, 9vw, 2.6rem) !important; }
             .studio-screen > div:first-child > button { min-height: 2.75rem; }
             .studio-panel { padding: 1rem !important; }
-            .beat-row { grid-template-columns: 3.75rem minmax(0, 1fr); }
-            .beat-grid { grid-template-columns: repeat(16, minmax(1.35rem, 1fr)); }
-            .beat-step { min-width: 1.35rem; min-height: 2.75rem; aspect-ratio: auto; }
-            .beat-row { overflow-x: auto; }
             body.keyboard-open .studio-nav { display: none; }
+        }
+        @media (max-width: 360px) {
+            .beat-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
         }
         @media (prefers-reduced-motion: reduce) {
             .studio-screen, .word-orbit, .word-field::before, .word-field::after {
                 animation: none !important;
                 transform: none !important;
+            }
+        }
+        .primary-view {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1.12fr) minmax(16rem, 0.88fr);
+            grid-template-areas:
+                "header header"
+                "line-one revision"
+                "line-two word-field"
+                "tools tools";
+            align-items: stretch;
+            column-gap: clamp(1.5rem, 4vw, 3.5rem);
+            row-gap: clamp(1rem, 2vw, 1.5rem);
+        }
+        .primary-view > .writing-header { grid-area: header; }
+        .primary-view > .writing-line-one { grid-area: line-one; }
+        .primary-view > .writing-line-two { grid-area: line-two; }
+        .primary-view > .revision-details {
+            grid-area: revision;
+            align-self: center;
+            width: 100%;
+            margin: 0;
+            padding: clamp(1.1rem, 2vw, 1.6rem);
+            border: 1px solid var(--leaf-line);
+            border-left: 2px solid var(--leaf-moss);
+            border-radius: 0 10px 10px 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.045), rgba(255,255,255,0.012));
+        }
+        .revision-details > .prompt-line {
+            margin: 0 !important;
+            border: 0 !important;
+            padding: 0 !important;
+            color: #d7d9dc !important;
+            font-family: Inter, Arial, sans-serif !important;
+            font-size: 1rem !important;
+            line-height: 1.6;
+        }
+        .primary-view > #word-field {
+            grid-area: word-field;
+            align-self: stretch;
+            min-height: 18rem;
+            margin: 0;
+            border: 1px solid var(--leaf-line);
+            border-radius: 10px;
+            background-color: #191b1e;
+        }
+        .primary-view > .writing-tools {
+            grid-area: tools;
+            display: flex;
+            flex-direction: row;
+            align-items: center !important;
+            justify-content: space-between;
+            min-height: 4rem;
+            margin: 0;
+            padding: 0.8rem 0 0 !important;
+            border: 0 !important;
+            border-top: 1px solid var(--leaf-line) !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+        }
+        .primary-view button:not(:disabled) {
+            transition:
+                color 160ms ease,
+                background-color 160ms ease,
+                border-color 160ms ease,
+                box-shadow 160ms ease,
+                transform 120ms ease;
+        }
+        .primary-view button:not(:disabled):active,
+        #btn-play:not(:disabled):active,
+        .studio-panel button:not(:disabled):active,
+        .explore-view button:not(:disabled):active {
+            transform: translateY(1px) scale(0.985);
+        }
+        .secondary-action:hover,
+        .float-node:hover,
+        .float-rhyme:hover,
+        .studio-nav button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.22);
+        }
+        .word-orbit { min-height: 2.75rem; }
+        .word-orbit:not(.word-orbit-ambient) {
+            z-index: 2;
+            animation: none;
+            opacity: 1;
+        }
+        .word-orbit:not(.word-orbit-ambient) {
+            left: clamp(22%, var(--word-x), 78%);
+        }
+        .word-orbit-ambient {
+            z-index: 1;
+            left: clamp(18%, var(--word-x), 82%);
+            max-width: min(34%, 8rem);
+            min-height: 0;
+            padding: 0.1rem 0.2rem;
+            color: rgba(255, 224, 201, 0.9);
+            font: 500 clamp(0.78rem, 1.55vw, 1rem)/1.1 "Source Serif 4", Georgia, serif;
+            text-align: center;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            pointer-events: none;
+            animation-name: word-drift-ambient;
+        }
+        .word-field-caption { z-index: 3; }
+        @keyframes word-drift-ambient {
+            from { transform: translate3d(-10px, 7px, 0) rotate(-7deg) scale(0.9); opacity: 0.48; }
+            to { transform: translate3d(12px, -9px, 0) rotate(6deg) scale(1.08); opacity: 1; }
+        }
+        .primary-view > #word-field {
+            border-color: rgba(255, 255, 255, 0.2);
+            background:
+                radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.09), transparent 54%),
+                radial-gradient(ellipse at 18% 78%, rgba(255, 255, 255, 0.045), transparent 35%),
+                #19191b;
+        }
+        .primary-view > #word-field::before,
+        .primary-view > #word-field::after {
+            border-color: rgba(255, 255, 255, 0.12);
+            animation: word-lens-drift 18s ease-in-out infinite alternate;
+        }
+        .primary-view > #word-field::after {
+            border-color: rgba(255, 255, 255, 0.08);
+            animation-duration: 24s;
+            animation-direction: alternate-reverse;
+        }
+        .word-orbit:not(.word-orbit-ambient) {
+            color: #f2f2f2;
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.42), 0 0 28px rgba(255, 255, 255, 0.15);
+            animation: word-spiral-primary var(--word-duration, 8s) ease-in-out infinite alternate;
+            animation-delay: var(--word-delay, 0s);
+            will-change: transform, opacity;
+        }
+        .word-orbit:not(.word-orbit-ambient):nth-child(even) {
+            color: #d8d8d8;
+        }
+        .word-orbit:not(.word-orbit-ambient):nth-child(3n) {
+            color: #ffffff;
+        }
+        .word-orbit.word-orbit-ambient:nth-child(n) {
+            color: rgba(220, 220, 220, 0.7);
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.14);
+            animation-duration: calc(var(--word-duration, 8s) * 1.45);
+            will-change: transform, opacity;
+        }
+        @keyframes word-spiral-primary {
+            0% { transform: translate3d(-10px, 8px, 0) rotate(-8deg) scale(0.92); opacity: 0.68; }
+            48% { transform: translate3d(8px, -6px, 0) rotate(4deg) scale(1.04); opacity: 1; }
+            100% { transform: translate3d(14px, 10px, 0) rotate(-3deg) scale(0.97); opacity: 0.82; }
+        }
+        @keyframes word-lens-drift {
+            0% { transform: rotate(-18deg) scale(0.92) skewX(-3deg); }
+            50% { transform: rotate(9deg) scale(1.06) skewX(2deg); }
+            100% { transform: rotate(24deg) scale(0.96) skewX(-1deg); }
+        }
+        @media (min-width: 801px) {
+            .word-orbit:not(.word-orbit-ambient) {
+                width: 15%;
+                max-width: 15%;
+                padding: 0.2rem 0.1rem;
+                font-size: clamp(0.8rem, 1.45vw, 1rem);
+                line-height: 1.05;
+                text-align: center;
+                white-space: normal;
+                overflow-wrap: anywhere;
+            }
+        }
+        .word-orbit:hover {
+            z-index: 3;
+            filter: brightness(1.2);
+        }
+        .primary-view :is(button, input, textarea, select):focus-visible {
+            outline: 2px solid #ffad77 !important;
+            outline-offset: 3px !important;
+        }
+        .studio-nav button,
+        .float-node,
+        .float-rhyme,
+        .writing-tools #open-explore,
+        #btn-play {
+            min-height: 2.75rem;
+        }
+        @media (max-width: 800px) {
+            .primary-view {
+                grid-template-columns: minmax(0, 1fr);
+                grid-template-areas:
+                    "header"
+                    "line-one"
+                    "line-two"
+                    "revision"
+                    "word-field"
+                    "tools";
+            }
+            .primary-view > .revision-details { align-self: stretch; }
+            .primary-view > #word-field { min-height: 18rem; }
+        }
+        @media (max-width: 639px) {
+            .word-orbit:nth-child(1) { left: 28%; top: 24%; }
+            .word-orbit:nth-child(2) { left: 72%; top: 24%; }
+            .word-orbit:nth-child(3) { left: 28%; top: 56%; }
+            .word-orbit:nth-child(4) { left: 72%; top: 56%; }
+            .word-orbit:nth-child(n+5):not(.word-orbit-ambient) { display: none; }
+            .word-orbit-ambient { top: clamp(50%, var(--word-y), 80%); }
+        }
+        @media (max-width: 639px) {
+            .primary-view {
+                display: flex !important;
+                flex-direction: column;
+                align-items: stretch !important;
+            }
+            .primary-view > .writing-header,
+            .primary-view > .writing-line-one,
+            .primary-view > .writing-line-two,
+            .primary-view > .revision-details,
+            .primary-view > #word-field,
+            .primary-view > .writing-tools { grid-area: auto; }
+            .primary-view > .revision-details {
+                padding: 0.4rem 0.75rem;
+                border-radius: 0 8px 8px 0;
+            }
+            .primary-view > .writing-tools {
+                flex-direction: column;
+                align-items: stretch !important;
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .word-orbit,
+            .primary-view > #word-field::before,
+            .primary-view > #word-field::after {
+                animation: none !important;
+                will-change: auto !important;
+            }
+            .primary-view button,
+            .studio-panel button,
+            .explore-view button {
+                transition: none !important;
+            }
+            .primary-view button:not(:disabled):active,
+            .studio-panel button:not(:disabled):active,
+            .explore-view button:not(:disabled):active,
+            .secondary-action:hover,
+            .float-node:hover,
+            .float-rhyme:hover,
+            .studio-nav button:hover {
+                transform: none !important;
+                box-shadow: none !important;
+            }
+        }
+        .circle-layout {
+            display: grid;
+            grid-template-columns: minmax(13rem, 0.72fr) minmax(0, 1.5fr);
+            gap: 1rem;
+        }
+        .circle-view > header {
+            min-height: 0;
+            max-width: none !important;
+            border: 0 !important;
+        }
+        .circle-view > header > div:first-child {
+            min-width: 0;
+            max-width: 100%;
+            flex-shrink: 1;
+        }
+        .circle-card {
+            border: 1px solid var(--leaf-line);
+            border-radius: 12px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.045), rgba(255,255,255,0.012));
+        }
+        .circle-project[aria-current="true"] {
+            border-color: rgba(239, 123, 67, 0.58);
+            background: rgba(239, 123, 67, 0.09);
+        }
+        .circle-avatar {
+            display: inline-grid;
+            width: 2.25rem;
+            height: 2.25rem;
+            flex: 0 0 auto;
+            place-items: center;
+            border: 1px solid rgba(255, 173, 119, 0.35);
+            border-radius: 50%;
+            color: #ffe0c9;
+            background: rgba(239, 123, 67, 0.12);
+            font: 600 0.68rem/1 Inter, Arial, sans-serif;
+        }
+        .circle-status-dot {
+            width: 0.45rem;
+            height: 0.45rem;
+            border-radius: 50%;
+            background: #9bbb87;
+            box-shadow: 0 0 10px rgba(155, 187, 135, 0.55);
+        }
+        .circle-step-grid {
+            display: grid;
+            grid-template-columns: repeat(16, minmax(0, 1fr));
+            gap: 0.3rem;
+        }
+        .circle-step {
+            min-width: 0;
+            min-height: 2.4rem;
+            border: 1px solid rgba(243, 238, 231, 0.16);
+            border-radius: 4px;
+            color: #9b9690;
+            background: rgba(255,255,255,0.035);
+            font: 500 0.6rem/1 Inter, Arial, sans-serif;
+        }
+        .circle-step[aria-pressed="true"] {
+            border-color: #ffad77;
+            color: #151311;
+            background: #ef7b43;
+        }
+        .circle-step:disabled,
+        #circle-restore-version:disabled {
+            cursor: not-allowed;
+            opacity: 0.42;
+        }
+        .circle-chat-log {
+            display: flex;
+            min-height: 13rem;
+            max-height: 20rem;
+            flex-direction: column;
+            gap: 0.75rem;
+            overflow-y: auto;
+            padding: 0.25rem;
+        }
+        .circle-message {
+            max-width: 88%;
+            border: 1px solid rgba(243, 238, 231, 0.1);
+            border-radius: 10px 10px 10px 3px;
+            padding: 0.65rem 0.75rem;
+            background: rgba(255,255,255,0.035);
+        }
+        .circle-message.mine {
+            align-self: flex-end;
+            border-color: rgba(239, 123, 67, 0.22);
+            border-radius: 10px 10px 3px 10px;
+            background: rgba(239, 123, 67, 0.09);
+        }
+        @media (max-width: 760px) {
+            .circle-layout { grid-template-columns: minmax(0, 1fr) !important; }
+            .circle-sidebar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+            .circle-sidebar > .circle-card { margin: 0 !important; }
+            .circle-project-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
+        }
+        @media (max-width: 639px) {
+            .studio-nav { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+            .studio-nav button { font-size: 10px; letter-spacing: 0.02em; }
+            .circle-sidebar { grid-template-columns: minmax(0, 1fr); }
+            .circle-step-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.35rem; }
+            .circle-step { min-height: 2.75rem; font-size: 0.7rem; }
+            .circle-view > header {
+                position: static;
+                display: flex !important;
+                grid-template-columns: none;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                background: transparent;
+                backdrop-filter: none;
+            }
+        }
+        .primary-view:not(.hidden) > .writing-line {
+            animation: lyric-line-float 8s ease-in-out infinite;
+            will-change: transform;
+        }
+        .primary-view:not(.hidden) > .writing-line:focus-within {
+            animation: none;
+            transform: none !important;
+            will-change: auto;
+        }
+        @keyframes lyric-line-float {
+            0%, 100% { transform: translate3d(0, 0, 0); }
+            50% { transform: translate3d(0, -3px, 0); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .primary-view:not(.hidden) > .writing-line {
+                animation: none !important;
+                transform: none !important;
+                will-change: auto !important;
             }
         }
     </style>
@@ -1431,6 +1893,7 @@
             <button type="button" data-screen="vocal" onclick="showVocal()">VOCAL</button>
             <button type="button" data-screen="beat" onclick="showBeat()">BEAT</button>
             <button type="button" data-screen="explore" onclick="showExplore()">EXPLORE WORDS</button>
+            <button type="button" data-screen="circle" onclick="showCircle()">CIRCLE</button>
         </nav>
         <section id="writing-home" class="primary-view space-y-8" aria-label="Writing canvas">
             <div class="writing-header flex flex-wrap items-start justify-between gap-4">
@@ -1464,7 +1927,7 @@
                     <span id="word-field-source">Curated sound echoes</span>
                 </div>
                 <div id="word-field-nodes" class="word-field-nodes"></div>
-                <p class="word-field-caption">Choose a word to preview it in your verse</p>
+                <p class="word-field-caption">Tap bright words to preview · faint words drift as sparks</p>
             </section>
         <div class="writing-line writing-line-one space-y-2">
             <div class="flex items-center justify-between text-xs font-mono">
@@ -1657,6 +2120,140 @@
         </div>
         </section>
 
+        <section id="circle-view" class="circle-view hidden space-y-6" aria-label="Collaboration circle preview">
+            <header class="flex flex-wrap items-start justify-between gap-4 border-0 bg-transparent p-0">
+                <div>
+                    <p class="text-[10px] font-mono uppercase tracking-[0.2em] text-leaf-moss">04 / private collaboration preview</p>
+                    <h2 class="mt-2 font-sans text-3xl font-semibold tracking-tight text-leaf-paper sm:text-4xl">Make it together.</h2>
+                    <p class="mt-2 max-w-xl text-sm leading-relaxed text-zinc-400">A small room for trusted collaborators to shape a beat and keep its revisions.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <span id="appwrite-auth-badge" class="rounded-full border border-leaf-line px-3 py-2 text-[10px] font-mono text-zinc-400" aria-live="polite">Appwrite · checking</span>
+                    <button type="button" onclick="openAppwriteAccountDialog()" class="rounded border border-leaf-line px-3 py-2.5 text-xs text-leaf-paper hover:border-leaf-moss">Account</button>
+                    <span class="rounded-full border border-amber-300/30 px-3 py-2 text-[10px] font-mono uppercase tracking-wider text-amber-200">Demo · local only</span>
+                    <button type="button" onclick="openCircleInvite()" class="rounded border border-leaf-line px-3 py-2.5 text-xs text-leaf-paper hover:border-leaf-moss">Invite preview</button>
+                    <button type="button" onclick="createCircleRoom()" class="rounded bg-leaf-moss px-3 py-2.5 text-xs font-semibold text-[#101510] hover:brightness-110">New beat room</button>
+                </div>
+            </header>
+
+            <aside class="rounded-lg border border-amber-300/25 bg-amber-300/[0.04] px-4 py-3 text-xs leading-relaxed text-zinc-300" aria-label="Collaboration preview scope">
+                <p class="font-mono text-[10px] uppercase tracking-widest text-amber-200">Local concept preview · nothing here is shared or saved to a server</p>
+                <p class="mt-1">Planned rooms stay private and contain only a title, member roles, beat patterns, and beat revisions. Lyrics stay in this browser. No uploaded audio, persistent chat, public directory, or open invites. Optional YouTube links are a separate, opt-in link-out idea—not room content.</p>
+            </aside>
+
+            <div class="circle-layout">
+                <aside class="circle-sidebar">
+                    <section class="circle-card p-4">
+                        <div class="flex items-center justify-between gap-3">
+                            <div>
+                                <p class="text-[10px] font-mono uppercase tracking-widest text-zinc-500">Your people</p>
+                                <h3 class="mt-1 font-serif text-xl text-leaf-paper">Inner circle</h3>
+                            </div>
+                            <span class="text-[10px] font-mono text-zinc-500">3 people</span>
+                        </div>
+                        <ul class="mt-4 space-y-3">
+                            <li class="flex items-center gap-3">
+                                <span class="circle-avatar" aria-hidden="true">AS</span>
+                                <span class="min-w-0 flex-1"><span class="block text-xs text-leaf-paper">Asha S.</span><span class="text-[10px] text-zinc-500">Beatmaker · online</span></span>
+                                <span class="circle-status-dot" aria-label="Online"></span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <span class="circle-avatar" aria-hidden="true">DV</span>
+                                <span class="min-w-0 flex-1"><span class="block text-xs text-leaf-paper">Dev V.</span><span class="text-[10px] text-zinc-500">Writer · active today</span></span>
+                            </li>
+                            <li class="flex items-center gap-3">
+                                <span class="circle-avatar" aria-hidden="true">MK</span>
+                                <span class="min-w-0 flex-1"><span class="block text-xs text-leaf-paper">Mira K.</span><span class="text-[10px] text-zinc-500">Producer · active yesterday</span></span>
+                            </li>
+                        </ul>
+                        <p class="mt-4 border-t border-leaf-line pt-3 text-[10px] leading-relaxed text-zinc-500">Illustrative people only. MVP access is manually provisioned; no public directory or stranger DMs.</p>
+                    </section>
+                    <section class="circle-card p-4">
+                        <div class="flex items-center justify-between gap-2">
+                            <div>
+                                <p class="text-[10px] font-mono uppercase tracking-widest text-zinc-500">Shared projects</p>
+                                <h3 class="mt-1 font-serif text-xl text-leaf-paper">Recent rooms</h3>
+                            </div>
+                            <span id="circle-project-count" class="text-[10px] font-mono text-zinc-500">2 rooms</span>
+                        </div>
+                        <div id="circle-project-list" class="circle-project-list mt-4 space-y-2"></div>
+                    </section>
+                </aside>
+
+                <section class="circle-card min-w-0 overflow-hidden" aria-label="Shared beat room">
+                    <div class="flex flex-wrap items-start justify-between gap-3 border-b border-leaf-line p-4 sm:p-5">
+                        <div class="min-w-0">
+                            <p id="circle-project-subtitle" class="text-[10px] font-mono uppercase tracking-widest text-leaf-moss">Shared beat room</p>
+                            <h3 id="circle-project-title" class="mt-1 truncate font-serif text-2xl text-leaf-paper">Night Bus</h3>
+                            <p id="circle-project-meta" class="mt-1 text-[10px] text-zinc-500">82 BPM · Updated just now</p>
+                        </div>
+                        <div class="flex items-center gap-2 rounded-full border border-leaf-line px-2.5 py-1.5">
+                            <span class="circle-avatar !h-7 !w-7 text-[9px]" aria-hidden="true">AS</span>
+                            <span class="circle-avatar !h-7 !w-7 text-[9px]" aria-hidden="true">DV</span>
+                            <span id="circle-role-label" class="text-[10px] text-zinc-400">You · editor</span>
+                        </div>
+                    </div>
+
+                    <div class="grid gap-4 p-4 sm:p-5 xl:grid-cols-[minmax(0,1.05fr)_minmax(16rem,0.95fr)]">
+                        <section class="min-w-0">
+                            <div class="flex items-center justify-between gap-2">
+                                <div>
+                                    <p class="text-[10px] font-mono uppercase tracking-widest text-zinc-500">Beat sketch · kick lane</p>
+                                    <p class="mt-1 text-xs text-zinc-300">Tap a step to try a change</p>
+                                </div>
+                                <span class="rounded border border-leaf-line px-2 py-1 text-[9px] font-mono uppercase text-zinc-500">Version 04</span>
+                            </div>
+                            <div id="circle-step-grid" class="circle-step-grid mt-3" role="group" aria-label="Demo kick pattern"></div>
+                            <div class="mt-3 flex flex-wrap items-center justify-between gap-2">
+                                <p id="circle-edit-status" class="text-[10px] text-zinc-500" aria-live="polite">Changes stay in this demo preview.</p>
+                                <button type="button" onclick="restoreCircleBeat()" class="text-[10px] text-leaf-moss underline underline-offset-2">Restore starting beat</button>
+                            </div>
+                            <div class="mt-4 rounded-lg border border-leaf-line bg-black/15 p-3">
+                                <p class="text-[9px] font-mono uppercase tracking-widest text-zinc-500">Project activity</p>
+                                <p id="circle-activity" class="mt-1 text-xs leading-relaxed text-zinc-300">Asha invited you to shape the kick pocket.</p>
+                            </div>
+                            <details class="mt-3 rounded-lg border border-leaf-line px-3 py-2.5">
+                                <summary class="cursor-pointer text-[10px] font-mono uppercase tracking-widest text-zinc-400">Version history · 4 snapshots</summary>
+                                <ol class="mt-3 space-y-2">
+                                    <li class="flex items-center justify-between gap-3 text-[10px]">
+                                        <span class="text-zinc-300">v04 · current demo</span>
+                                        <span class="text-zinc-500">You</span>
+                                    </li>
+                                    <li class="flex items-center justify-between gap-3 text-[10px]">
+                                        <span class="text-zinc-300">v03 · original pocket</span>
+                                        <button id="circle-restore-version" type="button" onclick="restoreCircleBeat()" class="text-leaf-moss underline underline-offset-2">Restore</button>
+                                    </li>
+                                    <li class="text-[10px] text-zinc-500">v02 · snare variation · Asha</li>
+                                    <li class="text-[10px] text-zinc-500">v01 · first sketch · Asha</li>
+                                </ol>
+                                <p class="mt-2 text-[9px] text-zinc-600">Sample history only; real versions will be saved per project.</p>
+                            </details>
+                        </section>
+
+                        <section class="min-w-0 border-t border-leaf-line pt-4 xl:border-l xl:border-t-0 xl:pl-4 xl:pt-0" aria-label="Room chat">
+                            <div class="flex items-center justify-between gap-3">
+                                <div>
+                                    <p class="text-[10px] font-mono uppercase tracking-widest text-zinc-500">Room chat</p>
+                                    <p class="mt-1 text-xs text-zinc-300">Keep the conversation with the beat</p>
+                                </div>
+                                <span class="text-[9px] font-mono uppercase text-zinc-500">Private · demo</span>
+                            </div>
+                            <div id="circle-chat-log" class="circle-chat-log mt-3" role="log" aria-live="polite" aria-relevant="additions"></div>
+                            <form class="mt-3 flex gap-2" onsubmit="sendCircleMessage(event)">
+                                <label class="sr-only" for="circle-chat-input">Write a message to this beat room</label>
+                                <input id="circle-chat-input" class="field-control min-w-0 flex-1 rounded-lg px-3 py-2.5 text-xs" maxlength="280" placeholder="Suggest a change or share a thought…" autocomplete="off">
+                                <button type="submit" class="rounded bg-leaf-moss px-3 py-2.5 text-xs font-semibold text-[#101510]">Send</button>
+                            </form>
+                            <p class="mt-2 text-[9px] leading-relaxed text-zinc-500">Messages here are sample-only and disappear when you reload.</p>
+                        </section>
+                    </div>
+                    <div class="border-t border-leaf-line px-4 py-3 sm:px-5">
+                        <p class="text-[10px] leading-relaxed text-zinc-500">In the connected version, project membership controls who can listen or edit; beat versions are attributable and restorable. This preview does not upload or share anything.</p>
+                    </div>
+                </section>
+            </div>
+        </section>
+
         <section id="vocal-view" class="studio-screen hidden space-y-7" aria-label="Vocal tuning">
             <div class="flex flex-wrap items-end justify-between gap-4">
                 <div>
@@ -1734,6 +2331,11 @@
                         <input id="beat-bpm" type="number" min="60" max="160" value="88" class="field-control w-20 rounded px-3 py-2 text-sm" aria-label="Beat tempo, 60 to 160 BPM">
                     </div>
                 </div>
+                <details id="beat-visualizer" class="beat-visualizer mt-4" open>
+                    <summary>Beat dust · slow drift, responsive to your rhythm</summary>
+                    <canvas id="beat-visualizer-canvas" class="beat-visualizer-canvas" role="img" aria-label="Slow monochrome drift with soft particles responding to beat hits"></canvas>
+                    <p class="beat-visualizer-hint">Soft light drifts with the beat · no audio is recorded.</p>
+                </details>
                 <div id="beat-editor" class="mt-5 space-y-4" aria-label="Editable beat step grid"></div>
                 <div class="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-leaf-line pt-4">
                     <button id="btn-drone" type="button" aria-pressed="false" onclick="toggleDrone()" class="bass-toggle secondary-action flex min-h-11 items-center gap-3 rounded border px-4 py-2.5 text-xs font-semibold">
@@ -1791,6 +2393,54 @@
             </div>
         </form>
     </dialog>
+
+    <dialog id="circle-invite-dialog" class="leaf-dialog">
+        <form id="circle-invite-form" onsubmit="previewCircleInvite(event)">
+            <p class="text-[10px] font-mono uppercase tracking-[0.2em] text-leaf-moss">Private by design · demo</p>
+            <h2 class="mt-1 font-serif text-2xl text-leaf-paper">Invite a collaborator</h2>
+            <p class="mt-2 text-xs leading-relaxed text-zinc-400">Choose who could join and what they could do. This preview does not send an invite or contact a server.</p>
+            <label for="circle-invite-handle" class="mt-4 block text-xs font-mono text-zinc-300">Username or email</label>
+            <input id="circle-invite-handle" class="field-control mt-1 w-full rounded px-3 py-2.5 text-sm" maxlength="120" autocomplete="off" placeholder="artist@example.com" required>
+            <label for="circle-invite-role" class="mt-4 block text-xs font-mono text-zinc-300">Access for this project</label>
+            <select id="circle-invite-role" class="field-control mt-1 w-full rounded px-3 py-2.5 text-sm">
+                <option value="listener">Listener · can hear and chat</option>
+                <option value="editor">Editor · can change the beat</option>
+            </select>
+            <p id="circle-invite-status" class="mt-3 min-h-5 text-xs text-leaf-moss" aria-live="polite"></p>
+            <div class="mt-4 flex justify-end gap-2">
+                <button type="button" onclick="document.getElementById('circle-invite-dialog').close()" class="secondary-action rounded border px-3 py-2 text-xs">Close</button>
+                <button type="submit" class="rounded bg-leaf-moss px-3 py-2 text-xs font-semibold text-[#101510]">Preview invitation</button>
+            </div>
+        </form>
+    </dialog>
+
+    <dialog id="appwrite-account-dialog" class="leaf-dialog">
+        <form id="appwrite-account-form" onsubmit="submitAppwriteAccount(event)">
+            <p class="text-[10px] font-mono uppercase tracking-[0.2em] text-leaf-moss">Appwrite · account foundation</p>
+            <h2 class="mt-1 font-serif text-2xl text-leaf-paper">Your studio account</h2>
+            <p class="mt-2 text-xs leading-relaxed text-zinc-400">Sign-up and sign-in use Appwrite Auth. Beat rooms, messages, and invitations are still local previews; an account does not share them yet.</p>
+            <p id="appwrite-account-status" class="mt-3 rounded border border-leaf-line bg-black/15 p-3 text-xs leading-relaxed text-zinc-300" role="status" aria-live="polite"></p>
+            <div class="mt-4 flex gap-2" role="group" aria-label="Account action">
+                <button id="appwrite-login-mode" type="button" onclick="setAppwriteAuthMode('login')" class="rounded border border-leaf-moss px-3 py-2 text-xs text-leaf-paper" aria-pressed="true">Sign in</button>
+                <button id="appwrite-signup-mode" type="button" onclick="setAppwriteAuthMode('signup')" class="rounded border border-leaf-line px-3 py-2 text-xs text-zinc-400" aria-pressed="false">Create account</button>
+            </div>
+            <label id="appwrite-name-label" for="appwrite-name" class="mt-4 text-xs font-mono text-zinc-300" style="display:none">Display name</label>
+            <input id="appwrite-name" class="field-control mt-1 w-full rounded px-3 py-2.5 text-sm" style="display:none" maxlength="128" autocomplete="name" placeholder="Your artist name">
+            <label for="appwrite-email" class="mt-4 block text-xs font-mono text-zinc-300">Email</label>
+            <input id="appwrite-email" type="email" class="field-control mt-1 w-full rounded px-3 py-2.5 text-sm" maxlength="320" autocomplete="email" required>
+            <label for="appwrite-password" class="mt-4 block text-xs font-mono text-zinc-300">Password</label>
+            <input id="appwrite-password" type="password" class="field-control mt-1 w-full rounded px-3 py-2.5 text-sm" minlength="8" maxlength="256" autocomplete="current-password" required>
+            <div class="mt-5 flex flex-wrap justify-end gap-2">
+                <button id="appwrite-sign-out" type="button" onclick="signOutAppwrite()" class="hidden rounded border border-leaf-line px-3 py-2 text-xs text-zinc-300">Sign out</button>
+                <button type="button" onclick="document.getElementById('appwrite-account-dialog').close()" class="secondary-action rounded border px-3 py-2 text-xs">Close</button>
+                <button id="appwrite-submit" type="submit" class="rounded bg-leaf-moss px-3 py-2 text-xs font-semibold text-[#101510]">Sign in</button>
+            </div>
+        </form>
+    </dialog>
+
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@29.1.0"></script>
+    <script src="appwrite-config.js"></script>
+    <script src="appwrite-auth.js"></script>
 
     <script>
         const RHYME_DICTIONARY = {
@@ -2019,6 +2669,38 @@
         let saveTimer = null;
         let storageError = '';
         let isInitializing = true;
+        let activeCircleProjectId = 'night-bus';
+        let circleRoomSequence = 0;
+        const circleProjects = [
+            {
+                id: 'night-bus',
+                title: 'Night Bus',
+                bpm: 82,
+                updated: 'Updated 12 min ago',
+                role: 'editor',
+                activity: 'Asha invited you to shape the kick pocket.',
+                steps: [true, false, false, false, true, false, false, true, false, false, false, true, false, false, false, false],
+                startingSteps: [true, false, false, false, true, false, false, true, false, false, false, true, false, false, false, false],
+                messages: [
+                    { name: 'Asha S.', text: 'The kick feels crowded around beat 3. Can you open step 6?' },
+                    { name: 'Dev V.', text: 'I pulled the snare back. This pocket has more room now.' }
+                ]
+            },
+            {
+                id: 'afterimage',
+                title: 'Afterimage',
+                bpm: 88,
+                updated: 'Updated yesterday',
+                role: 'listener',
+                activity: 'Mira shared a listening copy. You can chat, but not edit this beat.',
+                steps: [true, false, false, true, false, false, true, false, false, false, true, false, false, false, false, true],
+                startingSteps: [true, false, false, true, false, false, true, false, false, false, true, false, false, false, false, true],
+                messages: [
+                    { name: 'Mira K.', text: 'Sharing this loop for a second set of ears.' },
+                    { name: 'Asha S.', text: 'The hat pattern has a nice late-night sway.' }
+                ]
+            }
+        ];
 
         let audioCtx = null;
         let isPlaying = false;
@@ -2026,7 +2708,17 @@
         let currentStep32 = 0;
         let nextStepDueTime = 0.0;
         let lookaheadTimer = null;
+        let beatParticles = [];
+        let beatParticleFrame = null;
+        let beatParticleLastFrame = 0;
         let currentPalette = 'jazzhop';
+        const TRACK_PLAYBACK = {
+            k: { muted: false },
+            s: { muted: false },
+            h: { muted: false },
+            c: { muted: false }
+        };
+        let soloTrackKey = null;
         let currentLens = 'intention';
         let isDroneOn = false;
         let oscA = null;
@@ -2095,6 +2787,7 @@
                 const dot = document.getElementById('dot-' + i);
                 if (dot) dot.classList.remove('active-dot');
             }
+            clearBeatParticles();
         }
 
         function stopPlayback() {
@@ -2181,20 +2874,145 @@
         }
 
         function playChord(t, step16) {
-            if (currentPalette === 'jazzhop') {
-                const freqs = step16 === 0 ? [146.83, 174.61, 220.00, 261.63] : [130.81, 164.81, 196.00, 246.94];
-                freqs.forEach((f) => {
-                    const osc = audioCtx.createOscillator();
-                    const g = audioCtx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(f, t);
-                    g.gain.setValueAtTime(0.015, t);
-                    g.gain.exponentialRampToValueAtTime(0.0005, t + 1.1);
-                    osc.connect(g);
-                    g.connect(audioCtx.destination);
-                    osc.start(t);
-                    osc.stop(t + 1.15);
-                });
+            const chordVoicings = {
+                jazzhop: step16 < 8 ? [146.83, 174.61, 220.00, 261.63] : [130.81, 164.81, 196.00, 246.94],
+                drillnoir: step16 < 8 ? [110.00, 130.81, 164.81, 196.00] : [98.00, 116.54, 146.83, 174.61],
+                tablaloft: step16 < 8 ? [146.83, 185.00, 220.00, 277.18] : [110.00, 138.59, 164.81, 207.65]
+            };
+            const frequencies = chordVoicings[currentPalette] || chordVoicings.jazzhop;
+            frequencies.forEach((frequency) => {
+                const oscillator = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(frequency, t);
+                gain.gain.setValueAtTime(0.015, t);
+                gain.gain.exponentialRampToValueAtTime(0.0005, t + 1.1);
+                oscillator.connect(gain);
+                gain.connect(audioCtx.destination);
+                oscillator.start(t);
+                oscillator.stop(t + 1.15);
+            });
+        }
+
+        function isBeatVisualizerAvailable() {
+            const visualizer = document.getElementById('beat-visualizer');
+            return visualizer
+                && visualizer.open
+                && !document.getElementById('beat-view').classList.contains('hidden')
+                && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        }
+
+        function resizeBeatVisualizer() {
+            const canvas = document.getElementById('beat-visualizer-canvas');
+            if (!canvas) return null;
+            const rect = canvas.getBoundingClientRect();
+            const ratio = Math.min(window.devicePixelRatio || 1, 2);
+            const width = Math.max(1, Math.floor(rect.width * ratio));
+            const height = Math.max(1, Math.floor(rect.height * ratio));
+            if (canvas.width !== width || canvas.height !== height) {
+                canvas.width = width;
+                canvas.height = height;
+            }
+            const context = canvas.getContext('2d');
+            if (context) context.setTransform(ratio, 0, 0, ratio, 0, 0);
+            return context;
+        }
+
+        function emitBeatParticles(trackKeys) {
+            if (!isBeatVisualizerAvailable() || !trackKeys.length) return;
+            const canvas = document.getElementById('beat-visualizer-canvas');
+            const bounds = canvas.getBoundingClientRect();
+            if (bounds.width <= 0 || bounds.height <= 0) return;
+            const origins = {
+                k: { x: 0.25, y: 0.8, count: 10, speed: 30 },
+                s: { x: 0.5, y: 0.72, count: 8, speed: 25 },
+                h: { x: 0.76, y: 0.62, count: 5, speed: 18 },
+                c: { x: 0.5, y: 0.42, count: 6, speed: 14 }
+            };
+            trackKeys.forEach((key) => {
+                const origin = origins[key];
+                for (let index = 0; index < origin.count; index++) {
+                    const angle = -Math.PI / 2 + (Math.random() - 0.5) * (key === 'h' ? 2.8 : 2.2);
+                    const speed = origin.speed * (0.4 + Math.random() * 0.75);
+                    beatParticles.push({
+                        x: bounds.width * origin.x,
+                        y: bounds.height * origin.y,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed,
+                        size: 0.6 + Math.random() * (key === 'k' ? 1.5 : 1),
+                        life: 1.6 + Math.random() * 1.2,
+                        drift: 2 + Math.random() * 7,
+                        phase: Math.random() * Math.PI * 2,
+                        age: 0
+                    });
+                }
+            });
+            if (beatParticles.length > 120) beatParticles.splice(0, beatParticles.length - 120);
+            canvas.dataset.particleCount = String(beatParticles.length);
+            if (beatParticleFrame === null) {
+                beatParticleLastFrame = 0;
+                beatParticleFrame = requestAnimationFrame(drawBeatParticles);
+            }
+        }
+
+        function drawBeatParticles(timestamp) {
+            beatParticleFrame = null;
+            const context = resizeBeatVisualizer();
+            const canvas = document.getElementById('beat-visualizer-canvas');
+            if (!context || !canvas || !isBeatVisualizerAvailable()) {
+                clearBeatParticles();
+                return;
+            }
+            const bounds = canvas.getBoundingClientRect();
+            const delta = beatParticleLastFrame
+                ? Math.min((timestamp - beatParticleLastFrame) / 1000, 0.05)
+                : 0;
+            beatParticleLastFrame = timestamp;
+            context.clearRect(0, 0, bounds.width, bounds.height);
+            beatParticles = beatParticles.filter((particle) => {
+                particle.age += delta;
+                if (particle.age >= particle.life) return false;
+                particle.age = Math.min(particle.age, particle.life);
+                const progress = particle.age / particle.life;
+                const previousX = particle.x;
+                const previousY = particle.y;
+                particle.x += particle.vx * delta + Math.sin(particle.age * 1.7 + particle.phase) * particle.drift * delta;
+                particle.y += particle.vy * delta;
+                particle.vy += 3 * delta;
+                const opacity = Math.sin(progress * Math.PI) * 0.56;
+                context.beginPath();
+                context.moveTo(previousX, previousY);
+                context.lineTo(particle.x, particle.y);
+                context.strokeStyle = 'rgba(235, 235, 235, ' + (opacity * 0.28) + ')';
+                context.lineWidth = Math.max(0.5, particle.size * 0.55);
+                context.stroke();
+                context.beginPath();
+                context.fillStyle = 'rgba(245, 245, 245, ' + opacity + ')';
+                context.shadowColor = 'rgba(255, 255, 255, ' + (opacity * 0.55) + ')';
+                context.shadowBlur = particle.size * 5;
+                context.arc(particle.x, particle.y, particle.size * (0.75 + opacity * 0.55), 0, Math.PI * 2);
+                context.fill();
+                return true;
+            });
+            context.shadowBlur = 0;
+            canvas.dataset.particleCount = String(beatParticles.length);
+            if (beatParticles.length) beatParticleFrame = requestAnimationFrame(drawBeatParticles);
+            else beatParticleLastFrame = 0;
+        }
+
+        function clearBeatParticles() {
+            if (beatParticleFrame !== null) cancelAnimationFrame(beatParticleFrame);
+            beatParticleFrame = null;
+            beatParticleLastFrame = 0;
+            beatParticles = [];
+            const canvas = document.getElementById('beat-visualizer-canvas');
+            if (canvas) {
+                const context = resizeBeatVisualizer();
+                if (context) {
+                    const bounds = canvas.getBoundingClientRect();
+                    context.clearRect(0, 0, bounds.width, bounds.height);
+                }
+                canvas.dataset.particleCount = '0';
             }
         }
 
@@ -2216,14 +3034,16 @@
         function scheduleStep(step32, time) {
             const step16 = step32 % 16;
             const pat = PATTERNS[currentPalette];
-            if (pat.k[step16]) playKick(time);
-            if (pat.s[step16]) playSnare(time);
-            if (pat.h[step16]) playHat(time);
-            if (pat.c[step16]) playChord(time, step16);
+            const activeTracks = [];
+            if (isTrackAudible('k') && pat.k[step16]) { playKick(time); activeTracks.push('k'); }
+            if (isTrackAudible('s') && pat.s[step16]) { playSnare(time); activeTracks.push('s'); }
+            if (isTrackAudible('h') && pat.h[step16]) { playHat(time); activeTracks.push('h'); }
+            if (isTrackAudible('c') && pat.c[step16]) { playChord(time, step16); activeTracks.push('c'); }
 
             const delayMs = Math.max(0, (time - audioCtx.currentTime) * 1000);
             setTimeout(() => {
                 triggerVisuals(step32);
+                emitBeatParticles(activeTracks);
             }, delayMs);
         }
 
@@ -2339,6 +3159,169 @@
             document.getElementById('atlas-search').focus();
         }
 
+        function showCircle() {
+            setStudioScreen('circle');
+            renderCircle();
+        }
+
+        function renderCircle() {
+            const projectList = document.getElementById('circle-project-list');
+            const projectCount = document.getElementById('circle-project-count');
+            projectList.replaceChildren();
+            projectCount.textContent = circleProjects.length + (circleProjects.length === 1 ? ' room' : ' rooms');
+
+            circleProjects.forEach((project) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'circle-project w-full rounded-lg border border-leaf-line px-3 py-3 text-left transition hover:border-leaf-moss';
+                button.setAttribute('aria-current', String(project.id === activeCircleProjectId));
+                button.addEventListener('click', () => {
+                    activeCircleProjectId = project.id;
+                    renderCircle();
+                });
+
+                const title = document.createElement('span');
+                title.className = 'block truncate text-xs font-medium text-leaf-paper';
+                title.textContent = project.title;
+                const detail = document.createElement('span');
+                detail.className = 'mt-1 block text-[10px] text-zinc-500';
+                detail.textContent = project.bpm + ' BPM · ' + (project.role === 'listener' ? 'Listening' : 'Editing');
+                button.append(title, detail);
+                projectList.append(button);
+            });
+
+            const project = circleProjects.find((item) => item.id === activeCircleProjectId) || circleProjects[0];
+            if (!project) return;
+            activeCircleProjectId = project.id;
+            document.getElementById('circle-project-title').textContent = project.title;
+            document.getElementById('circle-project-subtitle').textContent =
+                project.role === 'listener' ? 'Shared listening room' : 'Shared beat room';
+            document.getElementById('circle-project-meta').textContent = project.bpm + ' BPM · ' + project.updated;
+            document.getElementById('circle-role-label').textContent =
+                project.role === 'owner' ? 'You · owner' : 'You · ' + project.role;
+            document.getElementById('circle-activity').textContent = project.activity;
+            document.getElementById('circle-edit-status').textContent = project.role === 'listener'
+                ? 'Listener access · beat changes are disabled.'
+                : 'Changes stay in this demo preview.';
+            document.getElementById('circle-restore-version').disabled = project.role === 'listener';
+            renderCircleSteps(project);
+            renderCircleMessages(project);
+        }
+
+        function renderCircleSteps(project) {
+            const grid = document.getElementById('circle-step-grid');
+            grid.replaceChildren();
+            project.steps.forEach((active, index) => {
+                const step = document.createElement('button');
+                step.type = 'button';
+                step.className = 'circle-step';
+                step.textContent = String(index + 1);
+                step.disabled = project.role === 'listener';
+                step.setAttribute('aria-pressed', String(active));
+                step.setAttribute('aria-label', 'Kick step ' + (index + 1) + (active ? ', active' : ', inactive'));
+                step.addEventListener('click', () => toggleCircleStep(project.id, index));
+                grid.append(step);
+            });
+        }
+
+        function renderCircleMessages(project) {
+            const log = document.getElementById('circle-chat-log');
+            log.replaceChildren();
+            project.messages.forEach((message) => {
+                const item = document.createElement('article');
+                item.className = 'circle-message' + (message.mine ? ' mine' : '');
+                const sender = document.createElement('p');
+                sender.className = 'mb-1 text-[9px] font-mono uppercase tracking-widest text-leaf-moss';
+                sender.textContent = message.name;
+                const content = document.createElement('p');
+                content.className = 'text-xs leading-relaxed text-zinc-200';
+                content.textContent = message.text;
+                item.append(sender, content);
+                log.append(item);
+            });
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function toggleCircleStep(projectId, stepIndex) {
+            const project = circleProjects.find((item) => item.id === projectId);
+            if (!project || project.role === 'listener') return;
+            project.steps[stepIndex] = !project.steps[stepIndex];
+            const state = project.steps[stepIndex] ? 'on' : 'off';
+            project.activity = 'You switched kick step ' + (stepIndex + 1) + ' ' + state + ' · demo only.';
+            project.updated = 'Edited just now · demo only';
+            const step = document.querySelectorAll('#circle-step-grid button')[stepIndex];
+            step.setAttribute('aria-pressed', String(project.steps[stepIndex]));
+            step.setAttribute('aria-label', 'Kick step ' + (stepIndex + 1) + (project.steps[stepIndex] ? ', active' : ', inactive'));
+            document.getElementById('circle-project-meta').textContent = project.bpm + ' BPM · ' + project.updated;
+            document.getElementById('circle-activity').textContent = project.activity;
+            project.messages.push({
+                name: 'You · activity',
+                text: 'Changed kick step ' + (stepIndex + 1) + ' ' + state + '.'
+            });
+            renderCircleMessages(project);
+        }
+
+        function restoreCircleBeat() {
+            const project = circleProjects.find((item) => item.id === activeCircleProjectId);
+            if (!project || project.role === 'listener') return;
+            project.steps = project.startingSteps.slice();
+            project.activity = 'You restored the starting beat · demo only.';
+            project.updated = 'Restored just now · demo only';
+            project.steps.forEach((active, index) => {
+                const step = document.querySelectorAll('#circle-step-grid button')[index];
+                step.setAttribute('aria-pressed', String(active));
+                step.setAttribute('aria-label', 'Kick step ' + (index + 1) + (active ? ', active' : ', inactive'));
+            });
+            document.getElementById('circle-project-meta').textContent = project.bpm + ' BPM · ' + project.updated;
+            document.getElementById('circle-activity').textContent = project.activity;
+            project.messages.push({ name: 'You · activity', text: 'Restored the starting kick pattern.' });
+            renderCircleMessages(project);
+        }
+
+        function sendCircleMessage(event) {
+            event.preventDefault();
+            const input = document.getElementById('circle-chat-input');
+            const message = input.value.trim();
+            const project = circleProjects.find((item) => item.id === activeCircleProjectId);
+            if (!project || !message) return;
+            project.messages.push({ name: 'You', text: message, mine: true });
+            input.value = '';
+            renderCircleMessages(project);
+            input.focus();
+        }
+
+        function createCircleRoom() {
+            circleRoomSequence += 1;
+            const project = {
+                id: 'demo-room-' + circleRoomSequence,
+                title: 'Untitled collab ' + circleRoomSequence,
+                bpm: 88,
+                updated: 'Created just now · demo only',
+                role: 'owner',
+                activity: 'You created a local preview room. Nothing has been shared.',
+                steps: [true, false, false, false, true, false, false, false, false, false, true, false, false, false, false, false],
+                startingSteps: [true, false, false, false, true, false, false, false, false, false, true, false, false, false, false, false],
+                messages: [{ name: 'You · activity', text: 'Room created locally. Invite previews do not send.' }]
+            };
+            circleProjects.unshift(project);
+            activeCircleProjectId = project.id;
+            renderCircle();
+        }
+
+        function openCircleInvite() {
+            document.getElementById('circle-invite-form').reset();
+            document.getElementById('circle-invite-status').textContent = '';
+            document.getElementById('circle-invite-dialog').showModal();
+        }
+
+        function previewCircleInvite(event) {
+            event.preventDefault();
+            const handle = document.getElementById('circle-invite-handle').value.trim();
+            const role = document.getElementById('circle-invite-role').value;
+            document.getElementById('circle-invite-status').textContent =
+                'Preview only: ' + handle + ' would get ' + role + ' access. No invitation was sent.';
+        }
+
         function showWriting() {
             setStudioScreen('write');
             const target = lastCaret && document.getElementById(lastCaret.id);
@@ -2362,7 +3345,8 @@
                 write: 'writing-home',
                 explore: 'explore-view',
                 vocal: 'vocal-view',
-                beat: 'beat-view'
+                beat: 'beat-view',
+                circle: 'circle-view'
             };
             Object.entries(screens).forEach(([name, id]) => {
                 document.getElementById(id).classList.toggle('hidden', name !== screen);
@@ -2375,6 +3359,37 @@
                 stopVocalMonitor();
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function isTrackAudible(trackKey) {
+            return !TRACK_PLAYBACK[trackKey].muted
+                && (soloTrackKey === null || soloTrackKey === trackKey);
+        }
+
+        function updateTrackPlaybackUI() {
+            document.querySelectorAll('#beat-editor .beat-row').forEach((row) => {
+                const trackKey = row.dataset.trackKey;
+                const trackName = row.dataset.trackName;
+                const muteButton = row.querySelector('[data-track-action="mute"]');
+                const soloButton = row.querySelector('[data-track-action="solo"]');
+                const isMuted = TRACK_PLAYBACK[trackKey].muted;
+                const isSolo = soloTrackKey === trackKey;
+                row.classList.toggle('beat-row-suppressed', !isTrackAudible(trackKey));
+                muteButton.setAttribute('aria-pressed', String(isMuted));
+                muteButton.setAttribute('aria-label', (isMuted ? 'Unmute ' : 'Mute ') + trackName + ' lane');
+                soloButton.setAttribute('aria-pressed', String(isSolo));
+                soloButton.setAttribute('aria-label', (isSolo ? 'Unsolo ' : 'Solo ') + trackName + ' lane');
+            });
+        }
+
+        function toggleTrackMute(trackKey) {
+            TRACK_PLAYBACK[trackKey].muted = !TRACK_PLAYBACK[trackKey].muted;
+            updateTrackPlaybackUI();
+        }
+
+        function toggleTrackSolo(trackKey) {
+            soloTrackKey = soloTrackKey === trackKey ? null : trackKey;
+            updateTrackPlaybackUI();
         }
 
         function renderBeatEditor() {
@@ -2390,12 +3405,33 @@
             tracks.forEach((track) => {
                 const row = document.createElement('div');
                 row.className = 'beat-row';
+                row.dataset.trackKey = track.key;
+                row.dataset.trackName = track.name;
                 const label = document.createElement('p');
                 label.className = 'beat-row-label';
                 label.textContent = track.name;
                 const sublabel = document.createElement('small');
                 sublabel.textContent = track.note;
                 label.append(sublabel);
+                const controls = document.createElement('div');
+                controls.className = 'beat-track-controls';
+                controls.setAttribute('role', 'group');
+                controls.setAttribute('aria-label', track.name + ' playback controls');
+                [
+                    { action: 'mute', label: 'M' },
+                    { action: 'solo', label: 'S' }
+                ].forEach((control) => {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'beat-track-control';
+                    button.textContent = control.label;
+                    button.dataset.trackAction = control.action;
+                    button.addEventListener('click', () => {
+                        if (control.action === 'mute') toggleTrackMute(track.key);
+                        else toggleTrackSolo(track.key);
+                    });
+                    controls.append(button);
+                });
                 const grid = document.createElement('div');
                 grid.className = 'beat-grid';
                 PATTERNS[currentPalette][track.key].forEach((active, step) => {
@@ -2412,9 +3448,10 @@
                     });
                     grid.append(button);
                 });
-                row.append(label, grid);
+                row.append(label, controls, grid);
                 editor.append(row);
             });
+            updateTrackPlaybackUI();
         }
 
         function toggleDrone() {
@@ -3383,40 +4420,54 @@
                 const searchable = (line1 + ' ' + line2).toLocaleLowerCase();
                 return candidate.themes.some((theme) => searchable.includes(theme));
             }) || allowedEntries[0];
-            const relatedVocabulary = themeSource
+            const relatedEntries = themeSource
                 ? allowedEntries
                     .filter((candidate) => candidate.id !== (entry && entry.id)
                         && candidate.themes.some((theme) => themeSource.themes.includes(theme)))
-                    .map((candidate) => candidate.word)
-                    .slice(0, 4)
+                    .slice(0, 10)
                 : [];
             const visibleRoot = entry ? entry.word : (mode === 'mixed' && typedRoot ? typedRoot : '');
-            const words = Array.from(new Set([
+            const words = Array.from(new Map([
                 visibleRoot,
                 ...suggestions,
-                ...relatedVocabulary
-            ])).filter(Boolean).slice(0, 7);
+                ...relatedEntries.map((candidate) => candidate.word),
+                ...relatedEntries.flatMap((candidate) => candidate.rhymes.map((rhyme) => rhyme.word))
+            ].filter(Boolean).map((word) => [word.toLocaleLowerCase(), word])).values()).slice(0, 24);
             const signature = mode + '|' + words.join('|');
             if (host.dataset.signature === signature) return;
             host.dataset.signature = signature;
             host.replaceChildren();
             const positions = [
-                [12, 35], [35, 60], [58, 32], [70, 58], [24, 72], [66, 76], [47, 40]
+                [12, 22], [38, 22], [62, 22], [88, 22],
+                [12, 58], [38, 58], [62, 58], [88, 58]
+            ];
+            const ambientPositions = [
+                [18, 44], [46, 45], [78, 44], [30, 45],
+                [63, 44], [84, 45], [16, 44], [43, 45],
+                [72, 78], [25, 79], [55, 78], [88, 79],
+                [37, 78], [68, 79], [13, 78], [55, 79]
             ];
             words.forEach((word, index) => {
-                const button = document.createElement('button');
-                const [x, y] = positions[index];
-                button.type = 'button';
-                button.className = 'word-orbit';
-                button.style.setProperty('--word-x', x + '%');
-                button.style.setProperty('--word-y', y + '%');
-                button.style.setProperty('--word-delay', (-0.9 * index) + 's');
-                button.style.setProperty('--word-duration', (6 + (index % 4) * 1.1) + 's');
-                button.textContent = word;
-                button.setAttribute('aria-label', 'Preview ' + word + ' for line 2');
-                button.title = 'Curated vocabulary; test any sound relationship aloud';
-                button.addEventListener('click', () => openInsertPreview(2, word));
-                host.append(button);
+                const isPrimary = index < positions.length;
+                const node = document.createElement(isPrimary ? 'button' : 'span');
+                const [x, y] = isPrimary
+                    ? positions[index]
+                    : ambientPositions[(index - positions.length) % ambientPositions.length];
+                node.className = isPrimary ? 'word-orbit' : 'word-orbit word-orbit-ambient';
+                node.style.setProperty('--word-x', x + '%');
+                node.style.setProperty('--word-y', y + '%');
+                node.style.setProperty('--word-delay', (-0.55 * index) + 's');
+                node.style.setProperty('--word-duration', (5 + (index % 6) * 0.8) + 's');
+                node.textContent = word;
+                if (isPrimary) {
+                    node.type = 'button';
+                    node.setAttribute('aria-label', 'Preview ' + word + ' for line 2');
+                    node.title = 'Curated vocabulary; test any sound relationship aloud';
+                    node.addEventListener('click', () => openInsertPreview(2, word));
+                } else {
+                    node.setAttribute('aria-hidden', 'true');
+                }
+                host.append(node);
             });
 
             const source = document.getElementById('word-field-source');

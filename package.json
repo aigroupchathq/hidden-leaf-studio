@@ -1,0 +1,12 @@
+{
+  "name": "hidden-leaf-studio",
+  "private": true,
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "appwrite": "29.1.0"
+  }
+}
