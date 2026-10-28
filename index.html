@@ -1145,15 +1145,596 @@
             border: 1px solid var(--leaf-line);
             background: linear-gradient(135deg, rgba(255,255,255,0.045), rgba(255,255,255,0.012));
         }
+        .vocal-studio {
+            --vocal-red: #ed111c;
+            --vocal-red-soft: rgba(237, 17, 28, 0.16);
+            gap: 1.15rem;
+        }
+        .vocal-page-heading,
+        .vocal-recording-heading,
+        .vocal-console-top,
+        .vocal-key-settings,
+        .vocal-track-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+        .vocal-page-heading { padding: 0.2rem 0.15rem 0.25rem; }
+        .vocal-page-heading h2 {
+            margin: 0.35rem 0 0;
+            color: #f5f2ee;
+            font: 600 clamp(1.7rem, 5vw, 2.5rem)/1.05 "Plus Jakarta Sans", Inter, sans-serif;
+            letter-spacing: -0.055em;
+        }
+        .vocal-page-heading h2 span {
+            color: #aaa5a2;
+            font-family: "Instrument Serif", Georgia, serif;
+            font-style: italic;
+            font-weight: 400;
+        }
+        .vocal-overline {
+            margin: 0;
+            color: #898482;
+            font: 500 0.62rem/1.4 "IBM Plex Mono", Consolas, monospace;
+            letter-spacing: 0.16em;
+        }
+        .vocal-back {
+            border: 1px solid #343234;
+            border-radius: 0.5rem;
+            padding: 0.65rem 0.85rem;
+            color: #d7d2d0;
+            background: #111;
+            font-size: 0.72rem;
+        }
+        .vocal-console,
+        .vocal-recording-console {
+            overflow: hidden;
+            border: 1px solid #282628;
+            border-radius: 1rem;
+            background: #090909;
+            box-shadow: 0 18px 60px rgba(0, 0, 0, 0.28);
+        }
+        .vocal-console { padding: clamp(0.9rem, 3vw, 1.5rem); }
+        .vocal-console-top {
+            min-height: 2rem;
+            padding: 0 0.15rem 0.8rem;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+        .vocal-console-brand,
+        .vocal-live-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            color: #a7a1a0;
+            font: 500 0.6rem/1 "IBM Plex Mono", Consolas, monospace;
+            letter-spacing: 0.1em;
+        }
+        .vocal-brand-mark {
+            display: grid;
+            width: 1.55rem;
+            height: 1.55rem;
+            place-items: center;
+            border: 1px solid #454043;
+            border-radius: 50%;
+            color: #f3efeb;
+            font-size: 0.55rem;
+            letter-spacing: 0;
+        }
+        .vocal-live-status::before {
+            width: 0.42rem;
+            height: 0.42rem;
+            border-radius: 50%;
+            background: #5e5b5b;
+            content: "";
+        }
+        .vocal-mic-status {
+            min-height: 0.9rem;
+            margin: -0.5rem 0 0;
+            color: #777274;
+            font-size: 0.58rem;
+            line-height: 1.4;
+        }
+        .vocal-console-main {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 4.1rem;
+            align-items: stretch;
+            gap: 0.9rem;
+            padding: 0.9rem 0 1.1rem;
+        }
         .tuner-readout {
-            min-height: 12rem;
-            background: radial-gradient(ellipse at 50% 70%, rgba(239, 123, 67, 0.17), transparent 65%);
+            position: relative;
+            display: grid;
+            min-width: 0;
+            min-height: 17rem;
+            place-items: center;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 0.8rem;
+            background:
+                radial-gradient(ellipse at 50% 52%, rgba(140, 27, 24, 0.23), transparent 36%),
+                radial-gradient(ellipse at 50% 100%, rgba(255,255,255,0.06), transparent 48%),
+                linear-gradient(145deg, #171617, #101011 60%, #151313);
+        }
+        .tuner-readout::before {
+            position: absolute;
+            width: 13rem;
+            height: 13rem;
+            border-radius: 42% 58% 63% 37% / 42% 39% 61% 58%;
+            background: rgba(152, 15, 23, 0.48);
+            content: "";
+            filter: blur(1px);
+            transform: translate(-0.75rem, 0.55rem) rotate(-18deg);
+            animation: vocal-shape-drift 7s ease-in-out infinite alternate;
+        }
+        .tuner-readout::after {
+            position: absolute;
+            width: 11.6rem;
+            height: 12rem;
+            border-radius: 51% 49% 47% 53% / 39% 43% 57% 61%;
+            background: radial-gradient(ellipse at 36% 30%, #ff2029 0, #e90b16 68%, #b9000a 100%);
+            box-shadow: 0 0 4.5rem rgba(237, 17, 28, 0.25);
+            content: "";
+            animation: vocal-shape-breathe 3.8s ease-in-out infinite alternate;
+            transition: opacity 200ms ease, filter 200ms ease;
+        }
+        .tuner-readout:has(#tuner-waveform[width="0"])::after { opacity: 0.88; }
+        @keyframes vocal-shape-drift {
+            from { border-radius: 42% 58% 63% 37% / 42% 39% 61% 58%; transform: translate(-0.75rem, 0.55rem) rotate(-18deg) scale(0.98); }
+            to { border-radius: 55% 45% 45% 55% / 53% 62% 38% 47%; transform: translate(-0.35rem, 0.2rem) rotate(-8deg) scale(1.04); }
+        }
+        @keyframes vocal-shape-breathe {
+            from { border-radius: 51% 49% 47% 53% / 39% 43% 57% 61%; transform: scale(0.98) rotate(-2deg); }
+            to { border-radius: 44% 56% 55% 45% / 52% 38% 62% 48%; transform: scale(1.04) rotate(2deg); }
         }
         #tuner-waveform {
+            position: absolute;
+            z-index: 1;
+            inset: 0;
             display: block;
             width: 100%;
-            height: 100px;
+            height: 100%;
+            pointer-events: none;
         }
+        .vocal-pitch-readout {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            min-height: 13rem;
+            padding: 1rem;
+            text-align: center;
+            pointer-events: none;
+        }
+        .vocal-pitch-caption {
+            color: rgba(255,255,255,0.78);
+            font: 500 0.55rem/1 "IBM Plex Mono", Consolas, monospace;
+            letter-spacing: 0.2em;
+        }
+        #tuner-note {
+            margin: 0.45rem 0 0;
+            color: white;
+            font: 600 clamp(3.2rem, 11vw, 5.2rem)/0.95 "Plus Jakarta Sans", Inter, sans-serif;
+            letter-spacing: -0.08em;
+            text-shadow: 0 2px 24px rgba(0,0,0,0.6);
+        }
+        #tuner-frequency {
+            margin: 0.65rem 0 0;
+            color: rgba(255,255,255,0.84);
+            font: 400 0.67rem/1.4 "IBM Plex Mono", Consolas, monospace;
+        }
+        #tuner-target {
+            min-height: 1rem;
+            margin: 0.55rem 0 0;
+            color: rgba(255,255,255,0.75);
+            font-size: 0.66rem;
+        }
+        .vocal-cents-meter {
+            position: absolute;
+            z-index: 3;
+            right: clamp(0.8rem, 4vw, 1.5rem);
+            bottom: 1rem;
+            left: clamp(0.8rem, 4vw, 1.5rem);
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            color: rgba(255,255,255,0.68);
+            font: 500 0.53rem/1 "IBM Plex Mono", Consolas, monospace;
+            letter-spacing: 0.08em;
+        }
+        .vocal-cents-track {
+            position: relative;
+            height: 0.32rem;
+            flex: 1;
+            border-radius: 99px;
+            background: rgba(255,255,255,0.24);
+        }
+        .vocal-cents-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 1px;
+            height: 0.8rem;
+            background: rgba(255,255,255,0.8);
+            transform: translate(-50%, -50%);
+        }
+        #tuner-cents-marker {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0.8rem;
+            height: 0.8rem;
+            border: 2px solid white;
+            border-radius: 50%;
+            background: #d8f56a;
+            box-shadow: 0 0 0.8rem rgba(216,245,106,0.48);
+            transform: translate(-50%, -50%);
+            transition: left 100ms linear;
+        }
+        .vocal-control-rail {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 0.45rem;
+        }
+        .vocal-rail-control {
+            display: flex;
+            min-height: 4.2rem;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            border: 1px solid transparent;
+            border-radius: 0.65rem;
+            color: #aaa5a3;
+            background: transparent;
+            font: 500 0.48rem/1 "IBM Plex Mono", Consolas, monospace;
+            letter-spacing: 0.04em;
+            transition: color 140ms ease, border-color 140ms ease, background 140ms ease;
+        }
+        .vocal-rail-control:hover,
+        .vocal-rail-control[aria-pressed="true"] {
+            border-color: rgba(237,17,28,0.32);
+            color: #fff;
+            background: rgba(237,17,28,0.09);
+        }
+        .vocal-control-icon { color: #e7252d; font-size: 1.15rem; line-height: 1; }
+        .vocal-rail-control[aria-pressed="true"] .vocal-control-icon { text-shadow: 0 0 0.9rem rgba(237,17,28,0.7); }
+        .vocal-key-settings {
+            justify-content: flex-start;
+            gap: 0.8rem;
+            padding: 0.7rem 0.1rem;
+            border-top: 1px solid rgba(255,255,255,0.07);
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+        .vocal-key-settings label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #a5a0a0;
+            font: 500 0.55rem/1 "IBM Plex Mono", Consolas, monospace;
+            letter-spacing: 0.1em;
+        }
+        .vocal-key-settings select {
+            min-width: 4rem;
+            border: 0;
+            padding: 0.35rem 1.3rem 0.35rem 0.45rem;
+            color: #f4f1ef;
+            background-color: #171617;
+            font: 500 0.69rem/1.3 "IBM Plex Mono", Consolas, monospace;
+        }
+        .vocal-key-divider { height: 1.35rem; width: 1px; background: rgba(255,255,255,0.1); }
+        .vocal-tuning-note {
+            margin-left: auto;
+            color: #747071;
+            font: 500 0.5rem/1.3 "IBM Plex Mono", Consolas, monospace;
+            letter-spacing: 0.07em;
+        }
+        .recording-clock {
+            min-width: 4.25rem;
+            border: 1px solid var(--leaf-line);
+            border-radius: 0.5rem;
+            padding: 0.55rem 0.7rem;
+            color: #d7d7d7;
+            background: rgba(0, 0, 0, 0.25);
+            font: 500 0.72rem/1 "IBM Plex Mono", Consolas, monospace;
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+        }
+        .recording-clock.is-recording {
+            border-color: rgba(239, 123, 67, 0.7);
+            color: #ffad77;
+        }
+        .record-action {
+            color: #101510;
+            background: #ef7b43;
+        }
+        .record-action:hover:not(:disabled) { background: #ffad77; }
+        .record-action:disabled,
+        #btn-stop-take:disabled {
+            cursor: not-allowed;
+            opacity: 0.45;
+        }
+        .vocal-effects-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(1.4rem, 5vw, 3rem);
+            padding: 1rem 0 0.2rem;
+        }
+        .vocal-effect-button {
+            display: flex;
+            min-width: 4.7rem;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.35rem;
+            border: 0;
+            color: #858082;
+            background: transparent;
+            font: 500 0.48rem/1.2 "IBM Plex Mono", Consolas, monospace;
+            letter-spacing: 0.055em;
+        }
+        .vocal-effect-symbol {
+            display: grid;
+            width: 2.55rem;
+            height: 2.55rem;
+            place-items: center;
+            border: 1px solid #777174;
+            border-radius: 50%;
+            color: #ded8d6;
+            font: 400 1.2rem/1 "Instrument Serif", Georgia, serif;
+            transition: border-color 160ms ease, color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+        }
+        .vocal-effect-button:hover,
+        .vocal-effect-button[aria-pressed="true"] { color: #f2eeee; }
+        .vocal-effect-button:hover .vocal-effect-symbol,
+        .vocal-effect-button[aria-pressed="true"] .vocal-effect-symbol {
+            border-color: var(--vocal-red);
+            color: #ff5961;
+            background: rgba(237,17,28,0.08);
+            box-shadow: 0 0 1.2rem rgba(237,17,28,0.18);
+        }
+        .vocal-effects-hint {
+            max-width: 9.5rem;
+            margin: 0;
+            color: #777274;
+            font-size: 0.57rem;
+            line-height: 1.45;
+        }
+        .vocal-recording-console {
+            padding: clamp(0.9rem, 3vw, 1.3rem);
+            background: #101011;
+        }
+        .vocal-recording-heading {
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .vocal-recording-heading h3 {
+            margin: 0.25rem 0 0;
+            color: #f0ecea;
+            font: 500 1.35rem/1.1 "Instrument Serif", Georgia, serif;
+        }
+        .vocal-transport {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.85rem 0;
+        }
+        .vocal-record-button {
+            display: inline-flex;
+            min-height: 2.5rem;
+            align-items: center;
+            gap: 0.45rem;
+            border: 1px solid rgba(237,17,28,0.38);
+            border-radius: 0.5rem;
+            padding: 0 0.8rem;
+            color: #f2eded;
+            background: rgba(237,17,28,0.08);
+            font: 600 0.58rem/1 "IBM Plex Mono", Consolas, monospace;
+            letter-spacing: 0.07em;
+        }
+        .vocal-record-button > span:first-child {
+            width: 0.72rem;
+            height: 0.72rem;
+            border-radius: 50%;
+            background: #ed111c;
+            box-shadow: 0 0 0.65rem rgba(237,17,28,0.45);
+        }
+        .vocal-record-button:disabled > span:first-child { animation: record-pulse 1s ease-in-out infinite alternate; }
+        @keyframes record-pulse { to { opacity: 0.4; transform: scale(0.82); } }
+        .vocal-transport-button,
+        .vocal-export-button {
+            min-height: 2.5rem;
+            border: 1px solid #343234;
+            border-radius: 0.5rem;
+            padding: 0 0.7rem;
+            color: #c9c4c2;
+            background: #171617;
+            font: 500 0.54rem/1 "IBM Plex Mono", Consolas, monospace;
+            letter-spacing: 0.045em;
+        }
+        .vocal-transport-button:disabled { cursor: not-allowed; opacity: 0.4; }
+        .vocal-export-button { color: #d9e8a4; }
+        .vocal-take-name {
+            display: flex;
+            min-width: 7rem;
+            flex: 1;
+            align-items: center;
+            gap: 0.5rem;
+            color: #777274;
+            font: 500 0.5rem/1 "IBM Plex Mono", Consolas, monospace;
+            letter-spacing: 0.06em;
+        }
+        .vocal-take-name input {
+            min-width: 0;
+            flex: 1;
+            border: 1px solid #302d2e;
+            padding: 0.55rem 0.65rem;
+            color: #eee;
+            background: #151415;
+            font: 400 0.68rem/1.2 "Plus Jakarta Sans", Inter, sans-serif;
+        }
+        .vocal-track-heading {
+            padding: 0.55rem 0;
+            border-top: 1px solid rgba(255,255,255,0.07);
+            color: #858082;
+            font: 500 0.52rem/1 "IBM Plex Mono", Consolas, monospace;
+            letter-spacing: 0.12em;
+        }
+        .vocal-track-heading span:last-child { color: #aaa5a3; letter-spacing: 0.02em; }
+        .vocal-recording-status {
+            min-height: 1rem;
+            margin: 0.65rem 0 0;
+            color: #777274;
+            font-size: 0.6rem;
+            line-height: 1.45;
+        }
+        .vocal-empty-tracks {
+            margin: 0;
+            border: 1px dashed #343234;
+            border-radius: 0.5rem;
+            padding: 0.8rem;
+            color: #777274;
+            font-size: 0.65rem;
+            text-align: center;
+        }
+        .vocal-privacy-note {
+            margin: 0;
+            color: #777274;
+            font-size: 0.6rem;
+            line-height: 1.5;
+            text-align: center;
+        }
+        .vocal-console:has(#btn-mic[aria-pressed="true"]) .vocal-live-status::before {
+            background: #e8222b;
+            box-shadow: 0 0 0.55rem rgba(237,17,28,0.65);
+        }
+        .vocal-console:has(#btn-mic[aria-pressed="true"]) .vocal-live-status { color: #e6b0b1; }
+        .vocal-track {
+            grid-template-columns: minmax(7rem, 0.7fr) minmax(8rem, 1.5fr) auto;
+            border-color: #302d2e;
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.6rem;
+            background: #151415;
+        }
+        .vocal-track-wave { height: 2rem; }
+        .vocal-track-control { min-width: 2.15rem; min-height: 2.15rem; }
+        .vocal-track-control[aria-pressed="true"] {
+            border-color: rgba(237,17,28,0.55);
+            color: #fff;
+            background: rgba(237,17,28,0.14);
+        }
+        @media (max-width: 640px) {
+            .vocal-page-heading { align-items: flex-end; }
+            .vocal-page-heading h2 { font-size: clamp(1.7rem, 8vw, 2.3rem); }
+            .vocal-back { padding: 0.55rem 0.65rem; font-size: 0.62rem; }
+            .vocal-console-main { grid-template-columns: minmax(0, 1fr) 3.15rem; gap: 0.45rem; }
+            .tuner-readout { min-height: 15.5rem; }
+            .tuner-readout::before { width: 10.5rem; height: 10.5rem; }
+            .tuner-readout::after { width: 9.5rem; height: 10rem; }
+            .vocal-control-rail { gap: 0.25rem; }
+            .vocal-rail-control { min-height: 3.65rem; font-size: 0.42rem; }
+            .vocal-control-icon { font-size: 1rem; }
+            .vocal-key-settings { flex-wrap: wrap; gap: 0.55rem; }
+            .vocal-key-settings label { gap: 0.3rem; font-size: 0.5rem; }
+            .vocal-key-settings select { min-width: 3.5rem; font-size: 0.63rem; }
+            .vocal-tuning-note { width: 100%; margin: 0; }
+            .scale-keyboard { height: 4.1rem; margin-inline: 0; }
+            .vocal-effects-row { gap: 0.8rem; justify-content: space-around; }
+            .vocal-effect-button { min-width: 3.75rem; font-size: 0.42rem; }
+            .vocal-effect-symbol { width: 2.25rem; height: 2.25rem; }
+            .vocal-effects-hint { display: none; }
+            .vocal-transport { flex-wrap: wrap; }
+            .vocal-take-name { order: 2; width: 100%; flex-basis: 100%; }
+            .vocal-export-button { margin-left: auto; }
+            .vocal-track { grid-template-columns: minmax(0, 1fr) auto; gap: 0.45rem; }
+            .vocal-track-wave { grid-row: 2; grid-column: 1 / -1; }
+            .vocal-track-controls { grid-column: 1 / -1; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .tuner-readout::before,
+            .tuner-readout::after,
+            .vocal-record-button:disabled > span:first-child { animation: none !important; }
+        }
+        .vocal-track {
+            display: grid;
+            grid-template-columns: minmax(7rem, 0.7fr) minmax(8rem, 1.5fr) auto;
+            align-items: center;
+            gap: 0.7rem;
+            border: 1px solid var(--leaf-line);
+            border-radius: 0.65rem;
+            padding: 0.65rem;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        .vocal-track-wave {
+            display: block;
+            width: 100%;
+            height: 2.5rem;
+            border-radius: 0.3rem;
+            background: rgba(255, 255, 255, 0.025);
+        }
+        .vocal-track-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .vocal-track-control {
+            min-width: 2.35rem;
+            min-height: 2.35rem;
+            border: 1px solid rgba(243, 238, 231, 0.16);
+            border-radius: 0.35rem;
+            color: #bbb;
+            font: 500 0.62rem/1 "IBM Plex Mono", Consolas, monospace;
+        }
+        .vocal-track-control[aria-pressed="true"] {
+            border-color: rgba(239, 123, 67, 0.7);
+            color: #fff3e9;
+            background: rgba(239, 123, 67, 0.17);
+        }
+        .scale-keyboard {
+            position: relative;
+            display: flex;
+            height: 4.7rem;
+            margin: 0.9rem 0.15rem 0.25rem;
+            isolation: isolate;
+        }
+        .scale-note {
+            position: absolute;
+            top: 0;
+            display: grid;
+            height: 100%;
+            place-items: end center;
+            border: 1px solid #d5d0ce;
+            border-radius: 0 0 0.35rem 0.35rem;
+            padding: 0 0 0.4rem;
+            color: #272324;
+            background: linear-gradient(180deg, #f8f6f3, #dedbd8);
+            font: 500 0.52rem/1 "IBM Plex Mono", Consolas, monospace;
+            box-shadow: inset 0 -0.22rem rgba(0,0,0,0.08);
+            transition: filter 120ms ease, background 120ms ease;
+        }
+        .scale-note.is-white { z-index: 1; }
+        .scale-note.is-black {
+            z-index: 2;
+            left: 0;
+            width: 8%;
+            height: 62%;
+            border-color: #454143;
+            border-radius: 0 0 0.25rem 0.25rem;
+            padding-bottom: 0.25rem;
+            color: #f5f1ef;
+            background: linear-gradient(180deg, #292628, #090809);
+            box-shadow: 0 0.2rem 0.4rem rgba(0,0,0,0.45);
+        }
+        .scale-note.is-out-of-scale { filter: brightness(0.62); }
+        .scale-note.is-root { box-shadow: inset 0 -0.2rem #ed111c; }
+        .scale-note.is-black.is-root { background: linear-gradient(180deg, #9e151a, #54090d); }
+        .scale-note:hover,
+        .scale-note.is-in-scale:hover { filter: brightness(1.08); }
+        .scale-note:active { transform: translateY(1px); }
         .beat-grid {
             display: grid;
             grid-template-columns: repeat(16, minmax(1.2rem, 1fr));
@@ -1825,6 +2406,361 @@
             }
         }
     </style>
+    <style>
+        :root {
+            color-scheme: dark;
+            --studio-black: #08090b;
+            --studio-panel: #101114;
+            --studio-panel-raised: #17181b;
+            --studio-white: #f5f5f5;
+            --studio-muted: #a3a3a8;
+            --studio-line: rgba(255, 255, 255, 0.12);
+            --studio-red: #ed111c;
+            --studio-red-bright: #ff454e;
+            --leaf-ink: var(--studio-white);
+            --leaf-panel: var(--studio-panel);
+            --leaf-line: var(--studio-line);
+            --leaf-paper: var(--studio-white);
+            --leaf-moss: var(--studio-red);
+            --leaf-copper: var(--studio-red-bright);
+            --leaf-canvas: var(--studio-black);
+            --leaf-violet: var(--studio-red);
+            --leaf-violet-light: rgba(237, 17, 28, 0.14);
+            accent-color: var(--studio-red);
+        }
+        body.bg-onyx {
+            color: var(--studio-white);
+            background:
+                radial-gradient(ellipse at 82% 4%, rgba(237, 17, 28, 0.075), transparent 34rem),
+                radial-gradient(ellipse at 10% 72%, rgba(255, 255, 255, 0.025), transparent 30rem),
+                var(--studio-black);
+        }
+        body > header,
+        body > main,
+        body > footer {
+            max-width: 78rem !important;
+        }
+        body > header {
+            min-height: 5.25rem;
+            border-bottom-color: var(--studio-line) !important;
+        }
+        body > header > div:first-child::before {
+            color: var(--studio-red-bright);
+        }
+        body > main {
+            width: 100%;
+        }
+        body > footer {
+            border-top-color: var(--studio-line) !important;
+        }
+        .text-leaf-paper,
+        .text-ivory {
+            color: var(--studio-white) !important;
+        }
+        .text-leaf-moss,
+        .text-gold,
+        .text-goldLight,
+        .text-leaf-copper,
+        .text-amber-200,
+        .text-amber-300 {
+            color: var(--studio-red-bright) !important;
+        }
+        .text-zinc-300 { color: #d2d2d5 !important; }
+        .text-zinc-400 { color: #b0b0b5 !important; }
+        .text-zinc-500 { color: #929298 !important; }
+        .text-zinc-600 { color: #77777e !important; }
+        .border-borderSubtle,
+        .border-leaf-line {
+            border-color: var(--studio-line) !important;
+        }
+        .border-leaf-moss {
+            border-color: rgba(237, 17, 28, 0.7) !important;
+        }
+        .bg-onyx,
+        .bg-card {
+            background-color: var(--studio-black) !important;
+        }
+        .bg-zinc-800,
+        .bg-zinc-800\/80,
+        .bg-black\/10,
+        .bg-black\/15,
+        .bg-black\/20,
+        .bg-black\/25 {
+            background-color: rgba(255, 255, 255, 0.045) !important;
+        }
+        .bg-leaf-moss,
+        #btn-play {
+            color: #fff !important;
+            background-color: var(--studio-red) !important;
+        }
+        button.bg-leaf-moss {
+            color: #fff !important;
+            border-color: var(--studio-red) !important;
+        }
+        .hover\:bg-gold:hover,
+        .hover\:bg-goldLight:hover {
+            background-color: rgba(237, 17, 28, 0.18) !important;
+        }
+        .hover\:text-onyx:hover { color: var(--studio-white) !important; }
+        .field-control,
+        .field-control option {
+            color: var(--studio-white) !important;
+            border-color: var(--studio-line) !important;
+            background-color: var(--studio-panel) !important;
+        }
+        .field-control:focus {
+            outline: 2px solid rgba(255, 69, 78, 0.72) !important;
+            outline-offset: 2px;
+        }
+        .secondary-action {
+            color: #e7e7e9 !important;
+            border-color: var(--studio-line) !important;
+            background: rgba(255, 255, 255, 0.025) !important;
+            box-shadow: none !important;
+        }
+        .secondary-action:hover,
+        .secondary-action:focus-visible {
+            color: #fff !important;
+            border-color: rgba(237, 17, 28, 0.72) !important;
+            background: rgba(237, 17, 28, 0.08) !important;
+        }
+        .writing-tools #open-explore {
+            border-color: rgba(237, 17, 28, 0.58) !important;
+            color: #fff !important;
+            background: rgba(237, 17, 28, 0.14) !important;
+        }
+        .writing-tools #open-explore:hover {
+            background: rgba(237, 17, 28, 0.24) !important;
+        }
+        #btn-play:hover { background: #c90d17 !important; }
+        .studio-nav {
+            gap: 0.35rem;
+            border: 1px solid var(--studio-line);
+            border-radius: 0.85rem;
+            padding: 0.35rem;
+            background: rgba(16, 17, 20, 0.82);
+        }
+        .studio-nav button {
+            min-height: 2.75rem;
+            flex: 1 1 auto;
+            border-color: transparent;
+            border-radius: 0.55rem;
+            color: #aaaab0;
+            background: transparent;
+            font-size: 0.68rem;
+            letter-spacing: 0.1em;
+        }
+        .studio-nav button[aria-current="page"] {
+            border-color: rgba(237, 17, 28, 0.48);
+            color: #fff;
+            background: rgba(237, 17, 28, 0.14);
+            box-shadow: inset 0 -2px var(--studio-red);
+        }
+        .studio-nav button:hover:not([aria-current="page"]) {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.045);
+        }
+        .studio-nav button:focus-visible,
+        .primary-view :is(button, input, textarea, select):focus-visible,
+        .studio-screen :is(button, input, textarea, select):focus-visible,
+        .explore-view :is(button, input, textarea, select):focus-visible {
+            outline: 2px solid var(--studio-red-bright) !important;
+            outline-offset: 3px !important;
+        }
+        .studio-panel,
+        .circle-card,
+        .atlas-panel {
+            border-color: var(--studio-line) !important;
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.018)) !important;
+            box-shadow: 0 16px 42px rgba(0, 0, 0, 0.18);
+        }
+        .circle-card { border-radius: 0.8rem; }
+        .atlas-panel { border-radius: 0.8rem; }
+        #word-field {
+            border-color: rgba(255, 255, 255, 0.14) !important;
+            background:
+                radial-gradient(ellipse at 50% 50%, rgba(237, 17, 28, 0.085), transparent 55%),
+                radial-gradient(ellipse at 18% 78%, rgba(255, 255, 255, 0.035), transparent 38%),
+                #101114 !important;
+        }
+        #word-field::before,
+        #word-field::after {
+            border-color: rgba(237, 17, 28, 0.16) !important;
+        }
+        #word-field.beat-flash {
+            border-color: rgba(255, 69, 78, 0.72) !important;
+            box-shadow: inset 0 0 56px rgba(237, 17, 28, 0.18) !important;
+        }
+        .word-field-hud { color: #d0d0d3; }
+        .word-field-caption { color: #b9b9be; }
+        .word-orbit:not(.word-orbit-ambient) {
+            color: #f2f2f2;
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.35), 0 0 28px rgba(255, 255, 255, 0.12);
+        }
+        .word-orbit.word-orbit-ambient:nth-child(n) {
+            color: rgba(220, 220, 220, 0.7);
+        }
+        .constellation-stage {
+            border-color: var(--studio-line) !important;
+            background:
+                radial-gradient(ellipse at 50% 45%, rgba(237, 17, 28, 0.1), transparent 56%),
+                linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+                #0c0d0f !important;
+            background-size: auto, 28px 28px, 28px 28px, auto !important;
+        }
+        .constellation-line { stroke: rgba(255, 69, 78, 0.58) !important; }
+        .atlas-result[aria-pressed="true"] {
+            border-color: rgba(237, 17, 28, 0.7) !important;
+            background: rgba(237, 17, 28, 0.12) !important;
+        }
+        .float-node,
+        .float-rhyme {
+            border-color: rgba(237, 17, 28, 0.4) !important;
+            color: var(--studio-white) !important;
+            background: #17181b !important;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.32) !important;
+        }
+        .beat-dot.active-dot {
+            background-color: var(--studio-red) !important;
+            box-shadow: 0 0 0 5px rgba(237, 17, 28, 0.16) !important;
+        }
+        .beat-step:nth-child(4n + 1) {
+            border-color: rgba(255, 255, 255, 0.22);
+        }
+        .beat-step[aria-pressed="true"],
+        .circle-step[aria-pressed="true"] {
+            border-color: var(--studio-red-bright) !important;
+            color: #fff !important;
+            background: var(--studio-red) !important;
+            box-shadow: 0 0 16px rgba(237, 17, 28, 0.22) !important;
+        }
+        .beat-step.playhead-step {
+            outline-color: #fff;
+        }
+        .beat-track-control[aria-pressed="true"],
+        .vocal-track-control[aria-pressed="true"],
+        .bass-toggle[aria-pressed="true"] {
+            border-color: rgba(255, 69, 78, 0.72) !important;
+            color: #fff !important;
+            background: rgba(237, 17, 28, 0.18) !important;
+        }
+        .beat-row-label { color: #e5e5e7; }
+        .beat-row-label small { color: #aaaab0; }
+        .beat-visualizer {
+            border-color: var(--studio-line);
+            background: #0c0d0f;
+        }
+        .beat-visualizer > summary { color: #e5e5e7; }
+        .beat-visualizer > summary::after { color: var(--studio-red-bright); }
+        .beat-visualizer-canvas {
+            border-top-color: var(--studio-line);
+            background:
+                radial-gradient(ellipse at 22% 110%, rgba(237, 17, 28, 0.1), transparent 48%),
+                radial-gradient(ellipse at 78% -12%, rgba(255, 255, 255, 0.06), transparent 52%),
+                #0d0e10;
+        }
+        .circle-project[aria-current="true"] {
+            border-color: rgba(237, 17, 28, 0.68);
+            background: rgba(237, 17, 28, 0.1);
+        }
+        .circle-avatar {
+            border-color: rgba(255, 69, 78, 0.42);
+            color: #fff;
+            background: rgba(237, 17, 28, 0.14);
+        }
+        .circle-status-dot {
+            background: var(--studio-red);
+            box-shadow: 0 0 10px rgba(237, 17, 28, 0.5);
+        }
+        .circle-message.mine {
+            border-color: rgba(237, 17, 28, 0.32);
+            background: rgba(237, 17, 28, 0.1);
+        }
+        #circle-view [class*="amber-"] {
+            border-color: rgba(237, 17, 28, 0.32) !important;
+            color: #ff737a !important;
+            background-color: rgba(237, 17, 28, 0.055) !important;
+        }
+        .leaf-dialog {
+            border-color: var(--studio-line);
+            color: var(--studio-white);
+            background: #111215 !important;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.72) !important;
+        }
+        .leaf-dialog::backdrop { background: rgba(0, 0, 0, 0.78); }
+        #studio-splash {
+            background:
+                radial-gradient(ellipse at 74% 48%, rgba(237, 17, 28, 0.12), transparent 34rem),
+                linear-gradient(135deg, #111 0%, #080808 58%, #151515 100%);
+        }
+        .splash-mark,
+        .splash-center {
+            border-color: rgba(255, 69, 78, 0.72);
+        }
+        .splash-mark,
+        .splash-title span:last-child,
+        .splash-eyebrow {
+            color: var(--studio-red-bright);
+        }
+        .splash-eyebrow::before,
+        .splash-enter {
+            background: var(--studio-red);
+        }
+        .splash-wave .waveform { stroke: var(--studio-red-bright); }
+        .splash-enter {
+            min-height: 3rem;
+            border: 1px solid rgba(255, 69, 78, 0.72);
+            border-radius: 0.5rem;
+            color: #fff;
+            box-shadow: 0 8px 28px rgba(237, 17, 28, 0.2);
+        }
+        .splash-enter:hover,
+        .splash-enter:focus-visible {
+            background: #c90d17;
+            box-shadow: 0 10px 32px rgba(237, 17, 28, 0.3);
+        }
+        .splash-enter:focus-visible {
+            outline: 2px solid #fff;
+            outline-offset: 4px;
+        }
+        .vocal-console,
+        .vocal-recording-console {
+            border-color: rgba(255, 255, 255, 0.14);
+            background: #09090a;
+        }
+        .vocal-back:focus-visible,
+        .vocal-rail-control:focus-visible,
+        .vocal-effect-button:focus-visible,
+        .vocal-transport-button:focus-visible,
+        .vocal-export-button:focus-visible,
+        .vocal-record-button:focus-visible,
+        .scale-note:focus-visible {
+            outline: 2px solid var(--studio-red-bright);
+            outline-offset: 3px;
+        }
+        @media (max-width: 639px) {
+            body > main { padding-bottom: 5rem !important; }
+            .studio-nav {
+                border-color: rgba(255, 255, 255, 0.16);
+                background: rgba(16, 17, 20, 0.96);
+                box-shadow: 0 10px 32px rgba(0, 0, 0, 0.56);
+            }
+            .studio-nav button[aria-current="page"] {
+                border-color: rgba(237, 17, 28, 0.48);
+                color: #fff;
+                background: rgba(237, 17, 28, 0.18);
+                box-shadow: inset 0 -2px var(--studio-red);
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .studio-nav button,
+            .secondary-action,
+            .splash-enter {
+                transition: none !important;
+            }
+        }
+    </style>
 </head>
 <body class="splash-open bg-onyx text-ivory font-sans min-h-screen flex flex-col justify-between p-4 sm:p-8 antialiased selection:bg-gold selection:text-onyx">
     <section id="studio-splash" role="dialog" aria-modal="true" aria-labelledby="splash-title" aria-describedby="splash-description">
@@ -1842,8 +2778,9 @@
                     <p id="splash-description" class="splash-subtitle">Write in your voice. Find your note. Shape the beat.</p>
                     <ul class="splash-value-list" aria-label="Studio tools">
                         <li>Draft in Roman Hindi and English</li>
-                        <li>Find your vocal pitch against a chosen key</li>
-                        <li>Edit a 16-step beat and hold a bass drone</li>
+                        <li>Find your pitch with in-key reference tones</li>
+                        <li>Record vocal layers and export a mix locally</li>
+                        <li>Edit a 16-step beat and shape your monitored voice</li>
                         <li>Explore moving word and rhyme sparks</li>
                     </ul>
                 </div>
@@ -2254,61 +3191,119 @@
             </div>
         </section>
 
-        <section id="vocal-view" class="studio-screen hidden space-y-7" aria-label="Vocal tuning">
-            <div class="flex flex-wrap items-end justify-between gap-4">
+        <section id="vocal-view" class="studio-screen vocal-studio hidden space-y-5" aria-label="Vocal tuning">
+            <header class="vocal-page-heading">
                 <div>
-                    <p class="text-[10px] font-mono uppercase tracking-[0.2em] text-leaf-moss">02 / voice monitor</p>
-                    <h2 class="mt-2 font-sans text-4xl font-semibold tracking-tight text-leaf-paper sm:text-5xl">Vocal tuning</h2>
-                    <p class="mt-2 max-w-xl text-sm leading-relaxed text-zinc-400">Hear your natural pitch against a chosen key. Your microphone is analyzed locally and is never recorded or sent anywhere.</p>
+                    <p class="vocal-overline">HIDDEN LEAF · VOICE INSTRUMENT</p>
+                    <h2>Sing with <span>your sound.</span></h2>
                 </div>
-                <button type="button" onclick="showWriting()" class="secondary-action rounded border px-4 py-2 text-xs">Back to writing</button>
-            </div>
-            <div class="studio-panel rounded-xl p-4 sm:p-7">
-                <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_16rem]">
-                    <div class="tuner-readout flex flex-col items-center justify-center rounded-lg px-4 py-7 text-center">
-                        <p id="tuner-note" class="font-sans text-7xl font-semibold tracking-tight text-leaf-paper sm:text-8xl" aria-live="polite">—</p>
-                        <p id="tuner-frequency" class="mt-1 font-mono text-sm text-zinc-400">Start the mic to see pitch</p>
-                        <div class="mt-6 flex w-full max-w-md items-center gap-3">
-                            <span class="font-mono text-[10px] text-zinc-500">FLAT</span>
-                            <div class="relative h-2 flex-1 rounded-full bg-white/10">
-                                <span class="absolute left-1/2 top-1/2 h-6 w-px -translate-y-1/2 bg-zinc-300"></span>
-                                <span id="tuner-cents-marker" class="absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-leaf-moss transition-[left] duration-100"></span>
-                            </div>
-                            <span class="font-mono text-[10px] text-zinc-500">SHARP</span>
+                <button type="button" onclick="showWriting()" class="vocal-back">Back to writing</button>
+            </header>
+
+            <section class="vocal-console" aria-label="Live vocal instrument">
+                <div class="vocal-console-top">
+                    <div class="vocal-console-brand"><span class="vocal-brand-mark">HL</span><span>VOICE / 01</span></div>
+                    <div class="vocal-live-status" aria-hidden="true"><span id="mic-indicator-label">MIC OFF</span></div>
+                </div>
+                <div class="vocal-console-main">
+                    <div class="tuner-readout" aria-label="Live pitch and voice visualizer">
+                        <canvas id="tuner-waveform" aria-label="Live microphone waveform"></canvas>
+                        <div class="vocal-pitch-readout">
+                            <span class="vocal-pitch-caption">YOUR NOTE</span>
+                            <p id="tuner-note" aria-live="polite">—</p>
+                            <p id="tuner-frequency">Start the mic to see pitch</p>
+                            <p id="tuner-target">Target note: choose a key</p>
                         </div>
-                        <p id="tuner-target" class="mt-3 text-xs text-zinc-400">Target note: choose a key</p>
+                        <div class="vocal-cents-meter" aria-label="Pitch deviation">
+                            <span>FLAT</span>
+                            <div class="vocal-cents-track">
+                                <span class="vocal-cents-center"></span>
+                                <span id="tuner-cents-marker"></span>
+                            </div>
+                            <span>SHARP</span>
+                        </div>
                     </div>
-                    <div class="space-y-4">
-                        <label class="block text-xs text-zinc-400" for="tuner-key">Song key
-                            <select id="tuner-key" class="field-control mt-2 w-full rounded px-3 py-2.5 text-sm">
-                                <option value="0">C</option><option value="1">C♯ / D♭</option><option value="2">D</option>
-                                <option value="3">D♯ / E♭</option><option value="4">E</option><option value="5">F</option>
-                                <option value="6">F♯ / G♭</option><option value="7">G</option><option value="8">G♯ / A♭</option>
-                                <option value="9">A</option><option value="10">A♯ / B♭</option><option value="11">B</option>
-                            </select>
-                        </label>
-                        <label class="block text-xs text-zinc-400" for="tuner-scale">Scale
-                            <select id="tuner-scale" class="field-control mt-2 w-full rounded px-3 py-2.5 text-sm">
-                                <option value="major">Major</option>
-                                <option value="minor">Natural minor</option>
-                                <option value="chromatic">Chromatic</option>
-                            </select>
-                        </label>
-                        <button id="btn-mic" type="button" onclick="toggleVocalMonitor()" aria-pressed="false" class="w-full rounded bg-leaf-moss px-4 py-3 text-sm font-semibold text-[#101510]">
-                            Start microphone
+                    <aside class="vocal-control-rail" aria-label="Voice controls">
+                        <button id="btn-mic" type="button" class="vocal-rail-control vocal-mic-control" onclick="toggleVocalMonitor()" aria-pressed="false">
+                            <span class="vocal-control-icon" aria-hidden="true">●</span><span id="mic-button-label">MIC</span>
                         </button>
-                        <p id="mic-status" class="min-h-10 text-xs leading-relaxed text-zinc-400" aria-live="polite">Microphone is off. Start it when you are ready.</p>
+                        <button id="btn-vocal-monitor" type="button" class="vocal-rail-control" aria-pressed="false" onclick="toggleVocalOutput()">
+                            <span class="vocal-control-icon" aria-hidden="true">◉</span><span>MONITOR</span>
+                        </button>
+                        <button type="button" class="vocal-rail-control" onclick="document.getElementById('vocal-effects').scrollIntoView({behavior:'smooth',block:'center'})">
+                            <span class="vocal-control-icon" aria-hidden="true">⌁</span><span>EFFECTS</span>
+                        </button>
+                        <button type="button" class="vocal-rail-control" onclick="document.getElementById('vocal-recording').scrollIntoView({behavior:'smooth',block:'center'})">
+                            <span class="vocal-control-icon" aria-hidden="true">▤</span><span>TAKES</span>
+                        </button>
+                    </aside>
+                </div>
+                <p id="mic-status" class="vocal-mic-status" aria-live="polite">Microphone is off. Start it when you are ready.</p>
+
+                <div class="vocal-key-settings">
+                    <label for="tuner-key">KEY
+                        <select id="tuner-key" class="field-control">
+                            <option value="0">C</option><option value="1">C♯ / D♭</option><option value="2">D</option>
+                            <option value="3">D♯ / E♭</option><option value="4">E</option><option value="5">F</option>
+                            <option value="6">F♯ / G♭</option><option value="7">G</option><option value="8">G♯ / A♭</option>
+                            <option value="9">A</option><option value="10">A♯ / B♭</option><option value="11">B</option>
+                        </select>
+                    </label>
+                    <span class="vocal-key-divider"></span>
+                    <label for="tuner-scale">SCALE
+                        <select id="tuner-scale" class="field-control">
+                            <option value="major">Major</option>
+                            <option value="minor">Minor</option>
+                            <option value="chromatic">Chromatic</option>
+                        </select>
+                    </label>
+                    <span class="vocal-tuning-note">PITCH GUIDE · NO AUTO-TUNE</span>
+                </div>
+
+                <div id="scale-keyboard" class="scale-keyboard" role="group" aria-label="In-key reference piano keyboard"></div>
+
+                <div id="vocal-effects" class="vocal-effects-row" aria-label="Vocal effects">
+                    <button type="button" class="vocal-effect-button" data-vocal-effect="pitch" aria-pressed="true" onclick="toggleVocalEffect('pitch')">
+                        <span class="vocal-effect-symbol">≈</span><span>PITCH GUIDE</span>
+                    </button>
+                    <button type="button" class="vocal-effect-button" data-vocal-effect="reverb" aria-pressed="false" onclick="toggleVocalEffect('reverb')">
+                        <span class="vocal-effect-symbol">◎</span><span>REVERB</span>
+                    </button>
+                    <button type="button" class="vocal-effect-button" data-vocal-effect="echo" aria-pressed="false" onclick="toggleVocalEffect('echo')">
+                        <span class="vocal-effect-symbol">∿</span><span>ECHO / FX</span>
+                    </button>
+                    <p class="vocal-effects-hint">Effects are for headphone monitoring. Takes stay dry.</p>
+                </div>
+            </section>
+
+            <section id="vocal-recording" class="vocal-recording-console" aria-labelledby="vocal-tools-title">
+                <div class="vocal-recording-heading">
+                    <div>
+                        <p class="vocal-overline">MULTITRACK SESSION</p>
+                        <h3 id="vocal-tools-title">Vocal takes</h3>
                     </div>
+                    <span id="recording-clock" class="recording-clock" aria-live="off">00:00</span>
                 </div>
-                <div class="mt-5 border-t border-leaf-line pt-4">
-                    <p class="mb-2 text-[10px] font-mono uppercase tracking-widest text-zinc-400">Live input waveform</p>
-                    <canvas id="tuner-waveform" aria-label="Live microphone waveform"></canvas>
+                <div class="vocal-transport">
+                    <button id="btn-record-take" type="button" class="vocal-record-button" onclick="startVocalTake()" aria-label="Record take">
+                        <span aria-hidden="true"></span><span>REC</span>
+                    </button>
+                    <button id="btn-stop-take" type="button" class="vocal-transport-button" onclick="stopVocalTake()" disabled>STOP</button>
+                    <button id="btn-play-takes" type="button" class="vocal-transport-button" onclick="toggleStudioPlayback()">PLAY ALL</button>
+                    <label class="vocal-take-name" for="take-name"><span>NEXT TAKE</span>
+                        <input id="take-name" class="field-control" maxlength="48" value="Lead vocal" autocomplete="off">
+                    </label>
+                    <button id="btn-export-takes" type="button" class="vocal-export-button" onclick="exportStudioMix()">EXPORT WAV</button>
                 </div>
-            </div>
-            <p class="rounded border-l-2 border-leaf-moss bg-white/[0.025] px-4 py-3 text-xs leading-relaxed text-zinc-400">Pitch guide only: this prototype detects your note and shows the nearest in-key target. It does not pitch-correct, record, or monitor your voice through speakers yet.</p>
-            <div class="flex justify-end">
-                <button type="button" onclick="showBeat()" class="rounded bg-leaf-moss px-4 py-3 text-sm font-semibold text-[#101510]">Continue to beat lab</button>
-            </div>
+                <div class="vocal-track-heading">
+                    <span>TRACKS</span><span id="take-count">0 tracks</span>
+                </div>
+                <div id="vocal-track-list" class="vocal-track-list" aria-live="polite">
+                    <p class="vocal-empty-tracks">Record a take to start your multitrack.</p>
+                </div>
+                <p id="recording-status" class="vocal-recording-status" aria-live="polite">Ready to record. Takes are saved in this browser only.</p>
+            </section>
+            <p class="vocal-privacy-note">Microphone stays local. Use headphones for live monitoring; recording stops when you leave this screen.</p>
         </section>
 
         <section id="beat-view" class="studio-screen hidden space-y-7" aria-label="Beat editor">
@@ -2731,6 +3726,19 @@
         let tunerFrame = null;
         let micRequestId = 0;
         let isMicRequestPending = false;
+        let isPitchGuideEnabled = true;
+        let vocalMonitorGain = null;
+        let vocalDryGain = null;
+        let vocalReverbGain = null;
+        let vocalEchoGain = null;
+        let vocalRecorder = null;
+        let vocalRecorderChunks = [];
+        let vocalRecordStartedAt = 0;
+        let vocalRecordTimer = null;
+        let studioTracks = [];
+        let studioSoloTrackId = null;
+        let studioPlaybackActive = false;
+        let studioTrackDatabasePromise = null;
 
         const PATTERNS = {
             jazzhop: {
@@ -3533,21 +4541,130 @@
             return sampleRate / (bestLag + offset);
         }
 
+        function createVocalMonitorGraph() {
+            const context = tunerContext;
+            if (!context || !tunerSource) return;
+            const highPass = context.createBiquadFilter();
+            highPass.type = 'highpass';
+            highPass.frequency.setValueAtTime(80, context.currentTime);
+            const compressor = context.createDynamicsCompressor();
+            vocalDryGain = context.createGain();
+            vocalDryGain.gain.setValueAtTime(0.9, context.currentTime);
+            vocalReverbGain = context.createGain();
+            vocalReverbGain.gain.setValueAtTime(0, context.currentTime);
+            vocalEchoGain = context.createGain();
+            vocalEchoGain.gain.setValueAtTime(0, context.currentTime);
+            vocalMonitorGain = context.createGain();
+            vocalMonitorGain.gain.setValueAtTime(0, context.currentTime);
+            const convolver = context.createConvolver();
+            const impulseLength = Math.floor(context.sampleRate * 1.4);
+            const impulse = context.createBuffer(2, impulseLength, context.sampleRate);
+            for (let channel = 0; channel < impulse.numberOfChannels; channel++) {
+                const samples = impulse.getChannelData(channel);
+                for (let i = 0; i < impulseLength; i++) {
+                    samples[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / impulseLength, 2.4);
+                }
+            }
+            convolver.buffer = impulse;
+            const delay = context.createDelay(1);
+            delay.delayTime.setValueAtTime(0.24, context.currentTime);
+            const feedback = context.createGain();
+            feedback.gain.setValueAtTime(0.18, context.currentTime);
+
+            tunerSource.connect(tunerAnalyser);
+            tunerSource.connect(highPass);
+            highPass.connect(compressor);
+            compressor.connect(vocalDryGain);
+            vocalDryGain.connect(vocalMonitorGain);
+            compressor.connect(convolver);
+            convolver.connect(vocalReverbGain);
+            vocalReverbGain.connect(vocalMonitorGain);
+            compressor.connect(delay);
+            delay.connect(feedback);
+            feedback.connect(delay);
+            delay.connect(vocalEchoGain);
+            vocalEchoGain.connect(vocalMonitorGain);
+            vocalMonitorGain.connect(context.destination);
+            updateVocalMonitorGraph();
+        }
+
+        function updateVocalMonitorGraph() {
+            if (vocalMonitorGain && tunerContext) {
+                const monitoring = document.getElementById('btn-vocal-monitor')?.getAttribute('aria-pressed') === 'true';
+                vocalMonitorGain.gain.setTargetAtTime(
+                    monitoring ? 0.65 : 0,
+                    tunerContext.currentTime,
+                    0.025
+                );
+            }
+            if (vocalReverbGain && tunerContext) {
+                const enabled = document.querySelector('[data-vocal-effect="reverb"]')?.getAttribute('aria-pressed') === 'true';
+                vocalReverbGain.gain.setTargetAtTime(enabled ? 0.28 : 0, tunerContext.currentTime, 0.03);
+            }
+            if (vocalEchoGain && tunerContext) {
+                const enabled = document.querySelector('[data-vocal-effect="echo"]')?.getAttribute('aria-pressed') === 'true';
+                vocalEchoGain.gain.setTargetAtTime(enabled ? 0.22 : 0, tunerContext.currentTime, 0.03);
+            }
+        }
+
+        function toggleVocalOutput() {
+            const button = document.getElementById('btn-vocal-monitor');
+            const enabled = button.getAttribute('aria-pressed') !== 'true';
+            button.setAttribute('aria-pressed', String(enabled));
+            button.textContent = enabled ? 'Monitor on' : 'Monitor off';
+            updateVocalMonitorGraph();
+            if (enabled && !tunerStream) {
+                document.getElementById('recording-status').textContent =
+                    'Start the microphone before enabling live monitor.';
+                button.setAttribute('aria-pressed', 'false');
+                button.textContent = 'Monitor off';
+            }
+        }
+
+        function toggleVocalEffect(effect) {
+            if (effect === 'pitch') {
+                isPitchGuideEnabled = !isPitchGuideEnabled;
+                const pitchButton = document.querySelector('[data-vocal-effect="pitch"]');
+                pitchButton.setAttribute('aria-pressed', String(isPitchGuideEnabled));
+                document.getElementById('tuner-target').textContent = isPitchGuideEnabled
+                    ? 'Target note updates with your next pitch.'
+                    : 'Pitch guide paused.';
+                return;
+            }
+            const button = document.querySelector('[data-vocal-effect="' + effect + '"]');
+            const enabled = button.getAttribute('aria-pressed') !== 'true';
+            button.setAttribute('aria-pressed', String(enabled));
+            button.textContent = (effect === 'reverb' ? 'Reverb' : 'Echo') + ' · ' + (enabled ? 'on' : 'off');
+            updateVocalMonitorGraph();
+        }
+
+        function setVocalMicStatus(message, state) {
+            document.getElementById('mic-status').textContent = message;
+            document.getElementById('mic-indicator-label').textContent =
+                state === 'live' ? 'MIC ON' : state === 'requesting' ? 'MIC REQUEST' : 'MIC OFF';
+        }
+
         async function toggleVocalMonitor() {
             if (tunerStream || isMicRequestPending) {
                 stopVocalMonitor();
                 return;
             }
+            await startVocalMonitor();
+        }
+
+        async function startVocalMonitor() {
+            if (tunerStream) return true;
             const button = document.getElementById('btn-mic');
-            const status = document.getElementById('mic-status');
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                status.textContent = 'Microphone input is unavailable here. Open the studio on localhost or a secure connection.';
-                return;
+                const message = 'Microphone input is unavailable here. Open the studio on localhost or a secure connection.';
+                setVocalMicStatus(message, 'off');
+                document.getElementById('recording-status').textContent = message;
+                return false;
             }
             const requestId = ++micRequestId;
             isMicRequestPending = true;
             button.disabled = true;
-            status.textContent = 'Requesting microphone access…';
+            setVocalMicStatus('Requesting microphone access…', 'requesting');
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({
                     audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
@@ -3565,12 +4682,15 @@
                 tunerAnalyser = tunerContext.createAnalyser();
                 tunerAnalyser.fftSize = 2048;
                 tunerSource = tunerContext.createMediaStreamSource(stream);
-                tunerSource.connect(tunerAnalyser);
+                createVocalMonitorGraph();
                 button.disabled = false;
-                button.textContent = 'Stop microphone';
                 button.setAttribute('aria-pressed', 'true');
-                status.textContent = 'Mic is live. Sing or speak one steady note to read pitch.';
+                button.setAttribute('aria-label', 'Stop microphone');
+                document.getElementById('mic-button-label').textContent = 'LIVE';
+                setVocalMicStatus('Mic is live. Sing or speak one steady note to read pitch.', 'live');
+                document.getElementById('recording-status').textContent = 'Microphone ready. Monitor output is off.';
                 runTunerFrame();
+                return true;
             } catch (error) {
                 if (requestId !== micRequestId) return;
                 if (tunerStream) tunerStream.getTracks().forEach((track) => track.stop());
@@ -3583,11 +4703,15 @@
                     tunerContext = null;
                 }
                 button.disabled = false;
-                button.textContent = 'Start microphone';
+                button.setAttribute('aria-label', 'Start microphone');
+                document.getElementById('mic-button-label').textContent = 'MIC';
                 button.setAttribute('aria-pressed', 'false');
-                status.textContent = error.name === 'NotAllowedError'
+                const message = error.name === 'NotAllowedError'
                     ? 'Microphone access was blocked. Allow it in browser permissions, then try again.'
                     : 'Microphone could not start: ' + error.message;
+                setVocalMicStatus(message, 'off');
+                document.getElementById('recording-status').textContent = message;
+                return false;
             } finally {
                 if (requestId === micRequestId) isMicRequestPending = false;
             }
@@ -3608,20 +4732,48 @@
             const samples = new Float32Array(tunerAnalyser.fftSize);
             tunerAnalyser.getFloatTimeDomainData(samples);
             context.clearRect(0, 0, width, height);
-            context.beginPath();
-            context.strokeStyle = '#ffad77';
-            context.lineWidth = Math.max(1, pixelRatio);
-            for (let i = 0; i < samples.length; i++) {
-                const x = (i / (samples.length - 1)) * width;
-                const y = (0.5 - samples[i] * 0.42) * height;
-                if (i === 0) context.moveTo(x, y);
-                else context.lineTo(x, y);
-            }
-            context.stroke();
+            const centerX = width * 0.5;
+            const centerY = height * 0.53;
+            const baseRadius = Math.min(width * 0.28, height * 0.39);
+            const voiceLevel = Math.min(1, Math.max(0, Math.sqrt(
+                samples.reduce((sum, sample) => sum + sample * sample, 0) / samples.length
+            ) * 7));
+            const drawVoiceForm = (offsetX, offsetY, scale, color, phase) => {
+                context.beginPath();
+                for (let index = 0; index <= 180; index++) {
+                    const angle = (index / 180) * Math.PI * 2;
+                    const sampleIndex = Math.floor((index / 180) * (samples.length - 1));
+                    const modulation = samples[sampleIndex] * baseRadius * 0.5 +
+                        Math.sin(angle * 3 + phase) * baseRadius * 0.035 +
+                        Math.cos(angle * 5 - phase) * baseRadius * 0.025;
+                    const radius = baseRadius * scale + modulation * (0.35 + voiceLevel);
+                    const x = centerX + offsetX + Math.cos(angle) * radius;
+                    const y = centerY + offsetY + Math.sin(angle) * radius * 0.92;
+                    if (index === 0) context.moveTo(x, y);
+                    else context.lineTo(x, y);
+                }
+                context.closePath();
+                context.fillStyle = color;
+                context.fill();
+            };
+            const glow = context.createRadialGradient(centerX, centerY, baseRadius * 0.15, centerX, centerY, baseRadius * 1.8);
+            glow.addColorStop(0, 'rgba(255, 0, 18, 0.22)');
+            glow.addColorStop(1, 'rgba(255, 0, 18, 0)');
+            context.fillStyle = glow;
+            context.fillRect(0, 0, width, height);
+            drawVoiceForm(-baseRadius * 0.12, baseRadius * 0.08, 0.88, 'rgba(135, 14, 23, 0.78)', 1.1);
+            drawVoiceForm(baseRadius * 0.04, 0, 0.83 + voiceLevel * 0.1, '#e80c16', 0.2);
+            const sheen = context.createRadialGradient(centerX, centerY - baseRadius * 0.45, 0, centerX, centerY, baseRadius * 1.2);
+            sheen.addColorStop(0, 'rgba(255, 70, 70, 0.32)');
+            sheen.addColorStop(1, 'rgba(255, 30, 30, 0)');
+            context.globalCompositeOperation = 'screen';
+            context.fillStyle = sheen;
+            context.fillRect(0, 0, width, height);
+            context.globalCompositeOperation = 'source-over';
 
             const pitchSamples = new Float32Array(Math.floor(samples.length / 2));
             for (let i = 0; i < pitchSamples.length; i++) pitchSamples[i] = samples[i * 2];
-            const frequency = estimatePitch(pitchSamples, tunerContext.sampleRate / 2);
+            const frequency = isPitchGuideEnabled ? estimatePitch(pitchSamples, tunerContext.sampleRate / 2) : null;
             if (frequency) {
                 const midi = 69 + 12 * Math.log2(frequency / 440);
                 const nearestMidi = Math.round(midi);
@@ -3645,7 +4797,9 @@
             } else {
                 document.getElementById('tuner-note').textContent = '—';
                 document.getElementById('tuner-frequency').textContent = 'Sing a steady note to read pitch';
-                document.getElementById('tuner-target').textContent = 'Target note appears when a pitch is detected';
+                document.getElementById('tuner-target').textContent = isPitchGuideEnabled
+                    ? 'Target note appears when a pitch is detected'
+                    : 'Pitch guide paused';
                 document.getElementById('tuner-cents-marker').style.left = '50%';
             }
             tunerFrame = requestAnimationFrame(runTunerFrame);
@@ -3654,6 +4808,7 @@
         function stopVocalMonitor() {
             micRequestId++;
             isMicRequestPending = false;
+            if (vocalRecorder && vocalRecorder.state !== 'inactive') stopVocalTake();
             if (tunerFrame) cancelAnimationFrame(tunerFrame);
             tunerFrame = null;
             if (tunerStream) tunerStream.getTracks().forEach((track) => track.stop());
@@ -3665,14 +4820,540 @@
                 tunerContext.close();
                 tunerContext = null;
             }
+            vocalMonitorGain = null;
+            vocalDryGain = null;
+            vocalReverbGain = null;
+            vocalEchoGain = null;
+            const monitorButton = document.getElementById('btn-vocal-monitor');
+            if (monitorButton) {
+                monitorButton.setAttribute('aria-pressed', 'false');
+                monitorButton.textContent = 'Monitor off';
+            }
             const button = document.getElementById('btn-mic');
-            const status = document.getElementById('mic-status');
             if (button) {
                 button.disabled = false;
-                button.textContent = 'Start microphone';
+                button.setAttribute('aria-label', 'Start microphone');
+                document.getElementById('mic-button-label').textContent = 'MIC';
                 button.setAttribute('aria-pressed', 'false');
             }
-            if (status) status.textContent = 'Microphone is off.';
+            setVocalMicStatus('Microphone is off.', 'off');
+        }
+
+        function openStudioTrackDatabase() {
+            if (studioTrackDatabasePromise) return studioTrackDatabasePromise;
+            if (!window.indexedDB) {
+                studioTrackDatabasePromise = Promise.reject(new Error('Local recording storage is unavailable in this browser.'));
+                return studioTrackDatabasePromise;
+            }
+            studioTrackDatabasePromise = new Promise((resolve, reject) => {
+                const request = window.indexedDB.open('hidden-leaf-studio-recordings', 1);
+                request.onupgradeneeded = () => {
+                    if (!request.result.objectStoreNames.contains('takes')) {
+                        request.result.createObjectStore('takes', { keyPath: 'id' });
+                    }
+                };
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error || new Error('Could not open local recording storage.'));
+            });
+            return studioTrackDatabasePromise;
+        }
+
+        async function saveStudioTrack(track) {
+            const database = await openStudioTrackDatabase();
+            await new Promise((resolve, reject) => {
+                const transaction = database.transaction('takes', 'readwrite');
+                transaction.objectStore('takes').put({
+                    id: track.id,
+                    name: track.name,
+                    blob: track.blob,
+                    duration: track.duration,
+                    createdAt: track.createdAt,
+                    mimeType: track.mimeType
+                });
+                transaction.oncomplete = resolve;
+                transaction.onerror = () => reject(transaction.error || new Error('Could not save this take.'));
+                transaction.onabort = () => reject(transaction.error || new Error('Saving this take was cancelled.'));
+            });
+        }
+
+        async function loadStudioTracks() {
+            try {
+                const database = await openStudioTrackDatabase();
+                const saved = await new Promise((resolve, reject) => {
+                    const transaction = database.transaction('takes', 'readonly');
+                    const request = transaction.objectStore('takes').getAll();
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error || new Error('Could not load saved takes.'));
+                });
+                studioTracks = saved
+                    .sort((a, b) => a.createdAt - b.createdAt)
+                    .map((track) => ({ ...track, muted: false, player: null, objectUrl: null }));
+                renderStudioTracks();
+                const status = document.getElementById('recording-status');
+                if (studioTracks.length) {
+                    status.textContent = studioTracks.length + ' locally saved ' +
+                        (studioTracks.length === 1 ? 'take is' : 'takes are') + ' ready.';
+                }
+            } catch (error) {
+                document.getElementById('recording-status').textContent =
+                    'Local recording library could not load: ' + error.message;
+            }
+        }
+
+        function createStudioButton(label, className, action) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = className;
+            button.textContent = label;
+            button.addEventListener('click', action);
+            return button;
+        }
+
+        function trackIsAudible(track) {
+            return !track.muted && (!studioSoloTrackId || studioSoloTrackId === track.id);
+        }
+
+        function updateStudioTrackMix() {
+            studioTracks.forEach((track) => {
+                if (track.player) track.player.volume = trackIsAudible(track) ? 0.85 : 0;
+            });
+        }
+
+        async function drawStudioTrackWaveform(track, canvas) {
+            const contextClass = window.AudioContext || window.webkitAudioContext;
+            if (!contextClass || !contextClass.prototype.decodeAudioData) {
+                canvas.setAttribute('aria-label', 'Waveform preview unavailable in this browser');
+                return;
+            }
+            let context;
+            let ownsContext = false;
+            try {
+                context = audioCtx || new contextClass();
+                ownsContext = context !== audioCtx;
+                const buffer = await context.decodeAudioData(await track.blob.arrayBuffer());
+                const bounds = canvas.getBoundingClientRect();
+                const ratio = window.devicePixelRatio || 1;
+                const width = Math.max(1, Math.floor(bounds.width * ratio));
+                const height = Math.max(1, Math.floor(bounds.height * ratio));
+                canvas.width = width;
+                canvas.height = height;
+                const drawing = canvas.getContext('2d');
+                const channel = buffer.getChannelData(0);
+                const samplesPerPixel = Math.max(1, Math.floor(channel.length / width));
+                drawing.clearRect(0, 0, width, height);
+                drawing.strokeStyle = '#ef9a6b';
+                drawing.lineWidth = Math.max(1, ratio);
+                drawing.beginPath();
+                for (let x = 0; x < width; x++) {
+                    const start = x * samplesPerPixel;
+                    let peak = 0;
+                    for (let i = start; i < Math.min(start + samplesPerPixel, channel.length); i++) {
+                        peak = Math.max(peak, Math.abs(channel[i]));
+                    }
+                    const amplitude = peak * height * 0.42;
+                    drawing.moveTo(x, height / 2 - amplitude);
+                    drawing.lineTo(x, height / 2 + amplitude);
+                }
+                drawing.stroke();
+                canvas.setAttribute('aria-label', 'Waveform preview for ' + track.name);
+            } catch (error) {
+                canvas.setAttribute('aria-label', 'Waveform preview unavailable: ' + error.message);
+            } finally {
+                if (ownsContext && context) context.close();
+            }
+        }
+
+        function renderStudioTracks() {
+            const list = document.getElementById('vocal-track-list');
+            const count = document.getElementById('take-count');
+            if (!list || !count) return;
+            list.replaceChildren();
+            count.textContent = studioTracks.length + ' ' + (studioTracks.length === 1 ? 'track' : 'tracks');
+            if (!studioTracks.length) {
+                const empty = document.createElement('p');
+                empty.className = 'rounded-lg border border-dashed border-leaf-line px-4 py-5 text-center text-xs text-zinc-500';
+                empty.textContent = 'Your recorded takes will appear here.';
+                list.append(empty);
+                return;
+            }
+            studioTracks.forEach((track) => {
+                const row = document.createElement('div');
+                row.className = 'vocal-track';
+                row.dataset.trackId = track.id;
+                const title = document.createElement('div');
+                title.className = 'min-w-0';
+                const name = document.createElement('p');
+                name.className = 'truncate text-xs font-medium text-zinc-200';
+                name.textContent = track.name;
+                const duration = document.createElement('p');
+                duration.className = 'mt-1 font-mono text-[9px] text-zinc-500';
+                duration.textContent = formatRecordingDuration(track.duration);
+                title.append(name, duration);
+
+                const waveform = document.createElement('canvas');
+                waveform.className = 'vocal-track-wave';
+                waveform.setAttribute('role', 'img');
+                waveform.setAttribute('aria-label', 'Waveform preview for ' + track.name);
+                drawStudioTrackWaveform(track, waveform);
+
+                const controls = document.createElement('div');
+                controls.className = 'vocal-track-controls';
+                const mute = createStudioButton('M', 'vocal-track-control', () => {
+                    track.muted = !track.muted;
+                    mute.setAttribute('aria-pressed', String(track.muted));
+                    mute.setAttribute('aria-label', (track.muted ? 'Unmute ' : 'Mute ') + track.name);
+                    updateStudioTrackMix();
+                });
+                mute.setAttribute('aria-label', (track.muted ? 'Unmute ' : 'Mute ') + track.name);
+                mute.setAttribute('aria-pressed', String(track.muted));
+                const solo = createStudioButton('S', 'vocal-track-control', () => {
+                    studioSoloTrackId = studioSoloTrackId === track.id ? null : track.id;
+                    solo.setAttribute('aria-pressed', String(studioSoloTrackId === track.id));
+                    solo.setAttribute('aria-label', (studioSoloTrackId === track.id ? 'Unsolo ' : 'Solo ') + track.name);
+                    updateStudioTrackMix();
+                    renderStudioTracks();
+                });
+                solo.setAttribute('aria-label', (studioSoloTrackId === track.id ? 'Unsolo ' : 'Solo ') + track.name);
+                solo.setAttribute('aria-pressed', String(studioSoloTrackId === track.id));
+                const remove = createStudioButton('×', 'vocal-track-control', () => deleteStudioTrack(track.id));
+                remove.setAttribute('aria-label', 'Delete ' + track.name);
+                controls.append(mute, solo, remove);
+                row.append(title, waveform, controls);
+                list.append(row);
+            });
+        }
+
+        function formatRecordingDuration(seconds) {
+            const safeSeconds = Math.max(0, Math.floor(Number(seconds) || 0));
+            return String(Math.floor(safeSeconds / 60)).padStart(2, '0') + ':' +
+                String(safeSeconds % 60).padStart(2, '0');
+        }
+
+        async function deleteStudioTrack(trackId) {
+            const track = studioTracks.find((item) => item.id === trackId);
+            if (!track) return;
+            try {
+                const database = await openStudioTrackDatabase();
+                await new Promise((resolve, reject) => {
+                    const transaction = database.transaction('takes', 'readwrite');
+                    transaction.objectStore('takes').delete(trackId);
+                    transaction.oncomplete = resolve;
+                    transaction.onerror = () => reject(transaction.error || new Error('Could not delete this take.'));
+                    transaction.onabort = () => reject(transaction.error || new Error('Deleting this take was cancelled.'));
+                });
+                if (track.player) {
+                    track.player.pause();
+                    track.player.src = '';
+                }
+                if (track.objectUrl) URL.revokeObjectURL(track.objectUrl);
+                studioTracks = studioTracks.filter((item) => item.id !== trackId);
+                if (studioSoloTrackId === trackId) studioSoloTrackId = null;
+                renderStudioTracks();
+                document.getElementById('recording-status').textContent = 'Take deleted from this browser.';
+            } catch (error) {
+                document.getElementById('recording-status').textContent = 'Could not delete take: ' + error.message;
+            }
+        }
+
+        async function toggleStudioPlayback() {
+            const button = document.getElementById('btn-play-takes');
+            if (studioPlaybackActive) {
+                studioTracks.forEach((track) => {
+                    if (track.player) {
+                        track.player.pause();
+                        track.player.currentTime = 0;
+                    }
+                });
+                studioPlaybackActive = false;
+                button.textContent = 'Play all';
+                document.getElementById('recording-status').textContent = 'Playback stopped.';
+                return;
+            }
+            const audibleTracks = studioTracks.filter(trackIsAudible);
+            if (!audibleTracks.length) {
+                document.getElementById('recording-status').textContent = 'No audible takes. Unmute a track or turn off solo.';
+                return;
+            }
+            try {
+                await Promise.all(audibleTracks.map((track) => {
+                    if (!track.player) {
+                        track.objectUrl = URL.createObjectURL(track.blob);
+                        track.player = new Audio(track.objectUrl);
+                        track.player.addEventListener('ended', () => {
+                            if (studioTracks.every((item) => !item.player || item.player.ended)) {
+                                studioPlaybackActive = false;
+                                button.textContent = 'Play all';
+                            }
+                        });
+                    }
+                    track.player.currentTime = 0;
+                    track.player.volume = 0.85;
+                    return track.player.play();
+                }));
+                studioPlaybackActive = true;
+                button.textContent = 'Stop playback';
+                document.getElementById('recording-status').textContent = 'Playing ' + audibleTracks.length +
+                    (audibleTracks.length === 1 ? ' take.' : ' takes together.');
+            } catch (error) {
+                studioTracks.forEach((track) => {
+                    if (track.player) {
+                        track.player.pause();
+                        track.player.currentTime = 0;
+                    }
+                });
+                studioPlaybackActive = false;
+                button.textContent = 'Play all';
+                document.getElementById('recording-status').textContent = 'Playback could not start: ' + error.message;
+            }
+        }
+
+        function encodeWaveFile(audioBuffer) {
+            const channels = Math.min(2, audioBuffer.numberOfChannels);
+            const frames = audioBuffer.length;
+            const bytesPerSample = 2;
+            const dataSize = frames * channels * bytesPerSample;
+            const output = new ArrayBuffer(44 + dataSize);
+            const view = new DataView(output);
+            const writeText = (offset, text) => {
+                for (let i = 0; i < text.length; i++) view.setUint8(offset + i, text.charCodeAt(i));
+            };
+            writeText(0, 'RIFF');
+            view.setUint32(4, 36 + dataSize, true);
+            writeText(8, 'WAVE');
+            writeText(12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, channels, true);
+            view.setUint32(24, audioBuffer.sampleRate, true);
+            view.setUint32(28, audioBuffer.sampleRate * channels * bytesPerSample, true);
+            view.setUint16(32, channels * bytesPerSample, true);
+            view.setUint16(34, bytesPerSample * 8, true);
+            writeText(36, 'data');
+            view.setUint32(40, dataSize, true);
+            const channelData = Array.from({ length: channels }, (_, channel) => audioBuffer.getChannelData(channel));
+            let offset = 44;
+            for (let frame = 0; frame < frames; frame++) {
+                for (let channel = 0; channel < channels; channel++) {
+                    const sample = Math.max(-1, Math.min(1, channelData[channel][frame]));
+                    view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true);
+                    offset += bytesPerSample;
+                }
+            }
+            return new Blob([output], { type: 'audio/wav' });
+        }
+
+        async function exportStudioMix() {
+            const button = document.getElementById('btn-export-takes');
+            const status = document.getElementById('recording-status');
+            const audibleTracks = studioTracks.filter(trackIsAudible);
+            if (!audibleTracks.length) {
+                status.textContent = 'Record or unmute at least one take before exporting.';
+                return;
+            }
+            const OfflineAudioClass = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+            const AudioClass = window.AudioContext || window.webkitAudioContext;
+            if (!OfflineAudioClass || !AudioClass) {
+                status.textContent = 'Audio mix export is unavailable in this browser.';
+                return;
+            }
+            button.disabled = true;
+            status.textContent = 'Preparing your local mix…';
+            let decodingContext;
+            try {
+                decodingContext = new AudioClass();
+                const decoded = await Promise.all(audibleTracks.map(async (track) => {
+                    const data = await track.blob.arrayBuffer();
+                    return decodingContext.decodeAudioData(data);
+                }));
+                const sampleRate = 44100;
+                const duration = Math.max(...decoded.map((buffer) => buffer.duration));
+                if (!Number.isFinite(duration) || duration <= 0 || duration > 600) {
+                    throw new Error('Mixes must be longer than zero and no more than ten minutes.');
+                }
+                const frameCount = Math.ceil(duration * sampleRate);
+                const offline = new OfflineAudioClass(2, frameCount, sampleRate);
+                const mixBus = offline.createDynamicsCompressor();
+                mixBus.threshold.value = -6;
+                mixBus.knee.value = 6;
+                mixBus.ratio.value = 4;
+                mixBus.connect(offline.destination);
+                decoded.forEach((buffer) => {
+                    const source = offline.createBufferSource();
+                    source.buffer = buffer;
+                    source.connect(mixBus);
+                    source.start(0);
+                });
+                const mixed = await offline.startRendering();
+                const blob = encodeWaveFile(mixed);
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'hidden-leaf-vocal-mix.wav';
+                link.click();
+                URL.revokeObjectURL(url);
+                status.textContent = 'Mix exported as a stereo WAV using the audible takes.';
+            } catch (error) {
+                status.textContent = 'Mix export failed: ' + error.message;
+            } finally {
+                if (decodingContext) decodingContext.close();
+                button.disabled = false;
+            }
+        }
+
+        async function startVocalTake() {
+            const status = document.getElementById('recording-status');
+            const recordButton = document.getElementById('btn-record-take');
+            if (vocalRecorder && vocalRecorder.state !== 'inactive') {
+                status.textContent = 'A take is already recording.';
+                return;
+            }
+            if (!window.MediaRecorder) {
+                status.textContent = 'Audio recording is unavailable in this browser.';
+                return;
+            }
+            recordButton.disabled = true;
+            const microphoneReady = await startVocalMonitor();
+            if (!microphoneReady || !tunerStream) {
+                recordButton.disabled = false;
+                return;
+            }
+            try {
+                const preferredType = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4']
+                    .find((type) => !MediaRecorder.isTypeSupported || MediaRecorder.isTypeSupported(type));
+                vocalRecorder = preferredType
+                    ? new MediaRecorder(tunerStream, { mimeType: preferredType })
+                    : new MediaRecorder(tunerStream);
+                vocalRecorderChunks = [];
+                vocalRecorder.addEventListener('dataavailable', (event) => {
+                    if (event.data && event.data.size) vocalRecorderChunks.push(event.data);
+                });
+                vocalRecorder.addEventListener('error', (event) => {
+                    status.textContent = 'Recording failed: ' + (event.error?.message || 'microphone data could not be captured.');
+                });
+                vocalRecorder.addEventListener('stop', async () => {
+                    const mimeType = vocalRecorder.mimeType || preferredType || 'audio/webm';
+                    const blob = new Blob(vocalRecorderChunks, { type: mimeType });
+                    vocalRecorderChunks = [];
+                    if (!blob.size) {
+                        status.textContent = 'No audio was captured. Check microphone permissions and try again.';
+                        return;
+                    }
+                    const name = document.getElementById('take-name').value.trim().slice(0, 48) ||
+                        'Vocal take ' + (studioTracks.length + 1);
+                    const track = {
+                        id: window.crypto?.randomUUID ? window.crypto.randomUUID() : 'take-' + Date.now() + '-' + Math.random().toString(36).slice(2),
+                        name,
+                        blob,
+                        duration: Math.max(1, (Date.now() - vocalRecordStartedAt) / 1000),
+                        createdAt: Date.now(),
+                        mimeType,
+                        muted: false,
+                        player: null,
+                        objectUrl: null
+                    };
+                    try {
+                        await saveStudioTrack(track);
+                        studioTracks.push(track);
+                        renderStudioTracks();
+                        status.textContent = '“' + track.name + '” saved in this browser. You can record another layer.';
+                    } catch (error) {
+                        studioTracks.push(track);
+                        renderStudioTracks();
+                        status.textContent = 'Take captured for this session, but not saved for next time: ' + error.message;
+                    }
+                });
+                vocalRecorder.start(250);
+                vocalRecordStartedAt = Date.now();
+                recordButton.disabled = true;
+                document.getElementById('btn-stop-take').disabled = false;
+                document.getElementById('recording-clock').classList.add('is-recording');
+                document.getElementById('recording-clock').textContent = '00:00';
+                status.textContent = 'Recording locally. Use headphones while the beat plays.';
+                vocalRecordTimer = window.setInterval(() => {
+                    const elapsed = (Date.now() - vocalRecordStartedAt) / 1000;
+                    document.getElementById('recording-clock').textContent =
+                        formatRecordingDuration(elapsed);
+                    if (elapsed >= 600) {
+                        status.textContent = 'Ten-minute take limit reached. Saving this take locally…';
+                        stopVocalTake();
+                    }
+                }, 250);
+                if (!isPlaying) {
+                    try {
+                        togglePlay();
+                    } catch (error) {
+                        status.textContent = 'Recording started, but the beat could not start: ' + error.message;
+                    }
+                }
+            } catch (error) {
+                status.textContent = 'Could not start recording: ' + error.message;
+                document.getElementById('btn-record-take').disabled = false;
+                document.getElementById('btn-stop-take').disabled = true;
+            }
+        }
+
+        function stopVocalTake() {
+            if (vocalRecorder && vocalRecorder.state !== 'inactive') vocalRecorder.stop();
+            if (vocalRecordTimer) window.clearInterval(vocalRecordTimer);
+            vocalRecordTimer = null;
+            document.getElementById('btn-record-take').disabled = false;
+            document.getElementById('btn-stop-take').disabled = true;
+            document.getElementById('recording-clock').classList.remove('is-recording');
+            document.getElementById('recording-clock').textContent =
+                formatRecordingDuration((Date.now() - vocalRecordStartedAt) / 1000);
+            if (isPlaying) stopPlayback();
+        }
+
+        function renderScaleKeyboard() {
+            const keyboard = document.getElementById('scale-keyboard');
+            if (!keyboard) return;
+            keyboard.replaceChildren();
+            const root = Number(document.getElementById('tuner-key').value);
+            const scale = document.getElementById('tuner-scale').value;
+            const intervals = scale === 'major' ? [0, 2, 4, 5, 7, 9, 11]
+                : scale === 'minor' ? [0, 2, 3, 5, 7, 8, 10]
+                    : Array.from({ length: 12 }, (_, index) => index);
+            const blackNotes = [1, 3, 6, 8, 10];
+            const whitePositions = { 0: 0, 2: 1, 4: 2, 5: 3, 7: 4, 9: 5, 11: 6 };
+            for (let midi = 60; midi <= 72; midi++) {
+                const pitchClass = midi % 12;
+                const inScale = intervals.some((interval) => (root + interval) % 12 === pitchClass);
+                const isBlack = blackNotes.includes(pitchClass);
+                const note = document.createElement('button');
+                note.type = 'button';
+                note.className = 'scale-note ' + (isBlack ? 'is-black' : 'is-white') +
+                    (inScale ? ' is-in-scale' : ' is-out-of-scale') +
+                    (pitchClass === root ? ' is-root' : '');
+                note.textContent = noteName(midi);
+                note.setAttribute('aria-label', 'Play reference note ' + noteName(midi));
+                note.setAttribute('aria-pressed', String(pitchClass === root));
+                if (isBlack) {
+                    const previousWhitePosition = { 1: 0, 3: 1, 6: 3, 8: 4, 10: 5 }[pitchClass];
+                    note.style.left = `calc(${((previousWhitePosition + 1) / 8) * 100}% - 4%)`;
+                } else {
+                    const position = midi === 72 ? 7 : whitePositions[pitchClass];
+                    note.style.left = `${(position / 8) * 100}%`;
+                    note.style.width = `${100 / 8}%`;
+                }
+                note.addEventListener('click', () => playReferenceNote(midi));
+                keyboard.append(note);
+            }
+        }
+
+        function playReferenceNote(midi) {
+            initAudio();
+            const oscillator = audioCtx.createOscillator();
+            const envelope = audioCtx.createGain();
+            const now = audioCtx.currentTime;
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(440 * Math.pow(2, (midi - 69) / 12), now);
+            envelope.gain.setValueAtTime(0.0001, now);
+            envelope.gain.exponentialRampToValueAtTime(0.14, now + 0.025);
+            envelope.gain.exponentialRampToValueAtTime(0.0001, now + 0.8);
+            oscillator.connect(envelope);
+            envelope.connect(audioCtx.destination);
+            oscillator.start(now);
+            oscillator.stop(now + 0.82);
         }
 
         let folio = [
@@ -4664,9 +6345,11 @@
             });
             document.getElementById('tuner-key').addEventListener('change', () => {
                 document.getElementById('tuner-target').textContent = 'Target note updates with your next pitch.';
+                renderScaleKeyboard();
             });
             document.getElementById('tuner-scale').addEventListener('change', () => {
                 document.getElementById('tuner-target').textContent = 'Target note updates with your next pitch.';
+                renderScaleKeyboard();
             });
             const updateKeyboardState = () => {
                 const viewport = window.visualViewport;
@@ -4678,6 +6361,9 @@
                 window.visualViewport.addEventListener('scroll', updateKeyboardState);
             }
             window.addEventListener('resize', updateKeyboardState);
+            renderStudioTracks();
+            renderScaleKeyboard();
+            loadStudioTracks();
             isInitializing = false;
             setDraftStatus(storageError || 'Draft saves in this browser.', Boolean(storageError));
         });
@@ -4688,6 +6374,16 @@
             stopVocalMonitor();
             stopPlayback();
             if (isDroneOn) toggleDrone();
+            studioTracks.forEach((track) => {
+                if (track.player) track.player.pause();
+                if (track.objectUrl) URL.revokeObjectURL(track.objectUrl);
+            });
+        });
+        window.addEventListener('beforeunload', (event) => {
+            if (vocalRecorder && vocalRecorder.state !== 'inactive') {
+                event.preventDefault();
+                event.returnValue = '';
+            }
         });
     </script>
 </body>

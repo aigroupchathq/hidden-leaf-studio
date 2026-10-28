@@ -7,10 +7,11 @@ This is a decision and test document for taking Hidden Leaf from its current bro
 Observed in this repository:
 
 - The product is primarily a single `index.html` page with inline application code.
-- Lyrics, language selection, vocabulary exploration, rhyme/material previews, beat editing, vocal pitch guidance, and the Circle collaboration preview live in the browser.
+- Lyrics, language selection, vocabulary exploration, rhyme/material previews, beat editing, vocal pitch guidance, local vocal recording/mixing, and the Circle collaboration preview live in the browser.
+- Vocal takes are opt-in, stored in the browser's IndexedDB, and can be deleted or exported by the artist. Microphone input is not uploaded; pitch correction is not provided.
 - Drafts and personal preferences use browser storage. Circle rooms, role examples, messages, and beat snapshots are in-memory demonstration data.
 - `appwrite-auth.js` provides a browser-side Auth slice. `appwrite-config.js` contains the configured Appwrite project ID (`6adceb48003388223012`), but the Web SDK API endpoint is still blank.
-- Appwrite Tables/Databases, membership records, invite delivery, durable chat, beat persistence, Realtime subscriptions, audio uploads, server functions, migrations, and production deployment automation are not configured here.
+- Appwrite Tables/Databases, membership records, invite delivery, durable chat, beat persistence, Realtime subscriptions, audio uploads, server functions, migrations, and production deployment automation are not configured here. Recording remains local to the browser.
 - A Playwright system-test harness now covers local UI behavior and mocked Appwrite Auth requests. Live Appwrite integration remains skipped until the API endpoint and isolated test environment are configured.
 - An account session, once configured, must not be mistaken for membership in any room. The UI labels collaboration content as demo/local.
 
@@ -428,20 +429,20 @@ No gate should be marked complete from screenshots alone. Attach reproducible te
 | Stale writes | Reject a save based on an outdated revision. Preserve the editor’s local version and the current server version for explicit reconciliation; never silently overwrite. |
 | Offline edits | Keep pending changes local and visibly unsynced. On reconnect, do not auto-apply if the server revision changed or membership was revoked; preserve a private conflict copy. |
 | Deletion | Room owner only, with confirmation. Deletion removes room data and revisions subject to the provider’s documented backup-retention behavior; do not promise instant backup erasure. |
-| Audio and creator links | No audio upload, recording, proxying, or rehosting. A YouTube channel/video link is a possible separate, opt-in creator-profile link-out, not room content; it must open YouTube and never imply that Hidden Leaf hosts the work. Keep this separate from the room MVP until visibility controls are designed. |
+| Audio and creator links | Artists may explicitly record takes into local browser storage and export a mix. Audio is not uploaded, account-synced, shared with rooms, proxied, or rehosted. Browser storage is not an encrypted backup and may be removed by clearing site data. A YouTube link remains a separate opt-in external link, never hosted media. |
 
 ### Excluded from MVP (prototype screens may remain visual-only)
 
 - Persistent chat, direct messages, public feeds/directories, social graphs, presence, and in-product invitations.
 - Shared lyric editing, account-synced drafts, and public creator profiles.
-- Audio upload, recording, storage, downloads, publishing, or licensing workflows.
+- Cloud audio upload, account/room sync, publishing, licensing, or shared audio workflows.
 - YouTube API access or OAuth, channel scraping, media downloading, proxying, or rehosting.
 
 The Circle screen’s people, chat, invite preview, room edits, and history remain local demonstration data until shared persistence is explicitly implemented. An Appwrite Auth session is not proof of room membership. Preserve the current writing studio and draft behavior; scope messaging should clarify—not imply that these demo controls are connected.
 
 ### Cost and privacy posture
 
-Target minimal operational cost, not a promise of literal zero cost: provider free tiers have quotas and terms that may change, and a domain, monitoring, support, or growth may incur expense. Use static delivery where practical and store only the small collaboration records above. Add quota monitoring/limits and a clear failure mode before a public pilot; never silently lose edits or create success-shaped saves when storage is unavailable.
+Target minimal operational cost, not a promise of literal zero cost: provider free tiers have quotas and terms that may change, and a domain, monitoring, support, or growth may incur expense. Local audio uses browser storage quotas and remains on that browser until deleted or site data is cleared; saving and exporting errors must be visible. Do not imply that local browser storage is encrypted, backed up, or available on another device. Use static delivery where practical and store only the small collaboration records above. Add quota monitoring/limits and a clear failure mode before a public pilot; never silently lose edits or create success-shaped saves when storage is unavailable.
 
 ### Remaining implementation and launch gates
 

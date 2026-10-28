@@ -522,6 +522,210 @@ test('configured auth keeps the dialog open and surfaces rejected credentials', 
   await expect(page.locator('#appwrite-auth-badge')).toHaveText('Appwrite · signed out');
 });
 
+test('vocal takes record locally, persist across reload, and support track controls', async ({ page }) => {
+  await page.addInitScript(() => {
+    const audioParam = () => ({
+      value: 0,
+      setValueAtTime(value) { this.value = value; },
+      setTargetAtTime(value) { this.value = value; },
+      exponentialRampToValueAtTime(value) { this.value = value; }
+    });
+    const audioNode = () => ({ connect() {}, disconnect() {} });
+    class TestAudioContext {
+      constructor() {
+        this.currentTime = 0;
+        this.sampleRate = 48000;
+        this.state = 'suspended';
+        this.destination = {};
+      }
+      resume() { this.state = 'running'; return Promise.resolve(); }
+      suspend() { this.state = 'suspended'; return Promise.resolve(); }
+      close() { this.state = 'closed'; return Promise.resolve(); }
+      createAnalyser() {
+        return { ...audioNode(), fftSize: 2048, getFloatTimeDomainData(samples) { samples.fill(0); } };
+      }
+      createMediaStreamSource() { return audioNode(); }
+      createBiquadFilter() { return { ...audioNode(), frequency: audioParam() }; }
+      createDynamicsCompressor() { return audioNode(); }
+      createGain() { return { ...audioNode(), gain: audioParam() }; }
+      createConvolver() { return { ...audioNode(), buffer: null }; }
+      createDelay() { return { ...audioNode(), delayTime: audioParam() }; }
+      createBuffer(channels, length) {
+        return {
+          numberOfChannels: channels,
+          getChannelData: () => new Float32Array(length)
+        };
+      }
+      createOscillator() {
+        return { ...audioNode(), frequency: audioParam(), start() {}, stop() {} };
+      }
+      createBufferSource() { return { ...audioNode(), start() {}, stop() {} }; }
+    }
+    window.AudioContext = TestAudioContext;
+    window.webkitAudioContext = TestAudioContext;
+    const stream = { getTracks: () => [{ stop() {} }] };
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: { getUserMedia: async () => stream }
+    });
+    class TestMediaRecorder extends EventTarget {
+      constructor(_stream, options = {}) {
+        super();
+        this.mimeType = options.mimeType || 'audio/webm';
+        this.state = 'inactive';
+      }
+      start() { this.state = 'recording'; }
+      stop() {
+        this.state = 'inactive';
+        const data = new Blob(['test vocal audio'], { type: this.mimeType });
+        const dataEvent = new Event('dataavailable');
+        Object.defineProperty(dataEvent, 'data', { value: data });
+        this.dispatchEvent(dataEvent);
+        this.dispatchEvent(new Event('stop'));
+      }
+    }
+    TestMediaRecorder.isTypeSupported = () => true;
+    window.MediaRecorder = TestMediaRecorder;
+    HTMLMediaElement.prototype.play = function () { return Promise.resolve(); };
+    HTMLMediaElement.prototype.pause = function () {};
+  });
+
+  await enterStudio(page);
+  await page.locator('[data-screen="vocal"]').click();
+  await expect(page.locator('#vocal-view h2')).toContainText('Sing with');
+  await expect(page.locator('.vocal-console')).toBeVisible();
+  await expect(page.locator('[data-vocal-effect="pitch"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#scale-keyboard .scale-note')).toHaveCount(13);
+  await page.locator('#tuner-key').selectOption('7');
+  await page.locator('#tuner-scale').selectOption('minor');
+  await expect(page.getByRole('button', { name: 'Play reference note G4' })).toBeVisible();
+  await page.getByRole('button', { name: 'Play reference note G4' }).click();
+  await page.locator('#take-name').fill('Verse one');
+  await page.getByRole('button', { name: 'Record take' }).click();
+  await expect(page.locator('#btn-stop-take')).toBeEnabled();
+  await expect(page.locator('#mic-status')).toContainText('Mic is live');
+  await page.locator('#btn-stop-take').click();
+  await expect(page.locator('.vocal-track')).toHaveCount(1);
+  await expect(page.locator('.vocal-track')).toContainText('Verse one');
+  await expect(page.locator('#recording-status')).toContainText('saved in this browser');
+  await page.locator('#btn-vocal-monitor').click();
+  await expect(page.locator('#btn-vocal-monitor')).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('button', { name: /REVERB/ }).click();
+  await expect(page.locator('[data-vocal-effect="reverb"]')).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('button', { name: /ECHO \/ FX/ }).click();
+  await expect(page.locator('[data-vocal-effect="echo"]')).toHaveAttribute('aria-pressed', 'true');
+
+  await page.reload();
+  await enterStudio(page);
+  await page.locator('[data-screen="vocal"]').click();
+  await expect(page.locator('.vocal-track')).toHaveCount(1);
+  await expect(page.locator('.vocal-track')).toContainText('Verse one');
+  for (const width of [320, 375, 768, 1440]) {
+    await page.setViewportSize({ width, height: 812 });
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+    const keyboardBounds = await page.locator('#scale-keyboard').evaluate((keyboard) => {
+      const bounds = keyboard.getBoundingClientRect();
+      const notes = [...keyboard.querySelectorAll('.scale-note')].map((note) => note.getBoundingClientRect());
+      return {
+        left: Math.min(...notes.map((note) => note.left)),
+        right: Math.max(...notes.map((note) => note.right)),
+        keyboardLeft: bounds.left,
+        keyboardRight: bounds.right
+      };
+    });
+    expect(keyboardBounds.left).toBeGreaterThanOrEqual(keyboardBounds.keyboardLeft - 1);
+    expect(keyboardBounds.right).toBeLessThanOrEqual(keyboardBounds.keyboardRight + 1);
+  }
+  await page.getByRole('button', { name: 'Mute Verse one' }).click();
+  await expect(page.getByRole('button', { name: 'Unmute Verse one' })).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('button', { name: 'Solo Verse one' }).click();
+  await expect(page.getByRole('button', { name: 'Unsolo Verse one' })).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('button', { name: 'Delete Verse one' }).click();
+  await expect(page.locator('.vocal-track')).toHaveCount(0);
+  await expect(page.locator('#recording-status')).toHaveText('Take deleted from this browser.');
+});
+
+test('vocal mix export downloads a stereo WAV', async ({ page }) => {
+  await enterStudio(page);
+  await page.locator('[data-screen="vocal"]').click();
+  await page.evaluate(async () => {
+    const database = await new Promise((resolve, reject) => {
+      const request = indexedDB.open('hidden-leaf-studio-recordings', 1);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    const sampleRate = 44100;
+    const frames = 4410;
+    const bytes = new ArrayBuffer(44 + frames * 2);
+    const view = new DataView(bytes);
+    const write = (offset, text) => {
+      for (let index = 0; index < text.length; index++) view.setUint8(offset + index, text.charCodeAt(index));
+    };
+    write(0, 'RIFF');
+    view.setUint32(4, bytes.byteLength - 8, true);
+    write(8, 'WAVE');
+    write(12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, 1, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * 2, true);
+    view.setUint16(32, 2, true);
+    view.setUint16(34, 16, true);
+    write(36, 'data');
+    view.setUint32(40, frames * 2, true);
+    for (let frame = 0; frame < frames; frame++) {
+      view.setInt16(44 + frame * 2, Math.sin(frame * 2 * Math.PI * 220 / sampleRate) * 8000, true);
+    }
+    const transaction = database.transaction('takes', 'readwrite');
+    transaction.objectStore('takes').put({
+      id: 'wav-export-test',
+      name: 'Export test',
+      blob: new Blob([bytes], { type: 'audio/wav' }),
+      duration: 0.1,
+      createdAt: Date.now(),
+      mimeType: 'audio/wav'
+    });
+    await new Promise((resolve, reject) => {
+      transaction.oncomplete = resolve;
+      transaction.onerror = () => reject(transaction.error);
+    });
+  });
+
+  await page.reload();
+  await enterStudio(page);
+  await page.locator('[data-screen="vocal"]').click();
+  await expect(page.locator('.vocal-track')).toContainText('Export test');
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'EXPORT WAV' }).click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toBe('hidden-leaf-vocal-mix.wav');
+  const file = fs.readFileSync(await download.path());
+  expect(file.toString('ascii', 0, 4)).toBe('RIFF');
+  expect(file.toString('ascii', 8, 12)).toBe('WAVE');
+  expect(file.readUInt16LE(22)).toBe(2);
+  expect(file.readUInt16LE(34)).toBe(16);
+  await expect(page.locator('#recording-status')).toContainText('stereo WAV');
+});
+
+test('microphone denial is surfaced and leaves recording controls usable', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: {
+        getUserMedia: async () => { throw new DOMException('Permission denied', 'NotAllowedError'); }
+      }
+    });
+  });
+  await enterStudio(page);
+  await page.locator('[data-screen="vocal"]').click();
+  await page.getByRole('button', { name: 'Record take' }).click();
+  await expect(page.locator('#mic-status')).toContainText('Microphone access was blocked');
+  await expect(page.locator('#recording-status')).toContainText('Microphone access was blocked');
+  await expect(page.getByRole('button', { name: 'Record take' })).toBeEnabled();
+  await expect(page.locator('#btn-stop-take')).toBeDisabled();
+});
+
 test.describe.skip('live Appwrite integration', () => {
   test('connects to the isolated project and enforces project permissions', async () => {
     // Requires the project API endpoint, configured test users, and an isolated test-data cleanup policy.
