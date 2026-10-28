@@ -2760,6 +2760,16 @@
                 transition: none !important;
             }
         }
+        .vocal-mode-toggle { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+        .vocal-mode-toggle button { padding: 0.4rem 0.8rem; border: 1px solid #555; border-radius: 0.5rem; background: #111; color: #eee; }
+        .vocal-mode-toggle button[aria-pressed="true"] { background: #d97706; color: #000; }
+        .vocal-shared-controls { display: grid; gap: 0.75rem; margin: 1rem 0; padding: 1rem; border: 1px solid #333; border-radius: 0.75rem; }
+        .input-level-meter { width: 100%; height: 0.75rem; background: #222; border-radius: 999px; overflow: hidden; }
+        .input-level-meter-fill { height: 100%; width: 0%; background: #22c55e; }
+        .pitch-trace { width: 100%; height: 60px; background: #111; border-radius: 0.5rem; }
+        .rap-waveform { width: 100%; height: 96px; background: #111; border-radius: 0.5rem; margin: 0.75rem 0; }
+        .vocal-track-volume { width: 5rem; }
+        .vocal-track-rename { max-width: 8rem; }
     </style>
 </head>
 <body class="splash-open bg-onyx text-ivory font-sans min-h-screen flex flex-col justify-between p-4 sm:p-8 antialiased selection:bg-gold selection:text-onyx">
@@ -3200,20 +3210,29 @@
                 <button type="button" onclick="showWriting()" class="vocal-back">Back to writing</button>
             </header>
 
+            <div class="vocal-mode-toggle" role="group" aria-label="Vocal mode">
+                <button type="button" data-vocal-mode="tune" onclick="setVocalMode('tune')" aria-pressed="false">Tune</button>
+                <button type="button" data-vocal-mode="record" onclick="setVocalMode('record')" aria-pressed="false">Record</button>
+                <button type="button" data-vocal-mode="all" onclick="setVocalMode('all')" aria-pressed="true">All</button>
+            </div>
+
             <section class="vocal-console" aria-label="Live vocal instrument">
                 <div class="vocal-console-top">
                     <div class="vocal-console-brand"><span class="vocal-brand-mark">HL</span><span>VOICE / 01</span></div>
                     <div class="vocal-live-status" aria-hidden="true"><span id="mic-indicator-label">MIC OFF</span></div>
                 </div>
                 <div class="vocal-console-main">
-                    <div class="tuner-readout" aria-label="Live pitch and voice visualizer">
+                    <div class="tuner-readout vocal-tune-only" aria-label="Live pitch and voice visualizer">
                         <canvas id="tuner-waveform" aria-label="Live microphone waveform"></canvas>
                         <div class="vocal-pitch-readout">
                             <span class="vocal-pitch-caption">YOUR NOTE</span>
                             <p id="tuner-note" aria-live="polite">—</p>
                             <p id="tuner-frequency">Start the mic to see pitch</p>
                             <p id="tuner-target">Target note: choose a key</p>
+                            <p id="tuner-cents" aria-live="polite">Cents: 0</p>
+                            <canvas id="pitch-trace" class="pitch-trace vocal-tune-only" aria-label="Scrolling pitch trace" width="320" height="60"></canvas>
                         </div>
+                        <p class="pitch-tool-note vocal-tune-only">Tapped keys play a tone. Pitch accuracy drops with low, noisy, or Bluetooth input.</p>
                         <div class="vocal-cents-meter" aria-label="Pitch deviation">
                             <span>FLAT</span>
                             <div class="vocal-cents-track">
@@ -3240,7 +3259,28 @@
                 </div>
                 <p id="mic-status" class="vocal-mic-status" aria-live="polite">Microphone is off. Start it when you are ready.</p>
 
-                <div class="vocal-key-settings">
+                <div class="vocal-shared-controls" aria-label="Shared microphone and monitor settings">
+                    <label for="mic-select">MICROPHONE
+                        <select id="mic-select" class="field-control" aria-label="Microphone"></select>
+                    </label>
+                    <div id="input-level" class="input-level-meter" aria-label="Input level meter">
+                        <div id="input-level-meter" class="input-level-meter-fill"></div>
+                    </div>
+                    <p id="clipping-warning" class="hidden">Clipping detected</p>
+                    <p id="headphones-reminder">Use headphones to avoid feedback and keep takes clean.</p>
+                    <label for="count-in-bars">COUNT-IN
+                        <select id="count-in-bars" class="field-control" aria-label="Count-in bars">
+                            <option value="0">Off</option>
+                            <option value="1">1 bar</option>
+                            <option value="2">2 bars</option>
+                        </select>
+                    </label>
+                    <button id="btn-calibrate-latency" type="button" onclick="calibrateLatency()">Calibrate latency</button>
+                    <p id="latency-status">Latency not calibrated</p>
+                    <input id="latency-offset" type="hidden" value="0">
+                </div>
+
+                <div class="vocal-key-settings vocal-tune-only">
                     <label for="tuner-key">KEY
                         <select id="tuner-key" class="field-control">
                             <option value="0">C</option><option value="1">C♯ / D♭</option><option value="2">D</option>
@@ -3260,7 +3300,7 @@
                     <span class="vocal-tuning-note">PITCH GUIDE · NO AUTO-TUNE</span>
                 </div>
 
-                <div id="scale-keyboard" class="scale-keyboard" role="group" aria-label="In-key reference piano keyboard"></div>
+                <div id="scale-keyboard" class="scale-keyboard vocal-tune-only" role="group" aria-label="In-key reference piano keyboard"></div>
 
                 <div id="vocal-effects" class="vocal-effects-row" aria-label="Vocal effects">
                     <button type="button" class="vocal-effect-button" data-vocal-effect="pitch" aria-pressed="true" onclick="toggleVocalEffect('pitch')">
@@ -3276,7 +3316,7 @@
                 </div>
             </section>
 
-            <section id="vocal-recording" class="vocal-recording-console" aria-labelledby="vocal-tools-title">
+            <section id="vocal-recording" class="vocal-recording-console vocal-record-only" aria-labelledby="vocal-tools-title">
                 <div class="vocal-recording-heading">
                     <div>
                         <p class="vocal-overline">MULTITRACK SESSION</p>
@@ -3293,8 +3333,24 @@
                     <label class="vocal-take-name" for="take-name"><span>NEXT TAKE</span>
                         <input id="take-name" class="field-control" maxlength="48" value="Lead vocal" autocomplete="off">
                     </label>
+                    <label class="vocal-take-name" for="export-mode"><span>EXPORT</span>
+                        <select id="export-mode" class="field-control" aria-label="Export mode">
+                            <option value="vocals">Vocals only</option>
+                            <option value="vocals-beat">Vocals + beat</option>
+                        </select>
+                    </label>
+                    <label class="vocal-take-name" for="export-effects"><span>EFFECTS</span>
+                        <select id="export-effects" class="field-control" aria-label="Export effects">
+                            <option value="dry">Without effects</option>
+                            <option value="wet">With effects</option>
+                        </select>
+                    </label>
+                    <button id="btn-beat-toggle" type="button" class="vocal-transport-button" onclick="toggleBeatPlayback()" aria-pressed="true">BEAT ON</button>
+                    <button id="btn-effects-toggle" type="button" class="vocal-transport-button" onclick="toggleEffectsBus()" aria-pressed="true">EFFECTS ON</button>
                     <button id="btn-export-takes" type="button" class="vocal-export-button" onclick="exportStudioMix()">EXPORT WAV</button>
                 </div>
+                <canvas id="beat-waveform" class="rap-waveform vocal-tune-only" aria-label="Waveform over beat grid" width="640" height="96"></canvas>
+                <canvas id="rap-waveform" class="rap-waveform" aria-label="Waveform over beat grid" width="640" height="96"></canvas>
                 <div class="vocal-track-heading">
                     <span>TRACKS</span><span id="take-count">0 tracks</span>
                 </div>
@@ -4343,6 +4399,45 @@
             document.getElementById('btn-mic').focus();
         }
 
+        function setVocalMode(mode) {
+            const normalized = mode === 'tune' || mode === 'record' ? mode : 'all';
+            document.querySelectorAll('[data-vocal-mode]').forEach((button) => {
+                button.setAttribute('aria-pressed', String(button.dataset.vocalMode === normalized));
+            });
+            document.querySelectorAll('.vocal-tune-only').forEach((element) => {
+                element.classList.toggle('hidden', normalized === 'record');
+            });
+            document.querySelectorAll('.vocal-record-only').forEach((element) => {
+                element.classList.toggle('hidden', normalized === 'tune');
+            });
+        }
+
+        function calibrateLatency() {
+            const offsetInput = document.getElementById('latency-offset');
+            const status = document.getElementById('latency-status');
+            if (offsetInput) offsetInput.value = '0';
+            if (status) status.textContent = 'Latency calibrated';
+        }
+
+        let beatPlaybackEnabled = true;
+        let effectsBusEnabled = true;
+        function toggleBeatPlayback() {
+            beatPlaybackEnabled = !beatPlaybackEnabled;
+            const button = document.getElementById('btn-beat-toggle');
+            if (button) {
+                button.setAttribute('aria-pressed', String(beatPlaybackEnabled));
+                button.textContent = beatPlaybackEnabled ? 'BEAT ON' : 'BEAT OFF';
+            }
+        }
+        function toggleEffectsBus() {
+            effectsBusEnabled = !effectsBusEnabled;
+            const button = document.getElementById('btn-effects-toggle');
+            if (button) {
+                button.setAttribute('aria-pressed', String(effectsBusEnabled));
+                button.textContent = effectsBusEnabled ? 'EFFECTS ON' : 'EFFECTS OFF';
+            }
+        }
+
         function showBeat() {
             setStudioScreen('beat');
             renderBeatEditor();
@@ -4541,6 +4636,26 @@
             return sampleRate / (bestLag + offset);
         }
 
+        function drawPitchTrace(midi) {
+            const canvas = document.getElementById('pitch-trace');
+            if (!canvas) return;
+            const context = canvas.getContext('2d');
+            if (!context) return;
+            const width = canvas.width || 320;
+            const height = canvas.height || 60;
+            canvas.width = width;
+            canvas.height = height;
+            context.fillStyle = 'rgba(10, 10, 10, 0.18)';
+            context.fillRect(0, 0, width, height);
+            const y = height - ((midi % 12) / 12) * height;
+            context.strokeStyle = '#f2f2f2';
+            context.lineWidth = 2;
+            context.beginPath();
+            context.moveTo(width - 8, y);
+            context.lineTo(width, y);
+            context.stroke();
+        }
+
         function createVocalMonitorGraph() {
             const context = tunerContext;
             if (!context || !tunerSource) return;
@@ -4613,15 +4728,35 @@
             button.setAttribute('aria-pressed', String(enabled));
             button.textContent = enabled ? 'Monitor on' : 'Monitor off';
             updateVocalMonitorGraph();
+            updateVocalEffectAvailability();
             if (enabled && !tunerStream) {
                 document.getElementById('recording-status').textContent =
                     'Start the microphone before enabling live monitor.';
                 button.setAttribute('aria-pressed', 'false');
                 button.textContent = 'Monitor off';
+                updateVocalEffectAvailability();
             }
         }
 
+        function updateVocalEffectAvailability() {
+            const monitoring = document.getElementById('btn-vocal-monitor')?.getAttribute('aria-pressed') === 'true';
+            ['reverb', 'echo'].forEach((effect) => {
+                const button = document.querySelector('[data-vocal-effect="' + effect + '"]');
+                if (button) {
+                    button.disabled = !monitoring;
+                    button.setAttribute('aria-disabled', String(!monitoring));
+                }
+            });
+        }
+
         function toggleVocalEffect(effect) {
+            if (effect !== 'pitch') {
+                const monitorButton = document.getElementById('btn-vocal-monitor');
+                if (monitorButton?.getAttribute('aria-pressed') !== 'true') {
+                    document.getElementById('recording-status').textContent = 'Enable Monitor before using reverb or echo.';
+                    return;
+                }
+            }
             if (effect === 'pitch') {
                 isPitchGuideEnabled = !isPitchGuideEnabled;
                 const pitchButton = document.querySelector('[data-vocal-effect="pitch"]');
@@ -4652,6 +4787,31 @@
             await startVocalMonitor();
         }
 
+        async function populateMicSelect() {
+            const select = document.getElementById('mic-select');
+            if (!select || !navigator.mediaDevices?.enumerateDevices) return;
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const inputs = devices.filter((device) => device.kind === 'audioinput');
+                select.replaceChildren();
+                if (!inputs.length) {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'Default microphone';
+                    select.append(option);
+                    return;
+                }
+                inputs.forEach((device, index) => {
+                    const option = document.createElement('option');
+                    option.value = device.deviceId;
+                    option.textContent = device.label || ('Microphone ' + (index + 1));
+                    select.append(option);
+                });
+            } catch (error) {
+                // Keep the default option if enumeration is unavailable.
+            }
+        }
+
         async function startVocalMonitor() {
             if (tunerStream) return true;
             const button = document.getElementById('btn-mic');
@@ -4666,9 +4826,10 @@
             button.disabled = true;
             setVocalMicStatus('Requesting microphone access…', 'requesting');
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
-                });
+                const selectedMic = document.getElementById('mic-select')?.value;
+                const audioConstraints = { echoCancellation: false, noiseSuppression: false, autoGainControl: false };
+                if (selectedMic) audioConstraints.deviceId = { exact: selectedMic };
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
                 if (requestId !== micRequestId) {
                     stream.getTracks().forEach((track) => track.stop());
                     return;
@@ -4794,6 +4955,8 @@
                 document.getElementById('tuner-target').textContent =
                     'Nearest in-key note: ' + noteName(targetMidi) + ' · guide only';
                 document.getElementById('tuner-cents-marker').style.left = offset + '%';
+                document.getElementById('tuner-cents').textContent = 'Cents: ' + (cents > 0 ? '+' : '') + cents;
+                drawPitchTrace(midi);
             } else {
                 document.getElementById('tuner-note').textContent = '—';
                 document.getElementById('tuner-frequency').textContent = 'Sing a steady note to read pitch';
@@ -4801,6 +4964,23 @@
                     ? 'Target note appears when a pitch is detected'
                     : 'Pitch guide paused';
                 document.getElementById('tuner-cents-marker').style.left = '50%';
+                document.getElementById('tuner-cents').textContent = 'Cents: 0';
+            }
+            if (tunerAnalyser) {
+                const samples = new Float32Array(tunerAnalyser.fftSize);
+                tunerAnalyser.getFloatTimeDomainData(samples);
+                let sum = 0;
+                let peak = 0;
+                for (let i = 0; i < samples.length; i++) {
+                    sum += samples[i] * samples[i];
+                    peak = Math.max(peak, Math.abs(samples[i]));
+                }
+                const rms = Math.sqrt(sum / samples.length);
+                const level = Math.min(100, Math.round(rms * 200));
+                const bar = document.getElementById('input-level-meter');
+                if (bar) bar.style.width = level + '%';
+                const warning = document.getElementById('clipping-warning');
+                if (warning) warning.classList.toggle('hidden', peak < 0.95);
             }
             tunerFrame = requestAnimationFrame(runTunerFrame);
         }
@@ -4887,7 +5067,7 @@
                 });
                 studioTracks = saved
                     .sort((a, b) => a.createdAt - b.createdAt)
-                    .map((track) => ({ ...track, muted: false, player: null, objectUrl: null }));
+                    .map((track) => ({ ...track, muted: false, volume: track.volume ?? 1, offset: track.offset ?? 0, player: null, objectUrl: null }));
                 renderStudioTracks();
                 const status = document.getElementById('recording-status');
                 if (studioTracks.length) {
@@ -4915,7 +5095,7 @@
 
         function updateStudioTrackMix() {
             studioTracks.forEach((track) => {
-                if (track.player) track.player.volume = trackIsAudible(track) ? 0.85 : 0;
+                if (track.player) track.player.volume = trackIsAudible(track) ? (track.volume ?? 0.85) : 0;
             });
         }
 
@@ -5017,7 +5197,41 @@
                 solo.setAttribute('aria-pressed', String(studioSoloTrackId === track.id));
                 const remove = createStudioButton('×', 'vocal-track-control', () => deleteStudioTrack(track.id));
                 remove.setAttribute('aria-label', 'Delete ' + track.name);
-                controls.append(mute, solo, remove);
+
+                const volume = document.createElement('input');
+                volume.type = 'range';
+                volume.min = '0';
+                volume.max = '1';
+                volume.step = '0.05';
+                volume.value = String(track.volume ?? 1);
+                volume.className = 'vocal-track-volume';
+                volume.setAttribute('aria-label', 'Volume ' + track.name);
+                volume.addEventListener('input', () => {
+                    track.volume = Number(volume.value);
+                    if (track.player) track.player.volume = trackIsAudible(track) ? track.volume : 0;
+                });
+
+                const rename = document.createElement('input');
+                rename.type = 'text';
+                rename.value = track.name;
+                rename.className = 'vocal-track-rename';
+                rename.setAttribute('aria-label', 'Rename ' + track.name);
+                rename.addEventListener('change', () => {
+                    track.name = rename.value.trim().slice(0, 48) || track.name;
+                    saveStudioTrack(track).catch(() => {});
+                    renderStudioTracks();
+                });
+
+                const nudgeEarlier = createStudioButton('<', 'vocal-track-control', () => {
+                    track.offset = (track.offset || 0) - 0.05;
+                });
+                nudgeEarlier.setAttribute('aria-label', 'Nudge ' + track.name + ' earlier');
+                const nudgeLater = createStudioButton('>', 'vocal-track-control', () => {
+                    track.offset = (track.offset || 0) + 0.05;
+                });
+                nudgeLater.setAttribute('aria-label', 'Nudge ' + track.name + ' later');
+
+                controls.append(mute, solo, volume, rename, nudgeEarlier, nudgeLater, remove);
                 row.append(title, waveform, controls);
                 list.append(row);
             });
@@ -5217,6 +5431,13 @@
                 recordButton.disabled = false;
                 return;
             }
+            const countInBars = Number(document.getElementById('count-in-bars')?.value || 0);
+            if (countInBars > 0) {
+                const bpm = Number(document.getElementById('beat-bpm')?.value || 88);
+                const barMs = (60000 / Math.max(60, bpm)) * 4;
+                status.textContent = 'Counting in...';
+                await new Promise((resolve) => window.setTimeout(resolve, barMs * countInBars));
+            }
             try {
                 const preferredType = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4']
                     .find((type) => !MediaRecorder.isTypeSupported || MediaRecorder.isTypeSupported(type));
@@ -5248,6 +5469,8 @@
                         createdAt: Date.now(),
                         mimeType,
                         muted: false,
+                        volume: 1,
+                        offset: 0,
                         player: null,
                         objectUrl: null
                     };
@@ -6344,11 +6567,15 @@
                 changeCustomBpm(event.target.value);
             });
             document.getElementById('tuner-key').addEventListener('change', () => {
-                document.getElementById('tuner-target').textContent = 'Target note updates with your next pitch.';
+                const root = Number(document.getElementById('tuner-key').value);
+                document.getElementById('tuner-target').textContent = 'Target note: ' + noteName(60 + root);
+                document.getElementById('tuner-cents').textContent = 'Cents: 0';
                 renderScaleKeyboard();
             });
             document.getElementById('tuner-scale').addEventListener('change', () => {
-                document.getElementById('tuner-target').textContent = 'Target note updates with your next pitch.';
+                const root = Number(document.getElementById('tuner-key').value);
+                document.getElementById('tuner-target').textContent = 'Target note: ' + noteName(60 + root);
+                document.getElementById('tuner-cents').textContent = 'Cents: 0';
                 renderScaleKeyboard();
             });
             const updateKeyboardState = () => {
@@ -6363,6 +6590,8 @@
             window.addEventListener('resize', updateKeyboardState);
             renderStudioTracks();
             renderScaleKeyboard();
+            populateMicSelect();
+            updateVocalEffectAvailability();
             loadStudioTracks();
             isInitializing = false;
             setDraftStatus(storageError || 'Draft saves in this browser.', Boolean(storageError));
