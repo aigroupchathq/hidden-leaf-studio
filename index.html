@@ -2770,44 +2770,51 @@
         .rap-waveform { width: 100%; height: 96px; background: #111; border-radius: 0.5rem; margin: 0.75rem 0; }
         .vocal-track-volume { width: 5rem; }
         .vocal-track-rename { max-width: 8rem; }
+        #studio-splash { background: #000; color: #fff; }
+        .splash-stage { position: absolute; inset: 0; overflow: hidden; }
+        .splash-pulse { position: absolute; left: 50%; top: 50%; width: 12rem; height: 12rem; margin: -6rem 0 0 -6rem; border: 1px solid rgba(255,255,255,0.35); border-radius: 9999px; animation: splash-pulse 1.8s ease-out infinite; }
+        .splash-wave { position: absolute; left: 0; right: 0; bottom: 18%; height: 20%; opacity: 0.7; }
+        .splash-wave path { fill: none; stroke: #fff; stroke-width: 2; animation: splash-wave-move 4s ease-in-out infinite alternate; }
+        .splash-spectra { position: absolute; left: 0; right: 0; top: 20%; height: 20%; opacity: 0.45; }
+        .splash-spectra path { fill: none; stroke: #dc2626; stroke-width: 1.5; stroke-dasharray: 8 6; animation: splash-spectra-flow 6s linear infinite; }
+        .splash-copy { position: relative; z-index: 1; display: grid; gap: 0.75rem; place-items: center; min-height: 100vh; text-align: center; padding: 2rem; }
+        .splash-copy h1 { font-size: clamp(2rem, 8vw, 4rem); font-weight: 600; letter-spacing: 0.02em; }
+        .splash-copy p { color: #a3a3a3; }
+        .splash-enter, .splash-skip { padding: 0.6rem 1.2rem; border: 1px solid #fff; background: transparent; color: #fff; border-radius: 9999px; }
+        .splash-skip { border-color: #525252; color: #a3a3a3; }
+        .splash-note { max-width: 24rem; font-size: 0.75rem; color: #737373; }
+        @keyframes splash-pulse { 0% { transform: scale(0.85); opacity: 0.8; } 100% { transform: scale(1.35); opacity: 0; } }
+        @keyframes splash-wave-move { from { transform: translateX(-2%); } to { transform: translateX(2%); } }
+        @keyframes splash-spectra-flow { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -640; } }
+        @media (prefers-reduced-motion: reduce) {
+            .splash-pulse, .splash-wave path, .splash-spectra path { animation: none; }
+        }
     </style>
 </head>
 <body class="splash-open bg-onyx text-ivory font-sans min-h-screen flex flex-col justify-between p-4 sm:p-8 antialiased selection:bg-gold selection:text-onyx">
     <section id="studio-splash" role="dialog" aria-modal="true" aria-labelledby="splash-title" aria-describedby="splash-description">
-        <div class="splash-frame">
-            <div class="splash-top">
-                <div class="splash-brand">
-                    <span>Hidden Leaf</span>
-                    <span class="splash-brand-sub">WRITING STUDIO</span>
-                </div>
-            </div>
-            <div class="splash-main">
-                <div class="splash-copy">
-                    <p class="splash-eyebrow">Hindi-English rap writing</p>
-                    <h1 id="splash-title" class="splash-title">Hidden Leaf</h1>
-                    <p id="splash-description" class="splash-subtitle">Write in your voice. Find your note. Shape the beat.</p>
-                    <ul class="splash-value-list" aria-label="Studio tools">
-                        <li>Draft in Roman Hindi and English</li>
-                        <li>Find your pitch with in-key reference tones</li>
-                        <li>Record vocal layers and export a mix locally</li>
-                        <li>Edit a 16-step beat and shape your monitored voice</li>
-                        <li>Explore moving word and rhyme sparks</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="splash-bottom">
-                <button id="splash-enter" class="splash-enter" type="button" onclick="enterStudio()" autofocus>
-                    <span>Start writing</span>
-                </button>
-                <span class="splash-note">Drafts save in this browser.<br>Microphone and sound stay off until you choose them.</span>
-            </div>
+        <div class="splash-stage" aria-hidden="true">
+            <span class="splash-pulse"></span>
+            <svg class="splash-wave" viewBox="0 0 640 120" preserveAspectRatio="none">
+                <path d="M0 60 C 80 20, 160 100, 240 60 S 400 20, 480 60 S 560 100, 640 60" />
+            </svg>
+            <svg class="splash-spectra" viewBox="0 0 640 120" preserveAspectRatio="none">
+                <path d="M0 90 L 40 70 L 80 95 L 120 55 L 160 80 L 200 45 L 240 75 L 280 35 L 320 65 L 360 40 L 400 70 L 440 50 L 480 85 L 520 45 L 560 75 L 600 55 L 640 80" />
+            </svg>
+        </div>
+        <div class="splash-copy">
+            <h1 id="splash-title">Hidden Leaf Studio</h1>
+            <p id="splash-description">Write. Tune. Record.</p>
+            <button id="splash-enter" class="splash-enter" type="button" onclick="enterStudio()" autofocus>Start writing</button>
+            <button id="splash-skip" class="splash-skip" type="button" onclick="enterStudio()">Skip</button>
+            <p class="splash-note">Drafts save in this browser. Microphone and sound stay off until you choose them.</p>
         </div>
     </section>
     <header inert class="max-w-4xl w-full mx-auto flex flex-wrap items-center justify-between gap-y-3 border-b border-borderSubtle pb-4 shrink-0 sm:flex-nowrap">
         <div class="flex items-center gap-3">
             <div>
                 <span class="font-serif font-semibold text-xl tracking-wide text-leaf-paper">Hidden Leaf</span>
-                <span class="block text-[10px] font-mono text-zinc-500 uppercase tracking-widest">HINDI-ENGLISH RAP WRITING</span>
+                <span class="block text-[10px] font-mono text-zinc-500 uppercase tracking-widest">HIDDEN LEAF STUDIO</span>
             </div>
         </div>
 
@@ -2855,6 +2862,7 @@
                         <option value="mixed">Hindi-English mix</option>
                         <option value="roman-hindi">Roman Hindi/Urdu</option>
                         <option value="english">English</option>
+                        <option value="spanish">Spanish</option>
                     </select>
                     <label for="select-lens" class="mobile-screen-reader-label text-[10px] font-mono uppercase tracking-widest text-zinc-500">A question to write with</label>
                     <select id="select-lens" onchange="changeLens(this.value)" class="field-control max-w-xs rounded px-2.5 py-1.5 text-xs cursor-pointer">
@@ -5359,6 +5367,7 @@
         async function exportStudioMix() {
             const button = document.getElementById('btn-export-takes');
             const status = document.getElementById('recording-status');
+            if (!button || !status) return;
             const audibleTracks = studioTracks.filter(trackIsAudible);
             if (!audibleTracks.length) {
                 status.textContent = 'Record or unmute at least one take before exporting.';
@@ -5452,6 +5461,7 @@
                     status.textContent = 'Recording failed: ' + (event.error?.message || 'microphone data could not be captured.');
                 });
                 vocalRecorder.addEventListener('stop', async () => {
+                    if (!status) return;
                     const mimeType = vocalRecorder.mimeType || preferredType || 'audio/webm';
                     const blob = new Blob(vocalRecorderChunks, { type: mimeType });
                     vocalRecorderChunks = [];
@@ -5679,8 +5689,8 @@
                     currentLens = draft.lens;
                 }
                 const legacyModes = [draft.languageLine1, draft.languageLine2]
-                    .filter((mode) => ['mixed', 'roman-hindi', 'english'].includes(mode));
-                const languageMode = ['mixed', 'roman-hindi', 'english'].includes(draft.languageMode)
+                    .filter((mode) => ['mixed', 'roman-hindi', 'english', 'spanish'].includes(mode));
+                const languageMode = ['mixed', 'roman-hindi', 'english', 'spanish'].includes(draft.languageMode)
                     ? draft.languageMode
                     : legacyModes.length === 2 && legacyModes[0] === legacyModes[1]
                         ? legacyModes[0]
@@ -5776,12 +5786,16 @@
             const mode = getWritingLanguageMode();
             if (mode === 'english') return WORD_ATLAS.filter((entry) => entry.language === 'English');
             if (mode === 'roman-hindi') return WORD_ATLAS.filter((entry) => entry.language === 'Hindi / Urdu');
+            if (mode === 'spanish') {
+                const spanishEntries = WORD_ATLAS.filter((entry) => entry.language === 'Spanish');
+                return spanishEntries.length ? spanishEntries : WORD_ATLAS.filter((entry) => entry.language === 'English');
+            }
             return WORD_ATLAS;
         }
 
         function getConstellationsForMode() {
             const mode = getWritingLanguageMode();
-            return mode === 'english'
+            return mode === 'english' || mode === 'spanish'
                 ? ENGLISH_CONSTELLATIONS
                 : mode === 'roman-hindi'
                     ? CONSTELLATIONS
@@ -5793,34 +5807,40 @@
             const languageLabels = {
                 mixed: 'Hindi-English mix',
                 'roman-hindi': 'Roman Hindi/Urdu',
-                english: 'English'
+                english: 'English',
+                spanish: 'Spanish'
             };
             const atlasLanguage = {
                 mixed: 'Hindi-English mix',
                 'roman-hindi': 'Roman Hindi/Urdu',
-                english: 'English'
+                english: 'English',
+                spanish: 'Spanish'
             };
             document.getElementById('line-language-label-1').textContent = languageLabels[mode];
             document.getElementById('line-language-label-2').textContent = languageLabels[mode];
             document.getElementById('atlas-language').textContent = atlasLanguage[mode];
             document.getElementById('atlas-search').value = '';
-            document.getElementById('atlas-search').placeholder = mode === 'english'
+            document.getElementById('atlas-search').placeholder = mode === 'english' || mode === 'spanish'
                 ? 'Try: silence, ember, afterimage…'
                 : mode === 'roman-hindi'
                     ? 'Try: khamoshi, kainaat, safar…'
                     : 'Try: silence, khamoshi, kainaat…';
-            document.getElementById('atlas-search-label').textContent = mode === 'english'
-                ? 'Find an English word, meaning, or theme'
-                : mode === 'roman-hindi'
-                    ? 'Find a Roman Hindi/Urdu word, meaning, or theme'
-                    : 'Find a word, meaning, or transliteration';
+            document.getElementById('atlas-search-label').textContent = mode === 'spanish'
+                ? 'Find a Spanish or English word, meaning, or theme'
+                : mode === 'english'
+                    ? 'Find an English word, meaning, or theme'
+                    : mode === 'roman-hindi'
+                        ? 'Find a Roman Hindi/Urdu word, meaning, or theme'
+                        : 'Find a word, meaning, or transliteration';
             document.getElementById('atlas-search').setAttribute(
                 'aria-label',
-                mode === 'english'
-                    ? 'Search English words, meanings, and themes'
-                    : mode === 'roman-hindi'
-                        ? 'Search Roman Hindi or Urdu words, meanings, and themes'
-                        : 'Search words, meanings, and themes across both languages'
+                mode === 'spanish'
+                    ? 'Search Spanish or English words, meanings, and themes'
+                    : mode === 'english'
+                        ? 'Search English words, meanings, and themes'
+                        : mode === 'roman-hindi'
+                            ? 'Search Roman Hindi or Urdu words, meanings, and themes'
+                            : 'Search words, meanings, and themes across both languages'
             );
 
             if (activeWordId && !getAllowedAtlasEntries().some((entry) => entry.id === activeWordId)) {
@@ -6593,6 +6613,10 @@
             populateMicSelect();
             updateVocalEffectAvailability();
             loadStudioTracks();
+            window.setTimeout(() => {
+                const splash = document.getElementById('studio-splash');
+                if (splash && !splash.hidden && !splash.classList.contains('is-leaving')) enterStudio();
+            }, 8000);
             isInitializing = false;
             setDraftStatus(storageError || 'Draft saves in this browser.', Boolean(storageError));
         });
